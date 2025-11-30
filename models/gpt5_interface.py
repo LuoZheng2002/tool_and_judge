@@ -15,7 +15,13 @@ Key features:
 import json
 import re
 from typing import List, Dict, Any, Union, Optional
-from .base import JudgeModelInterface, ToolModelInterface, ModelBackend
+from .base import (
+    JudgeModelInterface,
+    ToolModelInterface,
+    ModelBackend,
+    ComparisonResult,
+    ForwardResult,
+)
 
 
 class GPT5Interface(JudgeModelInterface, ToolModelInterface):
@@ -56,185 +62,11 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         """Get the model name/identifier."""
         return self.model_variant
 
-    def build_prompt(
-        self,
-        user_query: str,
-        system_prompt: Optional[str] = None,
-        **kwargs
-    ) -> str:
-        """
-        Build a basic formatted prompt for GPT-5.
-
-        Note: GPT-5 uses messages format, not plain text prompts.
-        This method returns a JSON string with the messages structure.
-
-        Args:
-            user_query: User query string
-            system_prompt: Optional developer/system prompt
-            **kwargs: Additional parameters
-
-        Returns:
-            JSON string with messages structure
-        """
-        messages = []
-
-        # Add developer message if system prompt provided
-        if system_prompt:
-            messages.append({
-                "role": "developer",
-                "content": system_prompt
-            })
-
-        # Add user message
-        messages.append({
-            "role": "user",
-            "content": user_query
-        })
-
-        return json.dumps({"input": messages})
-
-    # =========================================================================
-    # JudgeModelInterface Methods
-    # =========================================================================
-
-    def get_system_message(self) -> str:
-        """Get the default system message for GPT-5 models."""
-        return "You are a helpful assistant."
-
-    def get_assistant_prefix(self) -> str:
-        """
-        Get the assistant prefix.
-
-        Note: This is not applicable for API models.
-        """
-        raise NotImplementedError(
-            "Assistant prefix is not applicable for API models like GPT-5"
-        )
-
-    def build_messages_for_perplexity_forward(
-        self,
-        tokenizer: Any,
-        question: str,
-        answer: str,
-        language: str
-    ) -> str:
-        """
-        Not supported for API models.
-
-        Perplexity calculation requires access to model logits,
-        which is not available through the API.
-        """
-        raise NotImplementedError(
-            "Perplexity calculation is not supported for API models like GPT-5. "
-            "This requires direct access to model logits which is not available through the API."
-        )
-
-    def build_messages_for_perplexity_generate(
-        self,
-        tokenizer: Any,
-        question: str,
-        language: str
-    ) -> str:
-        """
-        Not supported for API models.
-
-        Perplexity calculation requires access to model logits,
-        which is not available through the API.
-        """
-        raise NotImplementedError(
-            "Perplexity calculation is not supported for API models like GPT-5. "
-            "This requires direct access to model logits which is not available through the API."
-        )
-
-    def build_messages_for_compare_directly(
-        self,
-        tokenizer: Any,
-        question: str,
-        answer1: str,
-        answer2: str
-    ) -> str:
-        """
-        Build message structure for direct comparison.
-
-        Args:
-            tokenizer: Unused for API models (kept for interface compatibility)
-            question: The user's question
-            answer1: The first answer to compare
-            answer2: The second answer to compare
-
-        Returns:
-            JSON string with messages structure
-        """
-        prompt = f"""Given the following question and two answers, which answer is better?
-
-Question: {question}
-
-Answer 1: {answer1}
-Answer 2: {answer2}
-
-Provide your judgment IMMEDIATELY without reasoning or explanation. Provide your final decision in the following format:
-\\boxed{{X}} where X is either 1 or 2."""
-
-        messages = [
-            {
-                "role": "developer",
-                "content": "You are an expert judge. Provide only the final decision in the requested format."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-
-        return json.dumps({"input": messages})
-
-    def build_messages_for_compare_cot(
-        self,
-        tokenizer: Any,
-        question: str,
-        answer1: str,
-        answer2: str
-    ) -> str:
-        """
-        Build message structure for comparison with chain-of-thought reasoning.
-
-        Args:
-            tokenizer: Unused for API models (kept for interface compatibility)
-            question: The user's question
-            answer1: The first answer to compare
-            answer2: The second answer to compare
-
-        Returns:
-            JSON string with messages structure
-        """
-        prompt = f"""Given the following question and two answers, which answer is better?
-
-Question: {question}
-
-Answer 1: {answer1}
-Answer 2: {answer2}
-
-Please briefly explain your reasoning, and then provide your final decision in the following format:
-\\boxed{{X}} where X is either 1 or 2."""
-
-        messages = [
-            {
-                "role": "developer",
-                "content": "You are an expert judge. Think through your reasoning before providing the final decision."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ]
-
-        return json.dumps({"input": messages, "reasoning": {"summary": "auto"}})
-
     # =========================================================================
     # ToolModelInterface Methods
     # =========================================================================
 
-    def infer_with_functions(
+    async def generate_tool_call_async(
         self,
         backend: ModelBackend,
         functions: List[Dict[str, Any]],
@@ -245,9 +77,15 @@ Please briefly explain your reasoning, and then provide your final decision in t
         **kwargs
     ) -> str:
         """
-        Run inference with function definitions using GPT-5 API.
+        Generate tool/function calls from a user query using GPT-5 API.
 
-        Note: This method assumes backend is an OpenAI client with responses API.
+        This method:
+        1. Preprocesses functions (sanitization, schema fixing)
+        2. Builds developer + user messages
+        3. Calls OpenAI responses.create() API
+        4. Returns raw output as JSON string
+
+        Note: backend should be an OpenAI client with responses API.
 
         Args:
             backend: The backend (OpenAI client) to use for inference
@@ -256,13 +94,13 @@ Please briefly explain your reasoning, and then provide your final decision in t
             prompt_passing_in_english: Whether to request English parameter passing
             max_new_tokens: Maximum number of tokens to generate (unused for GPT-5)
             temperature: Sampling temperature (unused for GPT-5)
-            **kwargs: Additional parameters
+            **kwargs: Additional model-specific parameters
 
         Returns:
             Raw model output as JSON string
         """
-        # Convert functions to tools format
-        tools = self._convert_functions_to_tools(functions, prompt_passing_in_english)
+        # Preprocess functions (sanitization + schema fixes)
+        tools = self._preprocess_and_convert_to_tools(functions, prompt_passing_in_english)
 
         # Build developer message with strong instructions
         developer_message = {
@@ -301,16 +139,15 @@ Please briefly explain your reasoning, and then provide your final decision in t
         if tools:
             api_params["tools"] = tools
 
-        # Call the API through backend
-        # Note: backend should be an OpenAI client
+        # Call the API through backend (which should be an OpenAI client)
         client = backend
-        if hasattr(client, 'responses'):
-            response = client.responses.create(**api_params)
-        else:
+        if not hasattr(client, 'responses'):
             raise TypeError(
                 "Backend must be an OpenAI client with responses API. "
                 "Got: " + str(type(client))
             )
+
+        response = client.responses.create(**api_params)
 
         # Parse response
         model_responses = []
@@ -342,59 +179,40 @@ Please briefly explain your reasoning, and then provide your final decision in t
 
         return json.dumps({"function_calls": model_responses})
 
-    def build_prompt_with_functions(
+    def preprocess_functions(
         self,
         functions: List[Dict[str, Any]],
-        user_query: str,
-        prompt_passing_in_english: bool = True,
         **kwargs
-    ) -> str:
+    ) -> List[Dict[str, Any]]:
         """
-        Build a formatted prompt with function definitions.
+        Preprocess function definitions for GPT-5.
 
-        Note: For GPT-5, this returns a JSON string with the full API call structure.
+        This performs:
+        - Function name sanitization (alphanumeric + underscore/hyphen only)
+        - Schema fixing (dict->object, float->number)
+        - Stores name mappings for postprocessing
 
         Args:
             functions: List of function definitions
-            user_query: User query string
-            prompt_passing_in_english: Whether to request English parameter passing
-            **kwargs: Additional parameters
+            **kwargs: Additional parameters (e.g., prompt_passing_in_english)
 
         Returns:
-            JSON string with API call structure
+            Preprocessed function definitions in GPT-5 tools format
         """
-        tools = self._convert_functions_to_tools(functions, prompt_passing_in_english)
+        prompt_passing_in_english = kwargs.get('prompt_passing_in_english', True)
+        return self._preprocess_and_convert_to_tools(functions, prompt_passing_in_english)
 
-        developer_message = {
-            "role": "developer",
-            "content": (
-                "You are an expert in composing functions. You MUST use the provided tools "
-                "and MUST NOT answer directly."
-            )
-        }
-
-        input_messages = [
-            developer_message,
-            {"role": "user", "content": user_query}
-        ]
-
-        return json.dumps({
-            "input": input_messages,
-            "tools": tools,
-            "model": self.model_variant
-        })
-
-    def parse_function_calls(
+    def postprocess_tool_calls(
         self,
         raw_output: str,
         **kwargs
     ) -> Union[List[Dict[str, Dict[str, Any]]], str]:
         """
-        Parse raw output from GPT-5's structured response format.
+        Postprocess raw output from GPT-5's structured response format.
 
         Args:
             raw_output: Raw JSON string output from the model
-            **kwargs: Additional parsing parameters (e.g., name_mapper)
+            **kwargs: Additional postprocessing parameters (e.g., name_mapper)
 
         Returns:
             List of function call dictionaries in format: [{func_name: {arguments}}, ...]
@@ -454,8 +272,232 @@ Please briefly explain your reasoning, and then provide your final decision in t
             return f"Error parsing output: {str(e)}. Raw string: {raw_output}"
 
     # =========================================================================
+    # JudgeModelInterface Methods
+    # =========================================================================
+
+    async def compare_directly_async(
+        self,
+        backend: ModelBackend,
+        question: str,
+        answer1: str,
+        answer2: str,
+        **kwargs
+    ) -> ComparisonResult:
+        """
+        Compare two answers directly without reasoning.
+
+        This method:
+        1. Formats the comparison prompt
+        2. Calls OpenAI API to generate
+        3. Parses output to extract preference (1 or 2)
+
+        Args:
+            backend: The backend (OpenAI client) to use for inference
+            question: The question being answered
+            answer1: First answer to compare
+            answer2: Second answer to compare
+            **kwargs: Additional model-specific parameters
+
+        Returns:
+            ComparisonResult with preference (1 or 2)
+        """
+        # Build comparison prompt
+        prompt_text = f"""Given the following question and two answers, which answer is better?
+
+Question: {question}
+
+Answer 1: {answer1}
+Answer 2: {answer2}
+
+Provide your judgment IMMEDIATELY without reasoning or explanation. Provide your final decision in the following format:
+\\boxed{{X}} where X is either 1 or 2."""
+
+        messages = [
+            {
+                "role": "developer",
+                "content": "You are an expert judge. Provide only the final decision in the requested format."
+            },
+            {
+                "role": "user",
+                "content": prompt_text
+            }
+        ]
+
+        # Call API
+        client = backend
+        response = client.responses.create(
+            input=messages,
+            model=self.model_variant,
+            store=False
+        )
+
+        # Parse preference from output
+        raw_output = response.output_text
+        preference = self._parse_preference(raw_output)
+
+        return ComparisonResult(
+            preference=preference,
+            reasoning=None,
+            raw_output=raw_output
+        )
+
+    async def compare_thinking_async(
+        self,
+        backend: ModelBackend,
+        question: str,
+        answer1: str,
+        answer2: str,
+        **kwargs
+    ) -> ComparisonResult:
+        """
+        Compare two answers with chain-of-thought reasoning.
+
+        This method:
+        1. Formats the comparison prompt (encouraging reasoning)
+        2. Calls OpenAI API with reasoning enabled
+        3. Parses output to extract both reasoning and preference
+
+        Args:
+            backend: The backend (OpenAI client) to use for inference
+            question: The question being answered
+            answer1: First answer to compare
+            answer2: Second answer to compare
+            **kwargs: Additional model-specific parameters
+
+        Returns:
+            ComparisonResult with preference (1 or 2) and reasoning text
+        """
+        # Build comparison prompt with CoT instruction
+        prompt_text = f"""Given the following question and two answers, which answer is better?
+
+Question: {question}
+
+Answer 1: {answer1}
+Answer 2: {answer2}
+
+Please briefly explain your reasoning, and then provide your final decision in the following format:
+\\boxed{{X}} where X is either 1 or 2."""
+
+        messages = [
+            {
+                "role": "developer",
+                "content": "You are an expert judge. Think through your reasoning before providing the final decision."
+            },
+            {
+                "role": "user",
+                "content": prompt_text
+            }
+        ]
+
+        # Call API with reasoning enabled
+        client = backend
+        response = client.responses.create(
+            input=messages,
+            model=self.model_variant,
+            store=False,
+            reasoning={"summary": "auto"},
+            include=["reasoning.encrypted_content"]
+        )
+
+        # Extract reasoning from response
+        reasoning_text = ""
+        for item in response.output:
+            if item.type == "reasoning" and hasattr(item, 'summary') and item.summary:
+                for summary in item.summary:
+                    reasoning_text += summary.text + "\n"
+
+        # Parse preference from output
+        raw_output = response.output_text
+        preference = self._parse_preference(raw_output)
+
+        # If no reasoning from API, extract from output text
+        if not reasoning_text:
+            reasoning_text = self._extract_reasoning(raw_output)
+
+        return ComparisonResult(
+            preference=preference,
+            reasoning=reasoning_text if reasoning_text else None,
+            raw_output=raw_output
+        )
+
+    async def forward_for_logits_async(
+        self,
+        backend: ModelBackend,
+        question: str,
+        answer: str,
+        language: str = "English",
+        **kwargs
+    ) -> ForwardResult:
+        """
+        Not supported for API models.
+
+        Perplexity calculation requires access to model logits,
+        which is not available through the API.
+
+        Raises:
+            NotImplementedError: Always (API models don't provide logits)
+        """
+        raise NotImplementedError(
+            "Perplexity calculation (forward_for_logits) is not supported for API models like GPT-5. "
+            "This requires direct access to model logits which is not available through the API."
+        )
+
+    # =========================================================================
     # Helper Methods
     # =========================================================================
+
+    def _parse_preference(self, raw_output: str) -> int:
+        """
+        Parse preference from model output.
+
+        Looks for \\boxed{1} or \\boxed{2} in the output.
+
+        Args:
+            raw_output: Raw model output
+
+        Returns:
+            1 or 2 indicating preference
+
+        Raises:
+            ValueError: If preference cannot be parsed
+        """
+        # Look for \\boxed{1} or \\boxed{2}
+        match = re.search(r'\\boxed\{(\d+)\}', raw_output)
+        if match:
+            preference = int(match.group(1))
+            if preference in [1, 2]:
+                return preference
+
+        # Fallback: look for just "1" or "2" at end of output
+        output_stripped = raw_output.strip()
+        if output_stripped.endswith("1"):
+            return 1
+        elif output_stripped.endswith("2"):
+            return 2
+
+        raise ValueError(f"Could not parse preference from output: {raw_output}")
+
+    def _extract_reasoning(self, raw_output: str) -> Optional[str]:
+        """
+        Extract reasoning text from model output.
+
+        Gets the text before the final \\boxed{} decision.
+
+        Args:
+            raw_output: Raw model output
+
+        Returns:
+            Reasoning text, or None if not found
+        """
+        # Find the \\boxed{} part
+        match = re.search(r'\\boxed\{(\d+)\}', raw_output)
+        if match:
+            # Get text before the boxed part
+            reasoning = raw_output[:match.start()].strip()
+            if reasoning:
+                return reasoning
+
+        return None
 
     def _sanitize_function_name(self, name: str, existing_sanitized: set) -> str:
         """
@@ -583,13 +625,18 @@ Please briefly explain your reasoning, and then provide your final decision in t
 
         return fixed
 
-    def _convert_functions_to_tools(
+    def _preprocess_and_convert_to_tools(
         self,
         functions: List[Dict[str, Any]],
         prompt_passing_in_english: bool = True
     ) -> List[Dict[str, Any]]:
         """
-        Convert function definitions to GPT-5 tools format.
+        Preprocess and convert function definitions to GPT-5 tools format.
+
+        This performs:
+        - Function name sanitization
+        - Schema fixing
+        - Stores name mappings
 
         Args:
             functions: List of functions in BFCL format

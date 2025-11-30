@@ -2,7 +2,7 @@
 Unified Qwen3 interface for both tool and judge projects.
 
 This interface supports:
-- Tool project: Function calling with tool_call format
+- Tool project: Function calling with <tool_call> format
 - Judge project: Perplexity calculation and preference comparison
 
 Qwen3 models use ChatML format with:
@@ -12,8 +12,15 @@ Qwen3 models use ChatML format with:
 """
 
 import json
+import re
 from typing import List, Dict, Any, Union, Optional
-from .base import JudgeModelInterface, ToolModelInterface, ModelBackend
+from .base import (
+    JudgeModelInterface,
+    ToolModelInterface,
+    ModelBackend,
+    ComparisonResult,
+    ForwardResult,
+)
 
 
 class Qwen3Interface(JudgeModelInterface, ToolModelInterface):
@@ -46,218 +53,11 @@ class Qwen3Interface(JudgeModelInterface, ToolModelInterface):
         """Get the model name/identifier."""
         return self.model_name
 
-    def build_prompt(
-        self,
-        user_query: str,
-        system_prompt: Optional[str] = None,
-        **kwargs
-    ) -> str:
-        """
-        Build a basic formatted prompt for Qwen3.
-
-        Args:
-            user_query: User query string
-            system_prompt: Optional system prompt
-            **kwargs: Additional parameters
-
-        Returns:
-            Formatted prompt string
-        """
-        formatted = ""
-
-        # Add system message if provided
-        if system_prompt:
-            formatted += f"<|im_start|>system\n{system_prompt}<|im_end|>\n"
-
-        # Add user message
-        formatted += f"<|im_start|>user\n{user_query}<|im_end|>\n"
-
-        # Add generation prompt
-        formatted += "<|im_start|>assistant\n"
-
-        # Disable thinking by default unless enabled
-        if not self.enable_thinking:
-            formatted += "<think>\n\n</think>\n\n"
-
-        return formatted
-
-    # =========================================================================
-    # JudgeModelInterface Methods
-    # =========================================================================
-
-    def get_system_message(self) -> str:
-        """Get the default system message for Qwen3 models."""
-        # Not used in current implementation
-        raise NotImplementedError("System message is not used in current implementation.")
-
-    def get_assistant_prefix(self) -> str:
-        """Get the ChatML assistant prefix used by Qwen3 models."""
-        return "<|im_start|>assistant\n"
-
-    def build_messages_for_perplexity_forward(
-        self,
-        tokenizer: Any,
-        question: str,
-        answer: str,
-        language: str
-    ) -> str:
-        """
-        Build message structure for perplexity calculation (forward pass).
-
-        Args:
-            tokenizer: The model's tokenizer
-            question: The user's question
-            answer: The assistant's answer
-            language: Formal language name (e.g., "Chinese", "English")
-
-        Returns:
-            Formatted conversation string
-        """
-        # Build language-specific instructions
-        if language.lower() == "english":
-            instruction = "Please answer the question in English with a concise phrase instead of a complete sentence. Start with an uncapitalized first word."
-        else:
-            instruction = f"Please answer the question in {language} with a concise phrase instead of a complete sentence."
-
-        # Combine question with instruction
-        user_content = f"{question}\n\n{instruction}"
-
-        messages = [
-            {"role": "user", "content": user_content},
-            {"role": "assistant", "content": answer}
-        ]
-
-        return tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=False,
-            enable_thinking=False
-        )
-
-    def build_messages_for_perplexity_generate(
-        self,
-        tokenizer: Any,
-        question: str,
-        language: str
-    ) -> str:
-        """
-        Build message structure for answer generation.
-
-        Args:
-            tokenizer: The model's tokenizer
-            question: The user's question
-            language: Formal language name (e.g., "Chinese", "English")
-
-        Returns:
-            Formatted conversation string with generation prompt
-        """
-        # Build language-specific instructions
-        if language.lower() == "english":
-            instruction = "Please answer the question in English with a concise phrase instead of a complete sentence. Start with an uncapitalized first word."
-        else:
-            instruction = f"Please answer the question in {language} with a concise phrase instead of a complete sentence."
-
-        # Combine question with instruction
-        user_content = f"{question}\n\n{instruction}"
-
-        messages = [
-            {"role": "user", "content": user_content}
-        ]
-
-        return tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-            enable_thinking=False
-        )
-
-    def build_messages_for_compare_directly(
-        self,
-        tokenizer: Any,
-        question: str,
-        answer1: str,
-        answer2: str
-    ) -> str:
-        """
-        Build message structure for direct comparison.
-
-        Args:
-            tokenizer: The model's tokenizer
-            question: The user's question
-            answer1: The first answer to compare
-            answer2: The second answer to compare
-
-        Returns:
-            Formatted conversation string
-        """
-        prompt = f"""Given the following question and two answers, which answer is better?
-
-Question: {question}
-
-Answer 1: {answer1}
-Answer 2: {answer2}
-
-Provide your judgment IMMEDIATELY without reasoning or explanation. Provide your final decision in the following format:
-\\boxed{{X}} where X is either 1 or 2."""
-
-        messages = [
-            {"role": "user", "content": prompt}
-        ]
-
-        formatted = tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-            enable_thinking=False
-        )
-
-        return formatted
-
-    def build_messages_for_compare_cot(
-        self,
-        tokenizer: Any,
-        question: str,
-        answer1: str,
-        answer2: str
-    ) -> str:
-        """
-        Build message structure for comparison with chain-of-thought reasoning.
-
-        Args:
-            tokenizer: The model's tokenizer
-            question: The user's question
-            answer1: The first answer to compare
-            answer2: The second answer to compare
-
-        Returns:
-            Formatted conversation string
-        """
-        prompt = f"""Given the following question and two answers, which answer is better?
-
-Question: {question}
-
-Answer 1: {answer1}
-Answer 2: {answer2}
-
-Please briefly explain your reasoning, and then provide your final decision in the following format:
-\\boxed{{X}} where X is either 1 or 2."""
-
-        messages = [
-            {"role": "user", "content": prompt}
-        ]
-
-        return tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True,
-            enable_thinking=True
-        )
-
     # =========================================================================
     # ToolModelInterface Methods
     # =========================================================================
 
-    def infer_with_functions(
+    async def generate_tool_call_async(
         self,
         backend: ModelBackend,
         functions: List[Dict[str, Any]],
@@ -268,7 +68,13 @@ Please briefly explain your reasoning, and then provide your final decision in t
         **kwargs
     ) -> str:
         """
-        Run inference with function definitions.
+        Generate tool/function calls from a user query.
+
+        This method:
+        1. Builds system prompt with function definitions
+        2. Formats the full prompt with ChatML + <tools> section
+        3. Calls backend to generate
+        4. Returns raw output (with <tool_call> tags)
 
         Args:
             backend: The backend to use for inference
@@ -277,55 +83,27 @@ Please briefly explain your reasoning, and then provide your final decision in t
             prompt_passing_in_english: Whether to request English parameter passing
             max_new_tokens: Maximum number of tokens to generate
             temperature: Sampling temperature
-            **kwargs: Additional parameters
+            **kwargs: Additional model-specific parameters
 
         Returns:
             Raw model output as a string
         """
-        # Build prompt with functions
-        prompt = self.build_prompt_with_functions(
-            functions=functions,
-            user_query=user_query,
-            prompt_passing_in_english=prompt_passing_in_english,
-            **kwargs
+        # Build system prompt
+        passing_in_english_prompt = (
+            " IMPORTANT: Pass in all parameters in function calls in English."
+            if prompt_passing_in_english
+            else ""
         )
 
-        # Call backend
-        result = backend.generate(
-            prompt=prompt,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            **kwargs
-        )
+        system_prompt = f'''You are an expert in composing functions. You are given a question and a set of possible functions. Based on the question, you will need to make one or more function/tool calls to achieve the purpose. If none of the functions can be used, point it out. If the given question lacks the parameters required by the function, also point it out.
 
-        return result.generated_text
+You should ONLY return function calls in your response. You MUST NOT include any other text, explanations, or direct answers. If you decide to invoke any function(s), you MUST use the provided tools. Do NOT attempt to answer the question directly without using the available functions.{passing_in_english_prompt}
 
-    def build_prompt_with_functions(
-        self,
-        functions: List[Dict[str, Any]],
-        user_query: str,
-        prompt_passing_in_english: bool = True,
-        **kwargs
-    ) -> str:
-        """
-        Build a formatted prompt with function definitions for Qwen3.
+You should only return the function calls in your response, in JSON format as a list where each element has the format {{"name": "function_name", "arguments": {{param1: value1, param2: value2, ...}}}}.
 
-        Args:
-            functions: List of function definitions
-            user_query: User query string
-            prompt_passing_in_english: Whether to request English parameter passing
-            **kwargs: Additional parameters
+At each turn, you should try your best to complete the tasks requested by the user within the current turn. Continue to output functions to call until you have fulfilled the user's request to the best of your ability. Once you have no more functions to call, the system will consider the current turn complete and proceed to the next turn or task.'''
 
-        Returns:
-            Formatted prompt string
-        """
-        # Generate system prompt
-        system_prompt = self._generate_system_prompt(
-            functions=functions,
-            prompt_passing_in_english=prompt_passing_in_english
-        )
-
-        # Build full prompt with tools
+        # Build full prompt with tools section
         formatted_prompt = ""
 
         # Add system message with tools
@@ -358,15 +136,24 @@ Please briefly explain your reasoning, and then provide your final decision in t
         if not self.enable_thinking:
             formatted_prompt += "<think>\n\n</think>\n\n"
 
-        return formatted_prompt
+        # Call backend
+        result = await backend.generate_async(
+            prompt=formatted_prompt,
+            max_new_tokens=max_new_tokens,
+            temperature=temperature,
+            do_sample=(temperature > 0),
+            **kwargs
+        )
 
-    def parse_function_calls(
+        return result.generated_text
+
+    def postprocess_tool_calls(
         self,
         raw_output: str,
         **kwargs
     ) -> Union[List[Dict[str, Dict[str, Any]]], str]:
         """
-        Parse raw output from Qwen3 model to extract function calls.
+        Postprocess raw output from Qwen3 model to extract function calls.
 
         Qwen3 outputs in JSON format within <tool_call> tags:
         <tool_call>
@@ -434,34 +221,256 @@ Please briefly explain your reasoning, and then provide your final decision in t
         return extracted
 
     # =========================================================================
+    # JudgeModelInterface Methods
+    # =========================================================================
+
+    async def compare_directly_async(
+        self,
+        backend: ModelBackend,
+        question: str,
+        answer1: str,
+        answer2: str,
+        **kwargs
+    ) -> ComparisonResult:
+        """
+        Compare two answers directly without reasoning.
+
+        This method:
+        1. Formats the comparison prompt
+        2. Calls backend to generate
+        3. Parses output to extract preference (1 or 2)
+
+        Args:
+            backend: The backend to use for inference
+            question: The question being answered
+            answer1: First answer to compare
+            answer2: Second answer to compare
+            **kwargs: Additional model-specific parameters
+
+        Returns:
+            ComparisonResult with preference (1 or 2)
+        """
+        # Build comparison prompt
+        prompt_text = f"""Given the following question and two answers, which answer is better?
+
+Question: {question}
+
+Answer 1: {answer1}
+Answer 2: {answer2}
+
+Provide your judgment IMMEDIATELY without reasoning or explanation. Provide your final decision in the following format:
+\\boxed{{X}} where X is either 1 or 2."""
+
+        # Format with ChatML
+        formatted_prompt = f"<|im_start|>user\n{prompt_text}<|im_end|>\n"
+        formatted_prompt += "<|im_start|>assistant\n"
+
+        # Disable thinking for direct comparison
+        formatted_prompt += "<think>\n\n</think>\n\n"
+
+        # Call backend
+        result = await backend.generate_async(
+            prompt=formatted_prompt,
+            max_new_tokens=100,
+            temperature=0.0,
+            do_sample=False,
+            **kwargs
+        )
+
+        # Parse preference from output
+        raw_output = result.generated_text
+        preference = self._parse_preference(raw_output)
+
+        return ComparisonResult(
+            preference=preference,
+            reasoning=None,
+            raw_output=raw_output
+        )
+
+    async def compare_thinking_async(
+        self,
+        backend: ModelBackend,
+        question: str,
+        answer1: str,
+        answer2: str,
+        **kwargs
+    ) -> ComparisonResult:
+        """
+        Compare two answers with chain-of-thought reasoning.
+
+        This method:
+        1. Formats the comparison prompt (encouraging reasoning)
+        2. Calls backend with thinking enabled
+        3. Parses output to extract reasoning and preference
+
+        Args:
+            backend: The backend to use for inference
+            question: The question being answered
+            answer1: First answer to compare
+            answer2: Second answer to compare
+            **kwargs: Additional model-specific parameters
+
+        Returns:
+            ComparisonResult with preference (1 or 2) and reasoning text
+        """
+        # Build comparison prompt with CoT instruction
+        prompt_text = f"""Given the following question and two answers, which answer is better?
+
+Question: {question}
+
+Answer 1: {answer1}
+Answer 2: {answer2}
+
+Please briefly explain your reasoning, and then provide your final decision in the following format:
+\\boxed{{X}} where X is either 1 or 2."""
+
+        # Format with ChatML (thinking enabled)
+        formatted_prompt = f"<|im_start|>user\n{prompt_text}<|im_end|>\n"
+        formatted_prompt += "<|im_start|>assistant\n"
+
+        # Don't add empty <think> tags - let model use them if it wants
+        # (or it will reason in regular text)
+
+        # Call backend
+        result = await backend.generate_async(
+            prompt=formatted_prompt,
+            max_new_tokens=512,
+            temperature=0.0,
+            do_sample=False,
+            **kwargs
+        )
+
+        # Parse preference and extract reasoning
+        raw_output = result.generated_text
+        preference = self._parse_preference(raw_output)
+
+        # Extract reasoning (text before the final \\boxed{} decision)
+        reasoning = self._extract_reasoning(raw_output)
+
+        return ComparisonResult(
+            preference=preference,
+            reasoning=reasoning,
+            raw_output=raw_output
+        )
+
+    async def forward_for_logits_async(
+        self,
+        backend: ModelBackend,
+        question: str,
+        answer: str,
+        language: str = "English",
+        **kwargs
+    ) -> ForwardResult:
+        """
+        Run forward pass to get logits for perplexity calculation.
+
+        This method:
+        1. Gets tokenizer from backend
+        2. Formats the prompt with question and answer
+        3. Applies chat template using tokenizer
+        4. Calls backend.forward_async to get logits
+
+        Args:
+            backend: The backend to use for inference
+            question: The question
+            answer: The answer to calculate perplexity for
+            language: Language name (e.g., "English", "Chinese")
+            **kwargs: Additional model-specific parameters
+
+        Returns:
+            ForwardResult containing logits and input_ids
+        """
+        # Get tokenizer from backend
+        tokenizer = backend.get_tokenizer()
+
+        # Build language-specific instructions
+        if language.lower() == "english":
+            instruction = "Please answer the question in English with a concise phrase instead of a complete sentence. Start with an uncapitalized first word."
+        else:
+            instruction = f"Please answer the question in {language} with a concise phrase instead of a complete sentence."
+
+        # Combine question with instruction
+        user_content = f"{question}\n\n{instruction}"
+
+        # Build messages
+        messages = [
+            {"role": "user", "content": user_content},
+            {"role": "assistant", "content": answer}
+        ]
+
+        # Apply chat template
+        formatted_prompt = tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=False,
+            enable_thinking=False
+        )
+
+        # Call backend for forward pass
+        result = await backend.forward_async(
+            prompt=formatted_prompt,
+            max_length=2048,
+            **kwargs
+        )
+
+        return result
+
+    def get_assistant_prefix(self) -> str:
+        """Get the ChatML assistant prefix used by Qwen3 models."""
+        return "<|im_start|>assistant\n"
+
+    # =========================================================================
     # Helper Methods
     # =========================================================================
 
-    def _generate_system_prompt(
-        self,
-        functions: List[Dict[str, Any]],
-        prompt_passing_in_english: bool = True
-    ) -> str:
+    def _parse_preference(self, raw_output: str) -> int:
         """
-        Generate system prompt for Qwen3 model based on available functions.
+        Parse preference from model output.
+
+        Looks for \\boxed{1} or \\boxed{2} in the output.
 
         Args:
-            functions: List of available function definitions
-            prompt_passing_in_english: Whether to request English parameter passing
+            raw_output: Raw model output
 
         Returns:
-            System prompt as a string
+            1 or 2 indicating preference
+
+        Raises:
+            ValueError: If preference cannot be parsed
         """
-        passing_in_english_prompt = (
-            " IMPORTANT: Pass in all parameters in function calls in English."
-            if prompt_passing_in_english
-            else ""
-        )
+        # Look for \\boxed{1} or \\boxed{2}
+        match = re.search(r'\\boxed\{(\d+)\}', raw_output)
+        if match:
+            preference = int(match.group(1))
+            if preference in [1, 2]:
+                return preference
 
-        return f'''You are an expert in composing functions. You are given a question and a set of possible functions. Based on the question, you will need to make one or more function/tool calls to achieve the purpose. If none of the functions can be used, point it out. If the given question lacks the parameters required by the function, also point it out.
+        # Fallback: look for just "1" or "2" at end of output
+        if raw_output.strip().endswith("1"):
+            return 1
+        elif raw_output.strip().endswith("2"):
+            return 2
 
-You should ONLY return function calls in your response. You MUST NOT include any other text, explanations, or direct answers. If you decide to invoke any function(s), you MUST use the provided tools. Do NOT attempt to answer the question directly without using the available functions.{passing_in_english_prompt}
+        raise ValueError(f"Could not parse preference from output: {raw_output}")
 
-You should only return the function calls in your response, in JSON format as a list where each element has the format {{"name": "function_name", "arguments": {{param1: value1, param2: value2, ...}}}}.
+    def _extract_reasoning(self, raw_output: str) -> Optional[str]:
+        """
+        Extract reasoning text from model output.
 
-At each turn, you should try your best to complete the tasks requested by the user within the current turn. Continue to output functions to call until you have fulfilled the user's request to the best of your ability. Once you have no more functions to call, the system will consider the current turn complete and proceed to the next turn or task.'''
+        Gets the text before the final \\boxed{} decision.
+
+        Args:
+            raw_output: Raw model output
+
+        Returns:
+            Reasoning text, or None if not found
+        """
+        # Find the \\boxed{} part
+        match = re.search(r'\\boxed\{(\d+)\}', raw_output)
+        if match:
+            # Get text before the boxed part
+            reasoning = raw_output[:match.start()].strip()
+            if reasoning:
+                return reasoning
+
+        return None
