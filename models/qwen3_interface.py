@@ -13,7 +13,7 @@ Qwen3 models use ChatML format with:
 
 import json
 import re
-from typing import List, Dict, Any, Union, Optional
+from typing import List, Dict, Any, Union, Optional, TYPE_CHECKING
 from .base import (
     JudgeModelInterface,
     ToolModelInterface,
@@ -21,6 +21,9 @@ from .base import (
     ComparisonResult,
     ForwardResult,
 )
+
+if TYPE_CHECKING:
+    from .name_mapping import FunctionNameMapper
 
 
 class Qwen3Interface(JudgeModelInterface, ToolModelInterface):
@@ -150,7 +153,7 @@ At each turn, you should try your best to complete the tasks requested by the us
     def postprocess_tool_calls(
         self,
         raw_output: str,
-        **kwargs
+        name_mapper: Optional['FunctionNameMapper'] = None
     ) -> Union[List[Dict[str, Dict[str, Any]]], str]:
         """
         Postprocess raw output from Qwen3 model to extract function calls.
@@ -160,9 +163,11 @@ At each turn, you should try your best to complete the tasks requested by the us
         {"name": "function_name", "arguments": {"param1": value1, ...}}
         </tool_call>
 
+        Note: Qwen3 doesn't require name sanitization, so name_mapper is unused.
+
         Args:
             raw_output: Raw string output from the model
-            **kwargs: Additional parsing parameters
+            name_mapper: Unused for Qwen3 (no name sanitization needed)
 
         Returns:
             List of function call dictionaries in format: [{func_name: {arguments}}, ...]

@@ -53,6 +53,11 @@ from .model_factory import (
     BackendCache,
 )
 
+from .name_mapping import (
+    FunctionNameMapper,
+    get_global_name_mapper,
+)
+
 # Import model-specific interfaces
 from .qwen3_interface import Qwen3Interface
 from .gpt5_interface import GPT5Interface
@@ -77,6 +82,10 @@ __all__ = [
     # Configuration and cache
     'BackendConfig',
     'BackendCache',
+
+    # Name mapping
+    'FunctionNameMapper',
+    'get_global_name_mapper',
 
     # Model-specific interfaces
     'Qwen3Interface',

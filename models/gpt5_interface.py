@@ -14,7 +14,7 @@ Key features:
 
 import json
 import re
-from typing import List, Dict, Any, Union, Optional
+from typing import List, Dict, Any, Union, Optional, TYPE_CHECKING
 from .base import (
     JudgeModelInterface,
     ToolModelInterface,
@@ -22,6 +22,9 @@ from .base import (
     ComparisonResult,
     ForwardResult,
 )
+
+if TYPE_CHECKING:
+    from .name_mapping import FunctionNameMapper
 
 
 class GPT5Interface(JudgeModelInterface, ToolModelInterface):
@@ -49,10 +52,6 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
 
         self.model_variant = model_variant
         self.use_strict_mode = use_strict_mode
-
-        # Name mappings for function name sanitization
-        self.name_mapping = {}  # sanitized_name -> original_name
-        self.reverse_mapping = {}  # original_name -> sanitized_name
 
     # =========================================================================
     # ModelInterface Methods
@@ -100,7 +99,9 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
             Raw model output as JSON string
         """
         # Preprocess functions (sanitization + schema fixes)
-        tools = self._preprocess_and_convert_to_tools(functions, prompt_passing_in_english)
+        # Note: name_mapper should be passed in kwargs if needed, or create one here
+        name_mapper = kwargs.get('name_mapper')
+        tools = self._preprocess_and_convert_to_tools(functions, prompt_passing_in_english, name_mapper)
 
         # Build developer message with strong instructions
         developer_message = {
@@ -182,7 +183,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
     def preprocess_functions(
         self,
         functions: List[Dict[str, Any]],
-        **kwargs
+        name_mapper: Optional['FunctionNameMapper'] = None
     ) -> List[Dict[str, Any]]:
         """
         Preprocess function definitions for GPT-5.
@@ -190,29 +191,28 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         This performs:
         - Function name sanitization (alphanumeric + underscore/hyphen only)
         - Schema fixing (dict->object, float->number)
-        - Stores name mappings for postprocessing
+        - Registers name mappings to external name_mapper
 
         Args:
             functions: List of function definitions
-            **kwargs: Additional parameters (e.g., prompt_passing_in_english)
+            name_mapper: External name mapper to register sanitized->original mappings
 
         Returns:
             Preprocessed function definitions in GPT-5 tools format
         """
-        prompt_passing_in_english = kwargs.get('prompt_passing_in_english', True)
-        return self._preprocess_and_convert_to_tools(functions, prompt_passing_in_english)
+        return self._preprocess_and_convert_to_tools(functions, prompt_passing_in_english=True, name_mapper=name_mapper)
 
     def postprocess_tool_calls(
         self,
         raw_output: str,
-        **kwargs
+        name_mapper: Optional['FunctionNameMapper'] = None
     ) -> Union[List[Dict[str, Dict[str, Any]]], str]:
         """
         Postprocess raw output from GPT-5's structured response format.
 
         Args:
             raw_output: Raw JSON string output from the model
-            **kwargs: Additional postprocessing parameters (e.g., name_mapper)
+            name_mapper: External name mapper to convert sanitized names back to original
 
         Returns:
             List of function call dictionaries in format: [{func_name: {arguments}}, ...]
@@ -245,12 +245,12 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
                                 pass
 
                         if sanitized_name:
-                            # Convert sanitized name back to original
-                            name_mapper = kwargs.get('name_mapper')
+                            # Convert sanitized name back to original using external name_mapper
                             if name_mapper:
                                 original_name = name_mapper.get_original_name(sanitized_name)
                             else:
-                                original_name = self.name_mapping.get(sanitized_name, sanitized_name)
+                                # Fallback: if no name_mapper, assume no sanitization was done
+                                original_name = sanitized_name
 
                             # Convert to standard format
                             extracted.append({original_name: arguments})
@@ -499,34 +499,6 @@ Please briefly explain your reasoning, and then provide your final decision in t
 
         return None
 
-    def _sanitize_function_name(self, name: str, existing_sanitized: set) -> str:
-        """
-        Sanitize function name to match GPT-5's requirements.
-
-        GPT-5 requires function names to match: ^[a-zA-Z0-9_-]+$
-
-        Args:
-            name: Original function name
-            existing_sanitized: Set of already-used sanitized names
-
-        Returns:
-            Sanitized function name
-        """
-        # Replace dots with underscores
-        sanitized = name.replace(".", "_")
-        # Replace any other invalid characters
-        sanitized = re.sub(r'[^a-zA-Z0-9_-]', '_', sanitized)
-
-        # Handle collisions
-        if sanitized in existing_sanitized:
-            counter = 1
-            base_sanitized = sanitized
-            while f"{base_sanitized}_{counter}" in existing_sanitized:
-                counter += 1
-            sanitized = f"{base_sanitized}_{counter}"
-
-        return sanitized
-
     def _fix_schema_basic(self, schema: Dict[str, Any]) -> Dict[str, Any]:
         """
         Apply basic schema fixes for non-strict mode.
@@ -628,41 +600,38 @@ Please briefly explain your reasoning, and then provide your final decision in t
     def _preprocess_and_convert_to_tools(
         self,
         functions: List[Dict[str, Any]],
-        prompt_passing_in_english: bool = True
+        prompt_passing_in_english: bool = True,
+        name_mapper: Optional['FunctionNameMapper'] = None
     ) -> List[Dict[str, Any]]:
         """
         Preprocess and convert function definitions to GPT-5 tools format.
 
         This performs:
-        - Function name sanitization
+        - Function name sanitization (via name_mapper.get_sanitized_name())
         - Schema fixing
-        - Stores name mappings
+        - Automatic caching of name mappings in name_mapper
 
         Args:
             functions: List of functions in BFCL format
             prompt_passing_in_english: Whether to add English parameter instruction
+            name_mapper: FunctionNameMapper instance (automatically caches mappings)
 
         Returns:
             List of tools in GPT-5 format
         """
         tools = []
-        # Clear mappings
-        self.name_mapping = {}
-        self.reverse_mapping = {}
-        existing_sanitized = set()
 
         for func in functions:
             original_name = func.get("name")
             func_description = func.get("description", "")
             func_parameters = func.get("parameters", {})
 
-            # Sanitize function name
-            sanitized_name = self._sanitize_function_name(original_name, existing_sanitized)
-            existing_sanitized.add(sanitized_name)
-
-            # Store mapping
-            self.name_mapping[sanitized_name] = original_name
-            self.reverse_mapping[original_name] = sanitized_name
+            # Sanitize function name using name_mapper (automatically caches)
+            if name_mapper:
+                sanitized_name = name_mapper.get_sanitized_name(original_name)
+            else:
+                # Fallback: no sanitization if no mapper provided
+                sanitized_name = original_name
 
             # Add English parameter instruction
             if prompt_passing_in_english and func_description:

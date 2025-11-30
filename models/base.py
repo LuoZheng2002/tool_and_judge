@@ -14,9 +14,12 @@ Key Design Principles:
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict, Any, Optional, Tuple, Union, TYPE_CHECKING
 from dataclasses import dataclass
 import asyncio
+
+if TYPE_CHECKING:
+    from .name_mapping import FunctionNameMapper
 
 
 # =============================================================================
@@ -325,7 +328,7 @@ class ToolModelInterface(ModelInterface):
     def preprocess_functions(
         self,
         functions: List[Dict[str, Any]],
-        **kwargs
+        name_mapper: Optional['FunctionNameMapper'] = None
     ) -> List[Dict[str, Any]]:
         """
         Preprocess function definitions before passing to model.
@@ -334,13 +337,14 @@ class ToolModelInterface(ModelInterface):
         - Sanitize function names (e.g., GPT-5 requires alphanumeric)
         - Fix JSON schemas (e.g., convert "dict" to "object")
         - Add prompt instructions
-        - Store name mappings for postprocessing
+        - Use name_mapper.get_sanitized_name() to sanitize and cache mappings
 
         Default implementation returns functions unchanged.
 
         Args:
             functions: List of function definitions
-            **kwargs: Additional preprocessing parameters
+            name_mapper: FunctionNameMapper instance for sanitizing names
+                        (automatically caches mappings on get_sanitized_name() calls)
 
         Returns:
             Preprocessed function definitions
@@ -351,7 +355,7 @@ class ToolModelInterface(ModelInterface):
     def postprocess_tool_calls(
         self,
         raw_output: str,
-        **kwargs
+        name_mapper: Optional['FunctionNameMapper'] = None
     ) -> Union[List[Dict[str, Dict[str, Any]]], str]:
         """
         Postprocess raw model output to extract function calls.
@@ -361,7 +365,8 @@ class ToolModelInterface(ModelInterface):
 
         Args:
             raw_output: Raw string output from the model
-            **kwargs: Additional postprocessing parameters (e.g., name_mapper)
+            name_mapper: FunctionNameMapper instance to convert sanitized names back
+                        to original using get_original_name()
 
         Returns:
             List of function call dictionaries in format:
@@ -379,8 +384,10 @@ class ToolModelInterface(ModelInterface):
             For error cases, returns a string describing the error.
 
         Examples:
+            >>> from models.name_mapping import FunctionNameMapper
+            >>> name_mapper = FunctionNameMapper()
             >>> raw_output = '<tool_call>{"name": "get_weather", "arguments": {"location": "Paris"}}</tool_call>'
-            >>> interface.postprocess_tool_calls(raw_output)
+            >>> interface.postprocess_tool_calls(raw_output, name_mapper)
             [{"get_weather": {"location": "Paris"}}]
         """
         pass
