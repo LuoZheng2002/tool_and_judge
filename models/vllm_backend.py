@@ -180,7 +180,13 @@ class VLLMBackend(ModelBackend):
 
     async def shutdown(self):
         """Cleanup resources and shutdown the backend."""
-        # vLLM engine cleanup
-        # The AsyncLLMEngine should be properly garbage collected
-        # Additional cleanup can be added here if needed
-        pass
+        # Properly shutdown the vLLM engine
+        if hasattr(self, 'engine') and self.engine is not None:
+            try:
+                # Shutdown the engine and wait for cleanup
+                await self.engine.shutdown()
+                print("vLLM engine shutdown completed")
+            except Exception as e:
+                print(f"Warning: Error during vLLM engine shutdown: {e}")
+            finally:
+                self.engine = None

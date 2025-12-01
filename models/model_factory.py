@@ -94,6 +94,35 @@ class BackendCache:
             current_key = self._current_config.get_cache_key()
 
             if current_key == cache_key:
+                # For vLLM backends, check if the event loop has changed
+                if config.backend_type == "vllm":
+                    try:
+                        import asyncio
+                        # Try to get the current running loop
+                        try:
+                            current_loop = asyncio.get_running_loop()
+                            # Check if backend's engine is still alive in this loop
+                            # If we're in a different loop, recreate the backend
+                            if not hasattr(self, '_current_loop_id') or self._current_loop_id != id(current_loop):
+                                print(f"Event loop changed, recreating vLLM backend: {cache_key}")
+                                self._cleanup_current_backend()
+                                self._current_backend = creator_func(config)
+                                self._current_config = config
+                                self._current_loop_id = id(current_loop)
+                                return self._current_backend
+                        except RuntimeError:
+                            # No running loop - backend was created outside async context
+                            # Force recreation if we had a previous loop
+                            if hasattr(self, '_current_loop_id'):
+                                print(f"No active event loop, recreating vLLM backend: {cache_key}")
+                                self._cleanup_current_backend()
+                                self._current_backend = creator_func(config)
+                                self._current_config = config
+                                delattr(self, '_current_loop_id')
+                                return self._current_backend
+                    except ImportError:
+                        pass
+
                 print(f"Reusing cached backend: {cache_key}")
                 return self._current_backend
 
@@ -105,6 +134,20 @@ class BackendCache:
         print(f"Creating new backend: {cache_key}")
         self._current_backend = creator_func(config)
         self._current_config = config
+
+        # Track event loop for vLLM backends
+        if config.backend_type == "vllm":
+            try:
+                import asyncio
+                try:
+                    current_loop = asyncio.get_running_loop()
+                    self._current_loop_id = id(current_loop)
+                except RuntimeError:
+                    # No running loop yet
+                    if hasattr(self, '_current_loop_id'):
+                        delattr(self, '_current_loop_id')
+            except ImportError:
+                pass
 
         return self._current_backend
 

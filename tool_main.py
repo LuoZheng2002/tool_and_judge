@@ -259,6 +259,35 @@ _global_backend = None  # Only relevant for local models (vLLM vs HuggingFace)
 
 
 
+def get_or_create_backend(model: Model, num_gpus: int = 1, max_model_len: int = 2000):
+    """
+    Get or create a backend for the given model.
+
+    Args:
+        model: ApiModel or LocalModel enum value
+        num_gpus: Number of GPUs to use
+        max_model_len: Maximum model length
+
+    Returns:
+        The backend for the given model
+    """
+    model_name = model.value
+    if isinstance(model, ApiModel):
+        backend_type = "api"
+    elif isinstance(model, LocalModel):
+        backend_type = "vllm" if USE_VLLM_BACKEND else "huggingface"
+    else:
+        raise ValueError(f"Unsupported model type: {type(model)}")
+
+    return create_backend(
+        backend_type=backend_type,
+        model_name=model_name,
+        device="cuda",
+        num_gpus=num_gpus,
+        max_model_len=max_model_len
+    )
+
+
 def get_or_create_model_interface(model: Model):
     """
     Get or create a model interface for the given model using the new unified factory.
@@ -284,106 +313,107 @@ post_processing_cache_stats_different = {'hits': 0, 'misses': 0}
 post_processing_cache_stats_same = {'hits': 0, 'misses': 0}
 
 
-
-for config in configs:
-    print(f"Processing config: {config}", flush=True)   
+async def process_all_configs():
+    """Process all configs within a single event loop to allow backend reuse."""
+    for config in configs:
+        print(f"Processing config: {config}", flush=True)
     
-    post_process_option = PostProcessOption.DONT_POST_PROCESS
-    prompt_translate = False
-    # map translate_info to language_postfix, translate_dataset_prefix, translate_mode_prefix
-    match config.translate_mode:
-        case Translated(language, option):
-            match language:
-                case Language.CHINESE:
-                    language_postfix = "_zh"
-                case Language.HINDI:
-                    language_postfix = "_hi"
-            match option:
-                case TranslateOption.FULLY_TRANSLATED:
-                    translate_dataset_postfix = "_full"
-                    translate_mode_postfix = "_f" # fully translated, default
-                    translate_postfix = "_f" # fully translated, do not prompt translate
-                case TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE:
-                    translate_dataset_postfix = "_full"
-                    translate_mode_postfix = "_pt"  # prompt translate
-                    translate_postfix = "_fp" # fully translated, prompt translate
-                    prompt_translate = True
-                case TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT:
-                    translate_dataset_postfix = "_full"
-                    translate_mode_postfix = "_ppd"  # post-process different
-                    translate_postfix = "_f" # fully translated, do not prompt translate
-                    post_process_option = PostProcessOption.POST_PROCESS_DIFFERENT
-                case TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME:
-                    translate_dataset_postfix = "_full"
-                    translate_mode_postfix = "_pps"  # post-process same
-                    translate_postfix = "_f" # fully translated, do not prompt translate
-                    post_process_option = PostProcessOption.POST_PROCESS_SAME
-                case TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME:
-                    translate_dataset_postfix = "_full"
-                    translate_mode_postfix = "_ptps"  # prompt translate + post-process same
-                    translate_postfix = "_fp" # fully translated, prompt translate
-                    post_process_option = PostProcessOption.POST_PROCESS_SAME
-                case TranslateOption.PARTIALLY_TRANSLATED:
-                    translate_dataset_postfix = "_partial"
-                    translate_mode_postfix = "_par" # partial
-                    translate_postfix = "_par" # partially translated, do not prompt translate    
-                case _:
-                    raise ValueError(f"Unsupported translate option: {option}")
-        case NotTranslated():
-            language_postfix = ""
-            translate_dataset_postfix = ""
-            translate_mode_postfix = ""
-            translate_postfix = ""
-    match config.add_noise_mode:
-        case AddNoiseMode.NO_NOISE:
-            noise_postfix = ""
-        case AddNoiseMode.SYNONYM:
-            noise_postfix = "_syno"
-        case AddNoiseMode.PARAPHRASE:
-            noise_postfix = "_para"
-        case _:
-            raise ValueError(f"Unsupported add noise mode: {config.add_noise_mode}")
-    
-
-    # Get model directory name from enum value
-    model_dir_name = get_model_directory_name(config.model)
-
-    # Construct filenames based on configuration
-    inference_filename = get_result_filename(language_postfix, translate_postfix, noise_postfix)
-    processing_filename = get_result_filename(language_postfix, translate_mode_postfix, noise_postfix)
-
-    dataset_path = f"tool/dataset/BFCL_v4_multiple{language_postfix}{translate_dataset_postfix}{noise_postfix}.json"
-    ground_truth_path = f"tool/dataset/possible_answer/BFCL_v4_multiple.json"
-    inference_raw_result_path = f"tool/result/inference_raw/{model_dir_name}/{inference_filename}"
-    inference_json_result_path = f"tool/result/inference_json/{model_dir_name}/{inference_filename}"
-    post_processing_result_path = f"tool/result/post_processing/{model_dir_name}/{processing_filename}"
-    evaluation_result_path = f"tool/result/evaluation/{model_dir_name}/{processing_filename}"
-    score_path = f"tool/result/score/{model_dir_name}/{processing_filename}"
-
-    test_cases, _ = load_json_lines_from_file(dataset_path)
-    ground_truths, _ = load_json_lines_from_file(ground_truth_path)
-
-    if requires_inference_raw:
-        try:
-            inference_raw_results, existing_inference_ids = load_json_lines_from_file(inference_raw_result_path)
-            # Filter out entries with error results
-            inference_raw_results = [
-                entry for entry in inference_raw_results
-                if not (isinstance(entry.get("result"), str) and "Error: An error occurred" in entry.get("result", ""))
-            ]
-            existing_inference_ids = {entry["id"] for entry in inference_raw_results}
-        except FileNotFoundError:
-            print(f"File {inference_raw_result_path} not found. It will be created.")
-            inference_raw_results = []
-            existing_inference_ids = set()
+        post_process_option = PostProcessOption.DONT_POST_PROCESS
+        prompt_translate = False
+        # map translate_info to language_postfix, translate_dataset_prefix, translate_mode_prefix
+        match config.translate_mode:
+            case Translated(language, option):
+                match language:
+                    case Language.CHINESE:
+                        language_postfix = "_zh"
+                    case Language.HINDI:
+                        language_postfix = "_hi"
+                match option:
+                    case TranslateOption.FULLY_TRANSLATED:
+                        translate_dataset_postfix = "_full"
+                        translate_mode_postfix = "_f" # fully translated, default
+                        translate_postfix = "_f" # fully translated, do not prompt translate
+                    case TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE:
+                        translate_dataset_postfix = "_full"
+                        translate_mode_postfix = "_pt"  # prompt translate
+                        translate_postfix = "_fp" # fully translated, prompt translate
+                        prompt_translate = True
+                    case TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT:
+                        translate_dataset_postfix = "_full"
+                        translate_mode_postfix = "_ppd"  # post-process different
+                        translate_postfix = "_f" # fully translated, do not prompt translate
+                        post_process_option = PostProcessOption.POST_PROCESS_DIFFERENT
+                    case TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME:
+                        translate_dataset_postfix = "_full"
+                        translate_mode_postfix = "_pps"  # post-process same
+                        translate_postfix = "_f" # fully translated, do not prompt translate
+                        post_process_option = PostProcessOption.POST_PROCESS_SAME
+                    case TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME:
+                        translate_dataset_postfix = "_full"
+                        translate_mode_postfix = "_ptps"  # prompt translate + post-process same
+                        translate_postfix = "_fp" # fully translated, prompt translate
+                        post_process_option = PostProcessOption.POST_PROCESS_SAME
+                    case TranslateOption.PARTIALLY_TRANSLATED:
+                        translate_dataset_postfix = "_partial"
+                        translate_mode_postfix = "_par" # partial
+                        translate_postfix = "_par" # partially translated, do not prompt translate
+                    case _:
+                        raise ValueError(f"Unsupported translate option: {option}")
+            case NotTranslated():
+                language_postfix = ""
+                translate_dataset_postfix = ""
+                translate_mode_postfix = ""
+                translate_postfix = ""
+        match config.add_noise_mode:
+            case AddNoiseMode.NO_NOISE:
+                noise_postfix = ""
+            case AddNoiseMode.SYNONYM:
+                noise_postfix = "_syno"
+            case AddNoiseMode.PARAPHRASE:
+                noise_postfix = "_para"
+            case _:
+                raise ValueError(f"Unsupported add noise mode: {config.add_noise_mode}")
         
+    
+        # Get model directory name from enum value
+        model_dir_name = get_model_directory_name(config.model)
+    
+        # Construct filenames based on configuration
+        inference_filename = get_result_filename(language_postfix, translate_postfix, noise_postfix)
+        processing_filename = get_result_filename(language_postfix, translate_mode_postfix, noise_postfix)
+    
+        dataset_path = f"tool/dataset/BFCL_v4_multiple{language_postfix}{translate_dataset_postfix}{noise_postfix}.json"
+        ground_truth_path = f"tool/dataset/possible_answer/BFCL_v4_multiple.json"
+        inference_raw_result_path = f"tool/result/inference_raw/{model_dir_name}/{inference_filename}"
+        inference_json_result_path = f"tool/result/inference_json/{model_dir_name}/{inference_filename}"
+        post_processing_result_path = f"tool/result/post_processing/{model_dir_name}/{processing_filename}"
+        evaluation_result_path = f"tool/result/evaluation/{model_dir_name}/{processing_filename}"
+        score_path = f"tool/result/score/{model_dir_name}/{processing_filename}"
+    
+        test_cases, _ = load_json_lines_from_file(dataset_path)
+        ground_truths, _ = load_json_lines_from_file(ground_truth_path)
+    
+        if requires_inference_raw:
+            try:
+                inference_raw_results, existing_inference_ids = load_json_lines_from_file(inference_raw_result_path)
+                # Filter out entries with error results
+                inference_raw_results = [
+                    entry for entry in inference_raw_results
+                    if not (isinstance(entry.get("result"), str) and "Error: An error occurred" in entry.get("result", ""))
+                ]
+                existing_inference_ids = {entry["id"] for entry in inference_raw_results}
+            except FileNotFoundError:
+                print(f"File {inference_raw_result_path} not found. It will be created.")
+                inference_raw_results = []
+                existing_inference_ids = set()
+            
         printed_warning = False
         # Filter cases that haven't been processed yet
         cases_to_process = [case for case in test_cases if case['id'] not in existing_inference_ids]
         if not printed_warning and len(cases_to_process) < len(test_cases):
             print(f"Warning: some test cases already exist in inference result file. Skipping {len(test_cases) - len(cases_to_process)} cases.")
             printed_warning = True
-
+    
         # Skip model loading if no cases to process
         if len(cases_to_process) == 0:
             print(f"All test cases for {config.model.value} have already been processed. Skipping model loading and inference.")
@@ -392,7 +422,7 @@ for config in configs:
             # Determine model type and create interface once
             is_api_model = isinstance(config.model, ApiModel)
             is_local_model = isinstance(config.model, LocalModel)
-
+    
             # Configure concurrent request settings
             if is_api_model:
                 max_concurrent = 8  # API models: up to 8 concurrent requests
@@ -410,31 +440,22 @@ for config in configs:
                 print(f"  Number of GPUs: {args.num_gpus}")
                 print(f"  Backend: {'vLLM' if USE_VLLM_BACKEND else 'HuggingFace'}")
                 print(f"  Concurrent requests: {max_concurrent} (vLLM handles internal batching)")
-
-            # Get or create backend for the model (unified for both API and local models)
-            model_name = config.model.value
-            if isinstance(config.model, ApiModel):
-                backend_type = "api"
-            elif isinstance(config.model, LocalModel):
-                backend_type = "vllm" if USE_VLLM_BACKEND else "huggingface"
-            else:
-                raise ValueError(f"Unsupported model type: {type(config.model)}")
-
-            backend = create_backend(
-                backend_type=backend_type,
-                model_name=model_name,
-                device="cuda",
-                num_gpus=args.num_gpus,
-                max_model_len=2000
-            )
+    
+            # Model interface can be created outside async context
             model_interface = get_or_create_model_interface(config.model)
-
+    
             # Process requests asynchronously
             print(f"\nSubmitting {len(cases_to_process)} requests concurrently...")
-
+    
             async def process_batch_async():
                 """Process batch requests asynchronously."""
-
+                # Create backend inside async context to ensure it's tied to the current event loop
+                backend = get_or_create_backend(
+                    model=config.model,
+                    num_gpus=args.num_gpus,
+                    max_model_len=2000
+                )
+    
                 async def process_single_case(case):
                     """Process a single case and return the result with case info."""
                     functions = case['function']
@@ -447,40 +468,40 @@ for config in configs:
                         prompt_passing_in_english=prompt_translate
                     )
                     return case, result
-
+    
                 # Create all tasks
                 tasks = [process_single_case(case) for case in cases_to_process]
-
+    
                 # Process results as they complete
                 completed_count = 0
                 for coro in asyncio.as_completed(tasks):
                     case, result = await coro
                     completed_count += 1
-
+    
                     print(f"[{completed_count}/{len(cases_to_process)}] Case {case['id']}: {case['question'][0][0]['content'][:60]}...")
-
+    
                     result_to_write = {
                         "id": case["id"],
                         "result": result
                     }
                     inference_raw_results.append(result_to_write)
-
+    
                     # Write to file immediately (unsorted)
                     write_json_lines_to_file(inference_raw_result_path, inference_raw_results)
-
-            # Run the async batch processing
-            asyncio.run(process_batch_async())
-
+    
+            # Run the async batch processing (now using await since we're in async context)
+            await process_batch_async()
+    
             print(f"All {len(cases_to_process)} requests completed.")
-
+    
             # Final sort and write
             if len(inference_raw_results) > 0:
                 append_and_rewrite_json_lines(inference_raw_result_path, inference_raw_results)
-
-    # Populate global name mapper if this model requires name sanitization
-    # This is done once per model, independent of whether we have a model_interface
-    # This is much cheaper than loading the model just to build name mappings
-    if requires_name_sanitization(config.model):
+    
+        # Populate global name mapper if this model requires name sanitization
+        # This is done once per model, independent of whether we have a model_interface
+        # This is much cheaper than loading the model just to build name mappings
+        if requires_name_sanitization(config.model):
         # Collect all unique functions from test_cases
         all_functions = []
         seen_functions = set()
@@ -490,17 +511,17 @@ for config in configs:
                 if func_name and func_name not in seen_functions:
                     all_functions.append(func)
                     seen_functions.add(func_name)
-
+    
         # Populate the global name mapper (model-agnostic, no model loading needed)
         name_mapper = get_global_name_mapper()
         name_mapper.populate_from_functions(all_functions)
-    else:
+        else:
         name_mapper = None
-
-    # Ensure model_interface is created before inference_json or other passes
-    model_interface = get_or_create_model_interface(config.model)
-
-    if requires_inference_json:
+    
+        # Ensure model_interface is created before inference_json or other passes
+        model_interface = get_or_create_model_interface(config.model)
+    
+        if requires_inference_json:
         # reload inference raw results
         try:
             inference_raw_results, _ = load_json_lines_from_file(inference_raw_result_path)
@@ -523,7 +544,7 @@ for config in configs:
         if not printed_warning and len(samples_to_process) < len(inference_raw_results):
             print(f"Warning: some test cases already exist in inference json result file. Skipping {len(inference_raw_results) - len(samples_to_process)} cases.")
             printed_warning = True
-
+    
         for inference_raw in samples_to_process:
             id = inference_raw['id']
             # convert raw result to json format
@@ -535,14 +556,14 @@ for config in configs:
                 "result": decoded_output
             }
             inference_json_results.append(inference_json_entry)
-
+    
             # Write batch results to file
             write_json_lines_to_file(inference_json_result_path, inference_json_results)
-
+    
         # Final sort and write
         if len(inference_json_results) > 0:
             append_and_rewrite_json_lines(inference_json_result_path, inference_json_results)
-    if requires_post_processing:
+        if requires_post_processing:
         if post_process_option == PostProcessOption.DONT_POST_PROCESS:
             # Simply copy inference_json results to post_processing results without modification
             try:
@@ -550,7 +571,7 @@ for config in configs:
             except FileNotFoundError:
                 print(f"File {inference_json_result_path} not found. Skipping post processing.")
                 continue
-
+    
             if evaluation_caching:
                 try:
                     post_processing_results, existing_post_processing_ids = load_json_lines_from_file(post_processing_result_path)
@@ -561,18 +582,18 @@ for config in configs:
             else:
                 post_processing_results = []
                 existing_post_processing_ids = set()
-
+    
             # Copy unprocessed results
             for inference_json_line in inference_json_results:
                 if inference_json_line['id'] not in existing_post_processing_ids:
                     post_processing_results.append(inference_json_line)
-
+    
             # Final sort and write
             if len(post_processing_results) > 0:
                 append_and_rewrite_json_lines(post_processing_result_path, post_processing_results)
-
+    
             print(f"Post-processing: Copied {len(inference_json_results)} results without modification (DONT_POST_PROCESS)")
-
+    
         else:
             # POST_PROCESS_DIFFERENT or POST_PROCESS_SAME: use LLM-based parameter matching
             # Select appropriate cache based on post_process_option
@@ -586,14 +607,14 @@ for config in configs:
                 cache_path = post_processing_cache_different_path
             else:
                 raise ValueError(f"Unsupported post process option: {post_process_option}")
-
+    
             # reload inference json results
             try:
                 inference_json_results, _ = load_json_lines_from_file(inference_json_result_path)
             except FileNotFoundError:
                 print(f"File {inference_json_result_path} not found. Skipping post processing.")
                 continue
-
+    
             if evaluation_caching:
                 try:
                     post_processing_results, existing_post_processing_ids = load_json_lines_from_file(post_processing_result_path)
@@ -604,14 +625,14 @@ for config in configs:
             else:
                 post_processing_results = []
                 existing_post_processing_ids = set()
-
+    
             printed_warning = False
             # Filter samples that haven't been processed yet
             samples_to_process = [sample for sample in inference_json_results if sample['id'] not in existing_post_processing_ids]
             if not printed_warning and len(samples_to_process) < len(inference_json_results):
                 print(f"Warning: some test cases already exist in post processing result file. Skipping {len(inference_json_results) - len(samples_to_process)} cases.")
                 printed_warning = True
-
+    
             for inference_json_line in samples_to_process:
                 id = inference_json_line['id']
                 # print(f"Post-processing case id {id}...")
@@ -630,16 +651,16 @@ for config in configs:
                     post_processing_cache_stats
                 )
                 post_processing_results.append(post_processing_entry)
-
+    
                 # Write batch results to file
                 write_json_lines_to_file(post_processing_result_path, post_processing_results)
-
+    
             # Final sort and write
             if len(post_processing_results) > 0:
                 append_and_rewrite_json_lines(post_processing_result_path, post_processing_results)
-
+    
             print(f"Post-processing ({post_process_option.name}) completed - Hits: {post_processing_cache_stats['hits']}, Misses: {post_processing_cache_stats['misses']}")
-    if requires_evaluation:
+        if requires_evaluation:
         # reload post processing results
         try:
             post_processing_results, _ = load_json_lines_from_file(post_processing_result_path)
@@ -666,7 +687,7 @@ for config in configs:
         if not printed_warning and len(samples_to_process) < len(post_processing_results):
             print(f"Warning: some test cases already exist in evaluation result file. Skipping {len(post_processing_results) - len(samples_to_process)} cases.")
             printed_warning = True
-
+    
         for (post_processing_line, ground_truth_line, test_case) in samples_to_process:
             id = post_processing_line["id"]
             assert id == ground_truth_line["id"], f"Mismatch in IDs: {id} vs {ground_truth_line['id']}"
@@ -674,18 +695,18 @@ for config in configs:
             post_processing_result = post_processing_line["result"]
             ground_truth = ground_truth_line["ground_truth"]
             func_description = test_case['function']
-
+    
             evaluation_result = evaluate_json(id, post_processing_result, ground_truth, func_description)
             evaluation_result["id"] = id
             evaluation_results.append(evaluation_result)
-
+    
             # Write batch results to file
             write_json_lines_to_file(evaluation_result_path, evaluation_results)
-
+    
         # Final sort and write
         if len(evaluation_results) > 0:
             append_and_rewrite_json_lines(evaluation_result_path, evaluation_results)
-    if requires_score:
+        if requires_score:
         # reload evaluation results
         try:
             evaluation_entries, _ = load_json_lines_from_file(evaluation_result_path)
@@ -697,14 +718,14 @@ for config in configs:
         correct_cases = 0
         wrong_cases = []
         score_results = []
-
+    
         for evaluation_entry in evaluation_entries:
             total_cases += 1
             if evaluation_entry['valid']:
                 correct_cases += 1
             else:
                 wrong_cases.append(evaluation_entry)
-
+    
         accuracy = correct_cases / total_cases if total_cases > 0 else 0.0
         # Add summary score
         score_result = {
@@ -713,15 +734,15 @@ for config in configs:
             "correct_cases": correct_cases,
         }
         score_results.append(score_result)
-
+    
         # Add wrong cases
         score_results.extend(wrong_cases)
-
+    
         # Write all results to file
         write_json_lines_to_file(score_path, score_results)
         print(f"Score result written to {score_path}: {score_result}")
-    print(f"Completed processing for config: {config}")
+        print(f"Completed processing for config: {config}")
+    
 
-
-
-
+        # Run all configs in a single event loop
+asyncio.run(process_all_configs())
