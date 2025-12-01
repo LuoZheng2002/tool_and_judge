@@ -622,7 +622,7 @@ for config in configs:
                 post_processing_entry = process_post_processing_sample(
                     inference_json_line,
                     ground_truth_line,
-                    ApiModel.GPT_4O_MINI,  # Use a powerful model for post-processing
+                    ApiModel.GPT_5_MINI,  # Use a powerful model for post-processing
                     post_process_option,
                     post_processing_cache,
                     cache_path,

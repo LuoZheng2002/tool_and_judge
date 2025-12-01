@@ -29,7 +29,9 @@ if sys.platform == 'win32':
 # Load environment variables
 load_dotenv()
 
-def get_or_create_backend(model_name, device="cuda", backend_type="huggingface", num_gpus=1):
+backend_type = "vllm"  # or "huggingface"
+
+def get_or_create_backend(model_name, device, backend_type: str, num_gpus: int):
     """
     Get or create a cached model backend using the new unified factory.
 
@@ -343,7 +345,7 @@ if __name__ == "__main__":
         backend = get_or_create_backend(
             model_name=model_name,
             device="cuda",
-            backend_type="huggingface",
+            backend_type=backend_type,
             num_gpus=args.num_gpus
         )
 

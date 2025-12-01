@@ -39,7 +39,7 @@ def api_inference(model: ApiModel, input_messages: list[dict]) -> str:
 
     # --- Dispatch based on model ---
     match model:
-        case ApiModel.GPT_4O_MINI | ApiModel.GPT_5:
+        case ApiModel.GPT_4O_MINI | ApiModel.GPT_5 | ApiModel.GPT_5_MINI | ApiModel.GPT_5_NANO:
             # Use OpenAI client
             from openai import OpenAI
             api_key = os.getenv("OPENAI_API_KEY")
@@ -71,50 +71,50 @@ def api_inference(model: ApiModel, input_messages: list[dict]) -> str:
 
             return response.choices[0].message.content
 
-        case ApiModel.CLAUDE_SONNET | ApiModel.CLAUDE_HAIKU:
-            # Use Anthropic client
-            from anthropic import Anthropic
-            api_key = os.getenv("ANTHROPIC_API_KEY")
-            if not api_key:
-                raise EnvironmentError("ANTHROPIC_API_KEY not found in .env")
+        # case ApiModel.CLAUDE_SONNET | ApiModel.CLAUDE_HAIKU:
+        #     # Use Anthropic client
+        #     from anthropic import Anthropic
+        #     api_key = os.getenv("ANTHROPIC_API_KEY")
+        #     if not api_key:
+        #         raise EnvironmentError("ANTHROPIC_API_KEY not found in .env")
 
-            client = Anthropic(api_key=api_key)
+        #     client = Anthropic(api_key=api_key)
 
-            # Extract system message (first "system" if any) and format it as Claude expects
-            system_message = None
-            messages_for_claude = []
-            for m in input_messages:
-                if m["role"] == "system" and system_message is None:
-                    # Claude expects system message as a list of content blocks
-                    system_message = [{"type": "text", "text": m["content"]}]
-                elif m["role"] in {"user", "assistant"}:
-                    # Claude expects message content as a list of content blocks
-                    messages_for_claude.append(
-                        {
-                            "role": m["role"],
-                            "content": [{"type": "text", "text": m["content"]}]
-                        }
-                    )
+        #     # Extract system message (first "system" if any) and format it as Claude expects
+        #     system_message = None
+        #     messages_for_claude = []
+        #     for m in input_messages:
+        #         if m["role"] == "system" and system_message is None:
+        #             # Claude expects system message as a list of content blocks
+        #             system_message = [{"type": "text", "text": m["content"]}]
+        #         elif m["role"] in {"user", "assistant"}:
+        #             # Claude expects message content as a list of content blocks
+        #             messages_for_claude.append(
+        #                 {
+        #                     "role": m["role"],
+        #                     "content": [{"type": "text", "text": m["content"]}]
+        #                 }
+        #             )
 
-            if not any(m["role"] == "user" for m in messages_for_claude):
-                raise ValueError("Claude API requires at least one 'user' message")
+        #     if not any(m["role"] == "user" for m in messages_for_claude):
+        #         raise ValueError("Claude API requires at least one 'user' message")
 
-            # Build the API request
-            kwargs = {
-                "model": model.value,
-                "max_tokens": 4096,
-                "temperature": 0,
-                "messages": messages_for_claude
-            }
+        #     # Build the API request
+        #     kwargs = {
+        #         "model": model.value,
+        #         "max_tokens": 4096,
+        #         "temperature": 0,
+        #         "messages": messages_for_claude
+        #     }
 
-            # Include system message if it exists
-            if system_message is not None:
-                kwargs["system"] = system_message
+        #     # Include system message if it exists
+        #     if system_message is not None:
+        #         kwargs["system"] = system_message
 
-            response = client.messages.create(**kwargs)
+        #     response = client.messages.create(**kwargs)
 
-            # Anthropic returns structured content (list of message blocks)
-            return response.content[0].text if response.content else ""
+        #     # Anthropic returns structured content (list of message blocks)
+        #     return response.content[0].text if response.content else ""
 
         case _:
             raise ValueError(f"Unsupported model: {model}")

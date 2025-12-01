@@ -112,7 +112,8 @@ def llm_match_parameters(param_value: Any, ground_truth_value: Any,
     if isinstance(param_value, str) and (
         param_value.startswith("Failed to decode AST:") or
         param_value.startswith("Failed to decode JSON:") or
-        param_value.startswith("Failed to parse")
+        param_value.startswith("Failed to parse") or
+        param_value.startswith("Model returned text instead of function calls")
     ):
         return False
     
@@ -162,12 +163,13 @@ Do these values match in meaning (ignoring language differences)?"""
         return match
     except Exception as e:
         print(f"Warning: LLM matching failed for {param_value} vs {ground_truth_value}: {e}")
-        # Default to False on error (keep original value)
-        cache[cache_key] = False
-        # Save cache immediately even on error
-        save_cache(cache_path, cache)
-        print(f"[Cache] New entry (error): {cache_key[:80]}... → False")
-        return False
+        exit(1)
+        # # Default to False on error (keep original value)
+        # cache[cache_key] = False
+        # # Save cache immediately even on error
+        # save_cache(cache_path, cache)
+        # print(f"[Cache] New entry (error): {cache_key[:80]}... → False")
+        
 
 
 def recursive_replace_parameters(parsed_result: Any, ground_truth_result: Any,
