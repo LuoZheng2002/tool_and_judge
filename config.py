@@ -17,10 +17,14 @@ class ApiModel(Enum):
     LLAMA_3_1_70B = "meta.llama3-1-70b-instruct-v1:0"
 
 class LocalModel(Enum):
+    # Granite models
+    GRANITE_3_1_8B_INSTRUCT = "ibm-granite/granite-3.1-8b-instruct"
     GRANITE_4_0_H_TINY = "ibm-granite/granite-4.0-h-tiny"
     GRANITE_4_0_H_SMALL = "ibm-granite/granite-4.0-h-small"
+    # Qwen models
     QWEN3_8B = "Qwen/Qwen3-8B"
     QWEN3_14B = "Qwen/Qwen3-14B"
+    QWEN3_30B_A3B = "Qwen/Qwen3-30B-A3B"
     QWEN3_32B = "Qwen/Qwen3-32B-A3B"
     QWEN3_NEXT_80B = "Qwen/Qwen3-Next-80B-A3B-Instruct"
 
@@ -100,14 +104,6 @@ evaluation_caching = False
 # Judge Project Configuration
 # ============================================================================
 
-class JudgeModel(Enum):
-    GRANITE_3_1_8B_INSTRUCT = "ibm-granite/granite-3.1-8b-instruct"
-    # QWEN_2_5_7B_INSTRUCT = "Qwen/Qwen2.5-7B-Instruct"
-    # QWEN_2_5_14B_INSTRUCT = "Qwen/Qwen2.5-14B-Instruct"
-    # QWEN_2_5_32B_INSTRUCT = "Qwen/Qwen2.5-32B-Instruct"
-    # QWEN_2_5_72B_INSTRUCT = "Qwen/Qwen2.5-72B-Instruct"
-    QWEN_3_30B_A3B = "Qwen/Qwen3-30B-A3B"
-
 class ResultType(Enum):
     PREFERENCE_DIRECT = auto()
     PREFERENCE_COT = auto()
@@ -115,7 +111,7 @@ class ResultType(Enum):
 
 @dataclass(frozen=True)
 class JudgeConfig:
-    model: JudgeModel
+    model: LocalModel
     lang1: str
     lang2: str
     result_type: ResultType
@@ -128,8 +124,3 @@ class JudgeConfig:
 # For backward compatibility with tool project imports
 Model = ToolModel  # tool/config.py used "Model" as Union[ApiModel, LocalModel]
 Config = ToolConfig  # tool/config.py used "Config" for tool configuration
-
-# If you need to use the old judge imports, you can uncomment these:
-# Model = JudgeModel  # judge/config.py used "Model" for judge models
-# Config = JudgeConfig  # judge/config.py used "Config" for judge configuration
-# configs = judge_configs  # judge/config.py used "configs" list

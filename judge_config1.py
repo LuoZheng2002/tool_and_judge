@@ -12,7 +12,7 @@ Usage:
 
 from config import (
     JudgeConfig,
-    JudgeModel,
+    LocalModel,
     ResultType,
 )
 
@@ -20,7 +20,7 @@ from config import (
 configs = [
     # Example 1: Qwen 3 30B comparing Chinese vs English - Direct preference
     JudgeConfig(
-        model=JudgeModel.QWEN_3_30B_A3B,
+        model=LocalModel.QWEN3_30B_A3B,
         lang1="zh_cn",
         lang2="en",
         result_type=ResultType.PREFERENCE_DIRECT
@@ -28,7 +28,7 @@ configs = [
 
     # Example 2: Qwen 3 30B comparing Chinese vs English - Perplexity
     JudgeConfig(
-        model=JudgeModel.QWEN_3_30B_A3B,
+        model=LocalModel.QWEN3_30B_A3B,
         lang1="zh_cn",
         lang2="en",
         result_type=ResultType.PERPLEXITY
@@ -36,7 +36,7 @@ configs = [
 
     # Example 3: Qwen 3 30B comparing Chinese vs English - Chain of Thought preference
     JudgeConfig(
-        model=JudgeModel.QWEN_3_30B_A3B,
+        model=LocalModel.QWEN3_30B_A3B,
         lang1="zh_cn",
         lang2="en",
         result_type=ResultType.PREFERENCE_COT
@@ -44,7 +44,7 @@ configs = [
 
     # Example 4: Granite 3.1 8B comparing Hindi vs English - Direct preference
     JudgeConfig(
-        model=JudgeModel.GRANITE_3_1_8B_INSTRUCT,
+        model=LocalModel.GRANITE_3_1_8B_INSTRUCT,
         lang1="hi",
         lang2="en",
         result_type=ResultType.PREFERENCE_DIRECT
@@ -52,7 +52,7 @@ configs = [
 
     # Example 5: Granite 3.1 8B comparing Hindi vs English - Perplexity
     JudgeConfig(
-        model=JudgeModel.GRANITE_3_1_8B_INSTRUCT,
+        model=LocalModel.GRANITE_3_1_8B_INSTRUCT,
         lang1="hi",
         lang2="en",
         result_type=ResultType.PERPLEXITY
@@ -61,7 +61,7 @@ configs = [
 
 # Uncomment to generate all combinations programmatically
 # configs = []
-# for model in [JudgeModel.QWEN_3_30B_A3B, JudgeModel.GRANITE_3_1_8B_INSTRUCT]:
+# for model in [LocalModel.QWEN3_30B_A3B, LocalModel.GRANITE_3_1_8B_INSTRUCT]:
 #     for lang_pair in [("zh_cn", "en"), ("hi", "en")]:
 #         lang1, lang2 = lang_pair
 #         for result_type in [ResultType.PREFERENCE_DIRECT, ResultType.PREFERENCE_COT, ResultType.PERPLEXITY]:

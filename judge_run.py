@@ -19,7 +19,7 @@ import math
 import argparse
 from judge.parse_dataset import parse_dataset, prepare_answer_pairs_bilingual
 
-from config import JudgeModel as Model, judge_configs as configs, ResultType
+from config import LocalModel, ResultType
 from models import create_backend, create_interface
 
 # Set UTF-8 encoding for console output (Windows fix)
@@ -326,17 +326,17 @@ if __name__ == "__main__":
         # Get or create backend with caching
         model_name = config.model.value
         match config.model:
-            case Model.GRANITE_3_1_8B_INSTRUCT:
+            case LocalModel.GRANITE_3_1_8B_INSTRUCT:
                 display_model_name = "granite_3_1_8b"
-            # case Model.QWEN_2_5_7B_INSTRUCT:
+            # case LocalModel.QWEN_2_5_7B_INSTRUCT:
             #     display_model_name = "qwen_2_5_7b"
-            # case Model.QWEN_2_5_14B_INSTRUCT:
+            # case LocalModel.QWEN_2_5_14B_INSTRUCT:
             #     display_model_name = "qwen_2_5_14b"
-            # case Model.QWEN_2_5_32B_INSTRUCT:
+            # case LocalModel.QWEN_2_5_32B_INSTRUCT:
             #     display_model_name = "qwen_2_5_32b"
-            # case Model.QWEN_2_5_72B_INSTRUCT:
+            # case LocalModel.QWEN_2_5_72B_INSTRUCT:
             #     display_model_name = "qwen_2_5_72b"
-            case Model.QWEN_3_30B_A3B:
+            case LocalModel.QWEN3_30B_A3B:
                 display_model_name = "qwen_3_30b_a3b"
 
         # Get or create backend (batch size will be calculated automatically)
