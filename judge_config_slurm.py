@@ -11,7 +11,7 @@ Usage:
 """
 
 from config import (
-    ToolConfig,
+    JudgeConfig,
     ApiModel,
     LocalModel,
     Language,
@@ -19,19 +19,17 @@ from config import (
     AddNoiseMode,
     Translated,
     NotTranslated,
+    ResultType,
 )
 
 # Example configurations
 configs = [    
-    ToolConfig(
+    JudgeConfig(
         model=LocalModel.QWEN3_8B,
-        translate_mode=Translated(
-            language=Language.CHINESE,
-            option=TranslateOption.FULLY_TRANSLATED
-        ),
-        # translate_mode=NotTranslated(),
-        add_noise_mode=AddNoiseMode.NO_NOISE
-    ),
+        lang1="zh_cn",
+        lang2="en",
+        result_type=ResultType.PREFERENCE_DIRECT
+    )
 ]
 
 # Uncomment to generate all combinations programmatically

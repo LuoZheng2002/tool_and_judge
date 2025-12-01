@@ -1,43 +1,58 @@
 """
-Sample configuration file for judge_run.py
+Sample configuration file for tool_main.py
 
 This file demonstrates how to configure different combinations of:
-- Judge models (local models for evaluation)
-- Language pairs for comparison
-- Result types (preference direct, preference CoT, or perplexity)
+- Models (API or Local)
+- Translation modes
+- Noise modes
 
 Usage:
-    python judge_run.py --config judge_config1.py --num-gpus 1
+    python tool_main.py --config tool_config1.py --num-gpus 1
 """
 
 from config import (
     JudgeConfig,
+    ApiModel,
     LocalModel,
+    Language,
+    TranslateOption,
+    AddNoiseMode,
+    Translated,
+    NotTranslated,
     ResultType,
 )
 
 # Example configurations
-configs = [
-    # Example 1: Qwen 3 30B comparing Chinese vs English - Direct preference
+configs = [    
     JudgeConfig(
-        model=LocalModel.QWEN3_30B_A3B,
+        model=LocalModel.QWEN3_8B,
         lang1="zh_cn",
         lang2="en",
         result_type=ResultType.PREFERENCE_DIRECT
-    ),
+    )
 ]
 
 # Uncomment to generate all combinations programmatically
 # configs = []
-# for model in [LocalModel.QWEN3_30B_A3B, LocalModel.GRANITE_3_1_8B_INSTRUCT]:
-#     for lang_pair in [("zh_cn", "en"), ("hi", "en")]:
-#         lang1, lang2 = lang_pair
-#         for result_type in [ResultType.PREFERENCE_DIRECT, ResultType.PREFERENCE_COT, ResultType.PERPLEXITY]:
+# for model in [ApiModel.GPT_5, ApiModel.GPT_5_MINI, ApiModel.GPT_5_NANO]:
+#     for translate_mode in [
+#         NotTranslated(),
+#         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED),
+#         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE),
+#         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT),
+#         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME),
+#         Translated(language=Language.CHINESE, option=TranslateOption.PARTIALLY_TRANSLATED),
+#         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME),
+#     ]:
+#         for add_noise_mode in [
+#             AddNoiseMode.NO_NOISE,
+#             AddNoiseMode.SYNONYM,
+#             AddNoiseMode.PARAPHRASE,
+#         ]:
 #             configs.append(
-#                 JudgeConfig(
+#                 ToolConfig(
 #                     model=model,
-#                     lang1=lang1,
-#                     lang2=lang2,
-#                     result_type=result_type
+#                     translate_mode=translate_mode,
+#                     add_noise_mode=add_noise_mode,
 #                 )
 #             )
