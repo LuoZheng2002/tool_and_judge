@@ -553,11 +553,11 @@ def create_interface(
 
     elif detected_type == "deepseek":
         try:
-            from .deepseek_interface import DeepseekInterface
-            return DeepseekInterface(model_name=model_name)
+            from .deepseek_interface import DeepSeekInterface
+            return DeepSeekInterface(model_name=model_name)
         except ImportError:
             raise ImportError(
-                f"Deepseek interface not available. Please create models/deepseek_interface.py."
+                f"DeepSeek interface not available. Please ensure models/deepseek_interface.py exists."
             )
 
     else:

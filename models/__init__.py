@@ -61,6 +61,7 @@ from .name_mapping import (
 # Import model-specific interfaces
 from .qwen3_interface import Qwen3Interface
 from .gpt5_interface import GPT5Interface
+from .deepseek_interface import DeepSeekInterface
 
 __all__ = [
     # Base classes
@@ -90,6 +91,7 @@ __all__ = [
     # Model-specific interfaces
     'Qwen3Interface',
     'GPT5Interface',
+    'DeepSeekInterface',
 ]
 
 __version__ = '0.1.0'
