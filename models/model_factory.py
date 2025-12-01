@@ -62,80 +62,87 @@ class BackendCache:
     Manages backend lifecycle and caching.
 
     This class ensures that:
-    - Only one backend is active at a time
+    - Multiple named backends can be cached (e.g., "experiment", "allow_synonym")
     - Backends are properly cleaned up when switching
     - Backends are reused when the same configuration is requested
     """
 
     def __init__(self):
-        self._current_backend: Optional[ModelBackend] = None
-        self._current_config: Optional[BackendConfig] = None
+        # Map from instance_name to (backend, config) tuple
+        self._backends: Dict[str, tuple[Optional[ModelBackend], Optional[BackendConfig]]] = {}
 
     def get_or_create(
         self,
         config: BackendConfig,
-        creator_func: callable
+        creator_func: callable,
+        instance_name: str = "default"
     ) -> ModelBackend:
         """
         Get cached backend or create a new one.
 
-        If the requested configuration matches the current backend, return it.
-        Otherwise, shut down the current backend and create a new one.
+        If the requested configuration matches the cached backend for this instance, return it.
+        Otherwise, shut down the old backend for this instance and create a new one.
 
         Args:
             config: Backend configuration
             creator_func: Function that creates the backend (called if cache miss)
+            instance_name: Name of the backend instance (e.g., "experiment", "allow_synonym")
 
         Returns:
             ModelBackend instance
         """
         cache_key = config.get_cache_key()
 
-        # Check if we can reuse the current backend
-        if self._current_backend is not None and self._current_config is not None:
-            current_key = self._current_config.get_cache_key()
+        # Check if we have a cached backend for this instance
+        if instance_name in self._backends:
+            current_backend, current_config = self._backends[instance_name]
 
-            if current_key == cache_key:
-                # For vLLM backends, check if the event loop has changed
-                if config.backend_type == "vllm":
-                    try:
-                        import asyncio
-                        # Try to get the current running loop
+            if current_backend is not None and current_config is not None:
+                current_key = current_config.get_cache_key()
+
+                if current_key == cache_key:
+                    # For vLLM backends, check if the event loop has changed
+                    if config.backend_type == "vllm":
                         try:
-                            current_loop = asyncio.get_running_loop()
-                            # Check if backend's engine is still alive in this loop
-                            # If we're in a different loop, recreate the backend
-                            if not hasattr(self, '_current_loop_id') or self._current_loop_id != id(current_loop):
-                                print(f"Event loop changed, recreating vLLM backend: {cache_key}")
-                                self._cleanup_current_backend()
-                                self._current_backend = creator_func(config)
-                                self._current_config = config
-                                self._current_loop_id = id(current_loop)
-                                return self._current_backend
-                        except RuntimeError:
-                            # No running loop - backend was created outside async context
-                            # Force recreation if we had a previous loop
-                            if hasattr(self, '_current_loop_id'):
-                                print(f"No active event loop, recreating vLLM backend: {cache_key}")
-                                self._cleanup_current_backend()
-                                self._current_backend = creator_func(config)
-                                self._current_config = config
-                                delattr(self, '_current_loop_id')
-                                return self._current_backend
-                    except ImportError:
-                        pass
+                            import asyncio
+                            # Try to get the current running loop
+                            try:
+                                current_loop = asyncio.get_running_loop()
+                                # Check if backend's engine is still alive in this loop
+                                # If we're in a different loop, recreate the backend
+                                loop_key = f"{instance_name}_loop_id"
+                                if not hasattr(self, loop_key) or getattr(self, loop_key) != id(current_loop):
+                                    print(f"Event loop changed, recreating vLLM backend [{instance_name}]: {cache_key}")
+                                    self._cleanup_backend(instance_name)
+                                    new_backend = creator_func(config)
+                                    self._backends[instance_name] = (new_backend, config)
+                                    setattr(self, loop_key, id(current_loop))
+                                    return new_backend
+                            except RuntimeError:
+                                # No running loop - backend was created outside async context
+                                # Force recreation if we had a previous loop
+                                loop_key = f"{instance_name}_loop_id"
+                                if hasattr(self, loop_key):
+                                    print(f"No active event loop, recreating vLLM backend [{instance_name}]: {cache_key}")
+                                    self._cleanup_backend(instance_name)
+                                    new_backend = creator_func(config)
+                                    self._backends[instance_name] = (new_backend, config)
+                                    delattr(self, loop_key)
+                                    return new_backend
+                        except ImportError:
+                            pass
 
-                print(f"Reusing cached backend: {cache_key}")
-                return self._current_backend
+                    print(f"Reusing cached backend [{instance_name}]: {cache_key}")
+                    return current_backend
 
-            # Different backend needed - cleanup current one
-            print(f"Switching backend from {current_key} to {cache_key}")
-            self._cleanup_current_backend()
+                # Different backend needed - cleanup current one for this instance
+                print(f"Switching backend [{instance_name}] from {current_key} to {cache_key}")
+                self._cleanup_backend(instance_name)
 
         # Create new backend
-        print(f"Creating new backend: {cache_key}")
-        self._current_backend = creator_func(config)
-        self._current_config = config
+        print(f"Creating new backend [{instance_name}]: {cache_key}")
+        new_backend = creator_func(config)
+        self._backends[instance_name] = (new_backend, config)
 
         # Track event loop for vLLM backends
         if config.backend_type == "vllm":
@@ -143,29 +150,35 @@ class BackendCache:
                 import asyncio
                 try:
                     current_loop = asyncio.get_running_loop()
-                    self._current_loop_id = id(current_loop)
+                    loop_key = f"{instance_name}_loop_id"
+                    setattr(self, loop_key, id(current_loop))
                 except RuntimeError:
                     # No running loop yet
-                    if hasattr(self, '_current_loop_id'):
-                        delattr(self, '_current_loop_id')
+                    loop_key = f"{instance_name}_loop_id"
+                    if hasattr(self, loop_key):
+                        delattr(self, loop_key)
             except ImportError:
                 pass
 
-        return self._current_backend
+        return new_backend
 
-    def _cleanup_current_backend(self):
-        """Cleanup the current backend and free resources."""
-        if self._current_backend is None:
+    def _cleanup_backend(self, instance_name: str):
+        """Cleanup a specific backend instance and free resources."""
+        if instance_name not in self._backends:
+            return
+
+        backend, config = self._backends[instance_name]
+        if backend is None:
             return
 
         try:
             # Call async shutdown
-            asyncio.run(self._current_backend.shutdown())
+            asyncio.run(backend.shutdown())
         except Exception as e:
-            print(f"Warning: Error during backend cleanup: {e}")
+            print(f"Warning: Error during backend cleanup [{instance_name}]: {e}")
 
-        self._current_backend = None
-        self._current_config = None
+        # Remove from cache
+        del self._backends[instance_name]
 
         # Force garbage collection for local model backends
         import gc
@@ -177,13 +190,23 @@ class BackendCache:
             import torch
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
-                print("CUDA memory freed")
+                print(f"CUDA memory freed [{instance_name}]")
         except ImportError:
             pass
 
-    def shutdown(self):
-        """Shutdown and cleanup the current backend."""
-        self._cleanup_current_backend()
+    def shutdown(self, instance_name: Optional[str] = None):
+        """
+        Shutdown and cleanup backends.
+
+        Args:
+            instance_name: Name of specific instance to shutdown. If None, shutdown all backends.
+        """
+        if instance_name is not None:
+            self._cleanup_backend(instance_name)
+        else:
+            # Shutdown all backends
+            for name in list(self._backends.keys()):
+                self._cleanup_backend(name)
 
 
 # Global backend cache instance
@@ -377,6 +400,7 @@ def create_backend(
     device: str = "cuda",
     num_gpus: int = 1,
     use_cache: bool = True,
+    instance_name: str = "default",
     **kwargs
 ) -> ModelBackend:
     """
@@ -395,6 +419,8 @@ def create_backend(
         device: Device to use (for local backends)
         num_gpus: Number of GPUs to use (for local backends)
         use_cache: Whether to use backend caching (default: True)
+        instance_name: Name for this backend instance (default: "default")
+                      Use different names for different purposes (e.g., "experiment", "allow_synonym")
         **kwargs: Additional backend-specific parameters
 
     Returns:
@@ -405,11 +431,20 @@ def create_backend(
         ImportError: If required dependencies are not installed
 
     Examples:
-        >>> # Create API backend
+        >>> # Create API backend for experiments
         >>> backend = create_backend(
         ...     backend_type="api",
         ...     model_name="gpt-4",
-        ...     api_key="sk-..."
+        ...     api_key="sk-...",
+        ...     instance_name="experiment"
+        ... )
+
+        >>> # Create separate API backend for allow_synonym
+        >>> backend = create_backend(
+        ...     backend_type="api",
+        ...     model_name="gpt-5",
+        ...     api_key="sk-...",
+        ...     instance_name="allow_synonym"
         ... )
 
         >>> # Create HuggingFace backend
@@ -459,7 +494,7 @@ def create_backend(
 
     # Use cache or create directly
     if use_cache:
-        return _global_backend_cache.get_or_create(config, creator_func)
+        return _global_backend_cache.get_or_create(config, creator_func, instance_name=instance_name)
     else:
         return creator_func(config)
 

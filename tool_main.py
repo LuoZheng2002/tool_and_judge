@@ -9,10 +9,10 @@ from config import *
 from tool.parse_ast import *
 import re
 from models import create_backend, create_interface
-from tool.allow_synonym import (
+from allow_synonym import (
     load_or_create_cache,
     save_cache,
-    process_allow_synonym_sample
+    process_allow_synonym_sample_async
 )
 from models.name_mapping import get_global_name_mapper
 
@@ -224,7 +224,7 @@ def calculate_batch_size_for_local_model(local_model: LocalModel, num_gpus: int)
 
     return batch_size
 
-def get_or_create_backend(model: Model, num_gpus: int = 1, max_model_len: int = 2000):
+def get_or_create_backend(model: Model, num_gpus: int = 1, max_model_len: int = 2000, instance_name: str = "default"):
     """
     Get or create a backend for the given model.
 
@@ -232,6 +232,8 @@ def get_or_create_backend(model: Model, num_gpus: int = 1, max_model_len: int = 
         model: ApiModel or LocalModel enum value
         num_gpus: Number of GPUs to use
         max_model_len: Maximum model length
+        instance_name: Name for this backend instance (default: "default")
+                      Use "experiment" for experiment runs, "allow_synonym" for allow_synonym
 
     Returns:
         The backend for the given model
@@ -249,7 +251,8 @@ def get_or_create_backend(model: Model, num_gpus: int = 1, max_model_len: int = 
         model_name=model_name,
         device="cuda",
         num_gpus=num_gpus,
-        max_model_len=max_model_len
+        max_model_len=max_model_len,
+        instance_name=instance_name
     )
 
 
@@ -474,7 +477,8 @@ async def process_all_configs():
                 translation_backend = get_or_create_backend(
                     model=config.model,
                     num_gpus=args.num_gpus,
-                    max_model_len=2000
+                    max_model_len=2000,
+                    instance_name="experiment"  # Use experiment instance for pre-translation
                 )
                 translation_interface = get_or_create_model_interface(config.model)
 
@@ -569,7 +573,8 @@ async def process_all_configs():
                     backend = get_or_create_backend(
                         model=config.model,
                         num_gpus=args.num_gpus,
-                        max_model_len=2000
+                        max_model_len=2000,
+                        instance_name="experiment"  # Use experiment instance for inference
                     )
     
                     async def process_single_case(case):
@@ -719,7 +724,8 @@ async def process_all_configs():
                 translation_backend = get_or_create_backend(
                     model=config.model,
                     num_gpus=args.num_gpus,
-                    max_model_len=2000
+                    max_model_len=2000,
+                    instance_name="experiment"  # Use experiment instance for post-translation
                 )
                 translation_interface = get_or_create_model_interface(config.model)
 
@@ -926,29 +932,52 @@ async def process_all_configs():
                 raise ValueError(f"Unsupported allow synonym tag: {allow_synonym_tag}")
             source_results, _ = load_json_lines_from_file(allow_synonym_input_path)
 
-            allow_synonym_results = []
+            print(f"Processing {len(source_results)} samples with allow_synonym in parallel...")
 
-            for source_line in source_results:
-                id = source_line['id']
-                # print(f"Post-processing case id {id}...")
-                # Find matching ground truth
-                ground_truth_line = next((gt for gt in ground_truths if gt['id'] == id), None)
-                if ground_truth_line is None:
-                    raise ValueError(f"Ground truth not found for id: {id}")
-                # Process with LLM-based parameter matching
-                allow_synonym_entry = process_allow_synonym_sample(
-                    source_line,
-                    ground_truth_line,
-                    ApiModel.GPT_5_MINI,  # Use a powerful model for post-processing
-                    allow_synonym_option,
-                    allow_synonym_cache,
-                    cache_path,
-                    allow_synonym_cache_stats
-                )
-                allow_synonym_results.append(allow_synonym_entry)
+            async def process_allow_synonym_async():
+                """Process all allow_synonym samples asynchronously in parallel."""
 
-                # Write batch results to file
-                write_json_lines_to_file(allow_synonym_output_path, allow_synonym_results)
+                async def process_single_sample(source_line):
+                    """Process a single sample and return the result."""
+                    id = source_line['id']
+                    # Find matching ground truth
+                    ground_truth_line = next((gt for gt in ground_truths if gt['id'] == id), None)
+                    if ground_truth_line is None:
+                        raise ValueError(f"Ground truth not found for id: {id}")
+
+                    # Process with LLM-based parameter matching
+                    return await process_allow_synonym_sample_async(
+                        source_line,
+                        ground_truth_line,
+                        allow_synonym_option,
+                        allow_synonym_cache,
+                        cache_path,
+                        allow_synonym_cache_stats
+                    )
+
+                # Create all tasks
+                tasks = [process_single_sample(source_line) for source_line in source_results]
+
+                # Process results as they complete
+                allow_synonym_results = []
+                completed_count = 0
+                for coro in asyncio.as_completed(tasks):
+                    allow_synonym_entry = await coro
+                    completed_count += 1
+
+                    print(f"[{completed_count}/{len(source_results)}] Processed allow_synonym for sample {allow_synonym_entry['id']}")
+
+                    allow_synonym_results.append(allow_synonym_entry)
+
+                    # Write to file immediately (unsorted)
+                    write_json_lines_to_file(allow_synonym_output_path, allow_synonym_results)
+
+                return allow_synonym_results
+
+            # Run the async processing
+            allow_synonym_results = await process_allow_synonym_async()
+
+            print(f"All {len(source_results)} allow_synonym samples completed.")
 
             # Final sort and write
             if len(allow_synonym_results) > 0:

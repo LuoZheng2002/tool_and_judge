@@ -15,30 +15,16 @@ translate_modes = [
     "PAR", # Partially Translated
     "FT", # Fully Translated
     "PT", # Fully Translated + Prompt Translate
-    "PPD", # Fully translated + Post-Process Different
-    "PPS", # Fully translated + Post-Process Same
-    "PTPS", # Fully Translated + Prompt Translate + Post-Process Same
-    
+    "ASD", # Fully translated + Allow-Synonym Different
+    "ASS", # Fully translated + Allow-Synonym Same
+    "PTASS", # Fully Translated + Prompt Translate + Allow-Synonym Same
+    "PRE", # Fully Translated + Pre-Translate
+    "POST", # Fully Translated + Post-Translate
+    "PREASS", # Fully Translated + Pre-Translate + Allow-Synonym Same
+    "POSTASS", # Fully Translated + Post-Translate + Allow-Synonym Same
 ]
 
 noise_modes = ["NO_NOISE", "PARAPHRASE", "SYNONYM"]
-
-# Mapping from file naming conventions to display names
-translate_mode_mapping = {
-    "": "NT",      # Not Translated (no postfix)
-    "_par": "PAR", # Partially Translated
-    "_f": "FT",    # Fully Translated
-    "_pt": "PT",   # Prompt Translate
-    "_ppd": "PPD", # Post-Process Different
-    "_pps": "PPS", # Post-Process Same
-    "_ptps": "PTPS", # Prompt Translate + Post-Process Same    
-}
-
-noise_mode_mapping = {
-    "": "NO_NOISE",  # No noise (no postfix)
-    "_para": "PARAPHRASE",  # Paraphrase
-    "_syno": "SYNONYM"      # Synonym
-}
 
 
 def generate_heatmap(model_name: str, output_dir: str, result_dir: str) -> None:
@@ -66,9 +52,9 @@ def generate_heatmap(model_name: str, output_dir: str, result_dir: str) -> None:
         return
 
     # The new file naming convention from main.py is:
-    # - vanilla.json (for NT + NO_NOISE)
-    # - {language_postfix}{mode_postfix}{noise_postfix}.json
-    # Example: zh_f.json, zh_par_para.json, etc.
+    # Filename format: {language_tag}{translate_level_tag}{pre_translate_tag}{noise_tag}{prompt_translate_tag}{post_translate_tag}{allow_synonym_tag}.json
+    # All tags are concatenated with underscores in this fixed order
+    # Example: _zh_fulltrans_nopretrans_nonoise_noprompt_noposttrans_noallow.json
 
     for score_file in model_score_dir.glob("*.json"):
         try:
@@ -82,74 +68,105 @@ def generate_heatmap(model_name: str, output_dir: str, result_dir: str) -> None:
                     continue
 
                 # Extract translate and noise modes from filename
-                filename = score_file.stem  # Remove .json
+                filename = score_file.stem  # Remove .json extension
 
-                # Special case: vanilla.json means NT + NO_NOISE
-                if filename == "vanilla":
-                    translate_mode = "NT"
+                # Parse the filename by splitting on underscore
+                # Expected format: _{lang}_{trans_level}_{pre_trans}_{noise}_{prompt}_{post_trans}_{allow_syn}
+                # Remove leading underscore if present
+                if filename.startswith("_"):
+                    filename = filename[1:]
+
+                tags = filename.split("_")
+
+                # We expect 7 tags in this order:
+                # 0: language_tag (en, zh, hi)
+                # 1: translate_level_tag (na, parttrans, fulltrans)
+                # 2: pre_translate_tag (pretrans, nopretrans)
+                # 3: noise_tag (nonoise, syno, para)
+                # 4: prompt_translate_tag (prompt, noprompt)
+                # 5: post_translate_tag (posttrans, noposttrans)
+                # 6: allow_synonym_tag (allowdiff, allowsame, noallow)
+
+                if len(tags) != 7:
+                    print(f"Warning: Unexpected filename format '{score_file.name}' (expected 7 tags, got {len(tags)})")
+                    continue
+
+                language_tag = tags[0]
+                translate_level_tag = tags[1]
+                pre_translate_tag = tags[2]
+                noise_tag = tags[3]
+                prompt_translate_tag = tags[4]
+                post_translate_tag = tags[5]
+                allow_synonym_tag = tags[6]
+
+                # Map noise_tag to noise_mode
+                if noise_tag == "nonoise":
                     noise_mode = "NO_NOISE"
-                    data_dict[translate_mode][noise_mode] = accuracy
-                    print(f"Loaded {score_file.name}: {translate_mode} + {noise_mode} = {accuracy:.3f}")
+                elif noise_tag == "para":
+                    noise_mode = "PARAPHRASE"
+                elif noise_tag == "syno":
+                    noise_mode = "SYNONYM"
+                else:
+                    print(f"Warning: Unknown noise tag '{noise_tag}' in {score_file.name}")
                     continue
 
-                # Parse the filename: {language_postfix}{mode_postfix}{noise_postfix}
-                # Language postfix: zh_, hi_ (we ignore the language, just look for mode and noise)
-                # Translate mode postfix: f, pt, ppd, pps, ptps, par
-                # Noise postfix: _para, _syno
-
-                translate_mode_str = ""
-                noise_mode_str = ""
-
-                # Remove language prefix if present (zh_, hi_)
-                if filename.startswith("zh_"):
-                    filename = filename[3:]  # Remove "zh_"
-                elif filename.startswith("hi_"):
-                    filename = filename[3:]  # Remove "hi_"
-
-                # Extract noise mode (check for _para or _syno at the end)
-                if filename.endswith("_para"):
-                    noise_mode_str = "_para"
-                    filename = filename[:-5]  # Remove _para
-                elif filename.endswith("para"):
-                    noise_mode_str = "_para"
-                    filename = filename[:-4]  # Remove para
-                elif filename.endswith("_syno"):
-                    noise_mode_str = "_syno"
-                    filename = filename[:-5]  # Remove _syno
-                elif filename.endswith("syno"):
-                    noise_mode_str = "_syno"
-                    filename = filename[:-4]  # Remove syno
-
-                # What remains should be the translate mode
-                # Check for translate mode postfixes
-                if filename == "ptps":
-                    translate_mode_str = "_ptps"
-                elif filename == "ppd":
-                    translate_mode_str = "_ppd"
-                elif filename == "pps":
-                    translate_mode_str = "_pps"
-                elif filename == "pt":
-                    translate_mode_str = "_pt"
-                elif filename == "f":
-                    translate_mode_str = "_f"
-                elif filename == "par":
-                    translate_mode_str = "_par"
-                elif filename == "":
-                    # No translate mode means NT (but we already handled vanilla above)
-                    translate_mode_str = ""
+                # Map combination of tags to translate_mode
+                # NT = en + na
+                if language_tag == "en" and translate_level_tag == "na":
+                    translate_mode = "NT"
+                # PAR = (zh or hi) + parttrans
+                elif language_tag in ["zh", "hi"] and translate_level_tag == "parttrans":
+                    translate_mode = "PAR"
+                # All other cases require fulltrans
+                elif language_tag in ["zh", "hi"] and translate_level_tag == "fulltrans":
+                    # FT = fulltrans + nopretrans + noprompt + noposttrans + noallow
+                    if (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
+                        post_translate_tag == "noposttrans" and allow_synonym_tag == "noallow"):
+                        translate_mode = "FT"
+                    # PT = fulltrans + nopretrans + prompt + noposttrans + noallow
+                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "prompt" and
+                          post_translate_tag == "noposttrans" and allow_synonym_tag == "noallow"):
+                        translate_mode = "PT"
+                    # ASD = fulltrans + nopretrans + noprompt + noposttrans + allowdiff
+                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
+                          post_translate_tag == "noposttrans" and allow_synonym_tag == "allowdiff"):
+                        translate_mode = "ASD"
+                    # ASS = fulltrans + nopretrans + noprompt + noposttrans + allowsame
+                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
+                          post_translate_tag == "noposttrans" and allow_synonym_tag == "allowsame"):
+                        translate_mode = "ASS"
+                    # PTASS = fulltrans + nopretrans + prompt + noposttrans + allowsame
+                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "prompt" and
+                          post_translate_tag == "noposttrans" and allow_synonym_tag == "allowsame"):
+                        translate_mode = "PTASS"
+                    # PRE = fulltrans + pretrans + noprompt + noposttrans + noallow
+                    elif (pre_translate_tag == "pretrans" and prompt_translate_tag == "noprompt" and
+                          post_translate_tag == "noposttrans" and allow_synonym_tag == "noallow"):
+                        translate_mode = "PRE"
+                    # POST = fulltrans + nopretrans + noprompt + posttrans + noallow
+                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
+                          post_translate_tag == "posttrans" and allow_synonym_tag == "noallow"):
+                        translate_mode = "POST"
+                    # PREASS = fulltrans + pretrans + noprompt + noposttrans + allowsame
+                    elif (pre_translate_tag == "pretrans" and prompt_translate_tag == "noprompt" and
+                          post_translate_tag == "noposttrans" and allow_synonym_tag == "allowsame"):
+                        translate_mode = "PREASS"
+                    # POSTASS = fulltrans + nopretrans + noprompt + posttrans + allowsame
+                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
+                          post_translate_tag == "posttrans" and allow_synonym_tag == "allowsame"):
+                        translate_mode = "POSTASS"
+                    else:
+                        print(f"Warning: Unknown tag combination in {score_file.name}")
+                        print(f"  Tags: pre={pre_translate_tag}, prompt={prompt_translate_tag}, post={post_translate_tag}, allow={allow_synonym_tag}")
+                        continue
                 else:
-                    print(f"Warning: Unknown translate mode in filename: {score_file.name}")
+                    print(f"Warning: Unknown language/translate_level combination in {score_file.name}")
+                    print(f"  language={language_tag}, translate_level={translate_level_tag}")
                     continue
 
-                # Convert to display names
-                translate_mode = translate_mode_mapping.get(translate_mode_str, "UNKNOWN")
-                noise_mode = noise_mode_mapping.get(noise_mode_str, "UNKNOWN")
-
-                if translate_mode != "UNKNOWN" and noise_mode != "UNKNOWN":
-                    data_dict[translate_mode][noise_mode] = accuracy
-                    print(f"Loaded {score_file.name}: {translate_mode} + {noise_mode} = {accuracy:.3f}")
-                else:
-                    print(f"Warning: Could not parse {score_file.name} (translate: {translate_mode}, noise: {noise_mode})")
+                # Store the accuracy
+                data_dict[translate_mode][noise_mode] = accuracy
+                print(f"Loaded {score_file.name}: {translate_mode} + {noise_mode} = {accuracy:.3f}")
 
         except Exception as e:
             print(f"Error reading {score_file.name}: {e}")
