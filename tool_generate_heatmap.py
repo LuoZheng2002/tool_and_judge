@@ -12,12 +12,13 @@ from pathlib import Path
 # -----------------------------
 translate_modes = [
     "NT", # Not Translated
+    "PAR", # Partially Translated
     "FT", # Fully Translated
     "PT", # Fully Translated + Prompt Translate
     "PPD", # Fully translated + Post-Process Different
     "PPS", # Fully translated + Post-Process Same
     "PTPS", # Fully Translated + Prompt Translate + Post-Process Same
-    "PAR", # Partially Translated
+    
 ]
 
 noise_modes = ["NO_NOISE", "PARAPHRASE", "SYNONYM"]
@@ -25,12 +26,12 @@ noise_modes = ["NO_NOISE", "PARAPHRASE", "SYNONYM"]
 # Mapping from file naming conventions to display names
 translate_mode_mapping = {
     "": "NT",      # Not Translated (no postfix)
+    "_par": "PAR", # Partially Translated
     "_f": "FT",    # Fully Translated
     "_pt": "PT",   # Prompt Translate
     "_ppd": "PPD", # Post-Process Different
     "_pps": "PPS", # Post-Process Same
-    "_ptps": "PTPS", # Prompt Translate + Post-Process Same
-    "_par": "PAR" # Partially Translated
+    "_ptps": "PTPS", # Prompt Translate + Post-Process Same    
 }
 
 noise_mode_mapping = {
@@ -40,7 +41,7 @@ noise_mode_mapping = {
 }
 
 
-def generate_heatmap(model_name: str, output_dir: str = ".", result_dir: str = "result/score") -> None:
+def generate_heatmap(model_name: str, output_dir: str, result_dir: str) -> None:
     """
     Generate a heatmap for a given model showing accuracy across translate and noise modes.
 
@@ -109,9 +110,15 @@ def generate_heatmap(model_name: str, output_dir: str = ".", result_dir: str = "
                 if filename.endswith("_para"):
                     noise_mode_str = "_para"
                     filename = filename[:-5]  # Remove _para
+                elif filename.endswith("para"):
+                    noise_mode_str = "_para"
+                    filename = filename[:-4]  # Remove para
                 elif filename.endswith("_syno"):
                     noise_mode_str = "_syno"
                     filename = filename[:-5]  # Remove _syno
+                elif filename.endswith("syno"):
+                    noise_mode_str = "_syno"
+                    filename = filename[:-4]  # Remove syno
 
                 # What remains should be the translate mode
                 # Check for translate mode postfixes
@@ -213,10 +220,10 @@ if __name__ == "__main__":
     # Generate heatmaps for different models
     # Model names should match the directory names in result/score/
     # Examples: "gpt-5", "gpt-5-mini", "gpt-5-nano"
-    models = ["gpt-5"]
+    models = ["gpt-5", "gpt-5-mini", "gpt-5-nano"]
 
     for model in models:
         print(f"\n{'='*60}")
         print(f"Generating heatmap for {model}")
         print(f"{'='*60}")
-        generate_heatmap(model)
+        generate_heatmap(model, ".", "tool/result/score")
