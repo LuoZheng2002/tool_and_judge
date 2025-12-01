@@ -392,6 +392,55 @@ class ToolModelInterface(ModelInterface):
         """
         pass
 
+    @abstractmethod
+    async def translate_tool_question_async(
+        self,
+        backend: ModelBackend,
+        question: str,
+        max_new_tokens: int = 512,
+        temperature: float = 0.0,
+    ) -> str:
+        """
+        Translate a user question to English.
+
+        This method takes only the question text (without function definitions or JSON)
+        and translates it to English.
+
+        Args:
+            backend: The backend to use for inference
+            question: The question text to translate
+            max_new_tokens: Maximum number of tokens to generate
+            temperature: Sampling temperature
+
+        Returns:
+            Translated question as a string
+        """
+        pass
+
+    @abstractmethod
+    async def translate_tool_answer_async(
+        self,
+        backend: ModelBackend,
+        parameter_value: str,
+        max_new_tokens: int = 256,
+        temperature: float = 0.0,
+    ) -> str:
+        """
+        Translate a single function parameter value to English.
+
+        This method translates individual parameter values one at a time.
+
+        Args:
+            backend: The backend to use for inference
+            parameter_value: The parameter value to translate
+            max_new_tokens: Maximum number of tokens to generate
+            temperature: Sampling temperature
+
+        Returns:
+            Translated parameter value as a string
+        """
+        pass
+
 
 # =============================================================================
 # Judge Model Interface (for Judge Project)

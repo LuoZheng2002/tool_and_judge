@@ -320,6 +320,8 @@ async def process_all_configs():
 
         post_process_option = PostProcessOption.DONT_POST_PROCESS
         prompt_translate = False
+        requires_pre_translate = False
+        requires_post_translate = False
         # map translate_info to language_postfix, translate_dataset_prefix, translate_mode_prefix
         match config.translate_mode:
             case Translated(language, option):
@@ -353,6 +355,16 @@ async def process_all_configs():
                         translate_mode_postfix = "_ptps"  # prompt translate + post-process same
                         translate_postfix = "_fp" # fully translated, prompt translate
                         post_process_option = PostProcessOption.POST_PROCESS_SAME
+                    case TranslateOption.FULLY_TRANSLATED_PRE_TRANSLATE:
+                        translate_dataset_postfix = "_full"
+                        translate_mode_postfix = "_fpre"  # fully translated pre-translate
+                        translate_postfix = "_f" # fully translated, do not prompt translate
+                        requires_pre_translate = True
+                    case TranslateOption.FULLY_TRANSLATED_POST_TRANSLATE:
+                        translate_dataset_postfix = "_full"
+                        translate_mode_postfix = "_fpost"  # fully translated post-translate
+                        translate_postfix = "_f" # fully translated, do not prompt translate
+                        requires_post_translate = True
                     case TranslateOption.PARTIALLY_TRANSLATED:
                         translate_dataset_postfix = "_partial"
                         translate_mode_postfix = "_par" # partial
@@ -384,14 +396,84 @@ async def process_all_configs():
 
         dataset_path = f"tool/dataset/BFCL_v4_multiple{language_postfix}{translate_dataset_postfix}{noise_postfix}.json"
         ground_truth_path = f"tool/dataset/possible_answer/BFCL_v4_multiple.json"
+        translated_questions_path = f"tool/result/translated_questions/{model_dir_name}/{language_postfix.lstrip('_') if language_postfix else 'en'}.json"
         inference_raw_result_path = f"tool/result/inference_raw/{model_dir_name}/{inference_filename}"
         inference_json_result_path = f"tool/result/inference_json/{model_dir_name}/{inference_filename}"
         post_processing_result_path = f"tool/result/post_processing/{model_dir_name}/{processing_filename}"
+        translated_answers_path = f"tool/result/translated_answers/{model_dir_name}/{language_postfix.lstrip('_') if language_postfix else 'en'}.json"
         evaluation_result_path = f"tool/result/evaluation/{model_dir_name}/{processing_filename}"
         score_path = f"tool/result/score/{model_dir_name}/{processing_filename}"
 
         test_cases, _ = load_json_lines_from_file(dataset_path)
         ground_truths, _ = load_json_lines_from_file(ground_truth_path)
+
+        # Translated questions pass: Extract questions and translate to English
+        if requires_pre_translate:
+            
+            translated_questions_results = []
+            existing_translated_questions_ids = set()
+
+            # Filter cases that haven't been translated yet
+            cases_to_translate = [case for case in test_cases if case['id'] not in existing_translated_questions_ids]
+
+            if len(cases_to_translate) == 0:
+                print(f"All test cases have already been translated. Skipping translation.")
+            else:
+                print(f"Translating {len(cases_to_translate)} questions to English...")
+
+                # Get backend and interface for translation
+                translation_backend = get_or_create_backend(
+                    model=config.model,
+                    num_gpus=args.num_gpus,
+                    max_model_len=2000
+                )
+                translation_interface = get_or_create_model_interface(config.model)
+
+                async def translate_questions_async():
+                    """Translate questions asynchronously."""
+                    async def translate_single_question(case):
+                        """Translate a single question and return the modified case."""
+                        question = case["question"][0][0]['content']
+
+                        # Use the dedicated translation method
+                        translated_question = await translation_interface.translate_tool_question_async(
+                            backend=translation_backend,
+                            question=question
+                        )
+
+                        # Create modified case with translated question
+                        modified_case = case.copy()
+                        modified_case["question"][0][0]['content'] = translated_question
+
+                        return modified_case
+
+                    # Create all translation tasks
+                    tasks = [translate_single_question(case) for case in cases_to_translate]
+
+                    # Process results as they complete
+                    completed_count = 0
+                    for coro in asyncio.as_completed(tasks):
+                        modified_case = await coro
+                        completed_count += 1
+
+                        print(f"[{completed_count}/{len(cases_to_translate)}] Translated question for case {modified_case['id']}")
+
+                        translated_questions_results.append(modified_case)
+
+                        # Write to file immediately
+                        write_json_lines_to_file(translated_questions_path, translated_questions_results)
+
+                # Run the async translation
+                await translate_questions_async()
+
+                print(f"All {len(cases_to_translate)} questions translated.")
+
+                # Final sort and write
+                if len(translated_questions_results) > 0:
+                    append_and_rewrite_json_lines(translated_questions_path, translated_questions_results)
+
+            # Update test_cases to use translated questions
+            test_cases = translated_questions_results
 
         if requires_inference_raw:
             try:
@@ -528,16 +610,9 @@ async def process_all_configs():
             except FileNotFoundError:
                 print(f"File {inference_raw_result_path} not found. Skipping inference json generation.")
                 continue
-            if evaluation_caching:
-                try:
-                    inference_json_results, existing_inference_json_ids = load_json_lines_from_file(inference_json_result_path)
-                except FileNotFoundError:
-                    print(f"File {inference_json_result_path} not found. Skipping inference json caching.")
-                    inference_json_results = []
-                    existing_inference_json_ids = set()
-            else:
-                inference_json_results = []
-                existing_inference_json_ids = set()
+            
+            inference_json_results = []
+            existing_inference_json_ids = set()
             printed_warning = False
             # Filter samples that haven't been processed yet
             samples_to_process = [sample for sample in inference_raw_results if sample['id'] not in existing_inference_json_ids]
@@ -573,17 +648,10 @@ async def process_all_configs():
                     print(f"File {inference_json_result_path} not found. Skipping post processing.")
                     continue
     
-                if evaluation_caching:
-                    try:
-                        post_processing_results, existing_post_processing_ids = load_json_lines_from_file(post_processing_result_path)
-                    except FileNotFoundError:
-                        print(f"File {post_processing_result_path} not found. Skipping post processing caching.")
-                        post_processing_results = []
-                        existing_post_processing_ids = set()
-                else:
-                    post_processing_results = []
-                    existing_post_processing_ids = set()
-    
+                
+                post_processing_results = []
+                existing_post_processing_ids = set()
+
                 # Copy unprocessed results
                 for inference_json_line in inference_json_results:
                     if inference_json_line['id'] not in existing_post_processing_ids:
@@ -616,16 +684,9 @@ async def process_all_configs():
                     print(f"File {inference_json_result_path} not found. Skipping post processing.")
                     continue
     
-                if evaluation_caching:
-                    try:
-                        post_processing_results, existing_post_processing_ids = load_json_lines_from_file(post_processing_result_path)
-                    except FileNotFoundError:
-                        print(f"File {post_processing_result_path} not found. Skipping post processing caching.")
-                        post_processing_results = []
-                        existing_post_processing_ids = set()
-                else:
-                    post_processing_results = []
-                    existing_post_processing_ids = set()
+               
+                post_processing_results = []
+                existing_post_processing_ids = set()
     
                 printed_warning = False
                 # Filter samples that haven't been processed yet
@@ -661,13 +722,160 @@ async def process_all_configs():
                     append_and_rewrite_json_lines(post_processing_result_path, post_processing_results)
     
                 print(f"Post-processing ({post_process_option.name}) completed - Hits: {post_processing_cache_stats['hits']}, Misses: {post_processing_cache_stats['misses']}")
-        if requires_evaluation:
-            # reload post processing results
+
+        # Translated answers pass: Translate function call parameters to English
+        if requires_post_translate:
+            # Load post-processed results
             try:
                 post_processing_results, _ = load_json_lines_from_file(post_processing_result_path)
             except FileNotFoundError:
-                print(f"File {post_processing_result_path} not found. Skipping evaluation.")
+                print(f"File {post_processing_result_path} not found. Skipping answer translation.")
                 continue
+
+            
+            translated_answers_results = []
+            existing_translated_answers_ids = set()
+
+            # Filter samples that haven't been translated yet
+            samples_to_translate = [sample for sample in post_processing_results if sample['id'] not in existing_translated_answers_ids]
+
+            if len(samples_to_translate) == 0:
+                print(f"All answers have already been translated. Skipping translation.")
+            else:
+                print(f"Translating {len(samples_to_translate)} answers to English...")
+
+                # Get backend and interface for translation
+                translation_backend = get_or_create_backend(
+                    model=config.model,
+                    num_gpus=args.num_gpus,
+                    max_model_len=2000
+                )
+                translation_interface = get_or_create_model_interface(config.model)
+
+                async def translate_answers_async():
+                    """Translate function call parameters asynchronously."""
+                    async def translate_dict_values(arguments: dict) -> dict:
+                        """Recursively translate string values in a dictionary."""
+                        translated = {}
+
+                        # Create translation tasks for all string values
+                        translation_tasks = []
+                        keys_to_translate = []
+
+                        for key, value in arguments.items():
+                            if isinstance(value, str):
+                                # Translate string values
+                                translation_tasks.append(
+                                    translation_interface.translate_tool_answer_async(
+                                        backend=translation_backend,
+                                        parameter_value=value
+                                    )
+                                )
+                                keys_to_translate.append(key)
+                            elif isinstance(value, dict):
+                                # Recursively handle nested dictionaries (not async to keep it simple)
+                                translated[key] = value  # Will be handled in second pass
+                            elif isinstance(value, list):
+                                # Handle lists (not translating for now, can be extended)
+                                translated[key] = value
+                            else:
+                                # Keep non-string values as is
+                                translated[key] = value
+
+                        # Wait for all translations to complete
+                        if translation_tasks:
+                            translated_values = await asyncio.gather(*translation_tasks)
+                            for key, translated_value in zip(keys_to_translate, translated_values):
+                                translated[key] = translated_value
+
+                        # Second pass: recursively translate nested dictionaries
+                        for key, value in arguments.items():
+                            if isinstance(value, dict) and key not in translated:
+                                translated[key] = await translate_dict_values(value)
+
+                        return translated
+
+                    async def translate_single_answer(sample):
+                        """Translate parameters in a single sample and return the modified sample."""
+                        result = sample.get("result", [])
+
+                        # If result is not a list or is empty, return as is
+                        if not isinstance(result, list) or len(result) == 0:
+                            return sample
+
+                        modified_result = []
+                        for func_call in result:
+                            if not isinstance(func_call, dict):
+                                modified_result.append(func_call)
+                                continue
+
+                            # Get the function name and arguments
+                            func_name = list(func_call.keys())[0] if func_call else None
+                            if not func_name:
+                                modified_result.append(func_call)
+                                continue
+
+                            arguments = func_call.get(func_name, {})
+
+                            # If no arguments, skip translation
+                            if not arguments or not isinstance(arguments, dict):
+                                modified_result.append(func_call)
+                                continue
+
+                            # Translate all string values in arguments
+                            try:
+                                translated_arguments = await translate_dict_values(arguments)
+
+                                # Create modified function call with translated arguments
+                                modified_result.append({func_name: translated_arguments})
+                            except Exception as e:
+                                print(f"Warning: Failed to translate parameters for sample {sample['id']}: {e}")
+                                exit(1)                                
+                                # # Keep original if translation fails
+                                # modified_result.append(func_call)
+
+                        # Create modified sample with translated parameters
+                        modified_sample = sample.copy()
+                        modified_sample["result"] = modified_result
+
+                        return modified_sample
+
+                    # Create all translation tasks
+                    tasks = [translate_single_answer(sample) for sample in samples_to_translate]
+
+                    # Process results as they complete
+                    completed_count = 0
+                    for coro in asyncio.as_completed(tasks):
+                        modified_sample = await coro
+                        completed_count += 1
+
+                        print(f"[{completed_count}/{len(samples_to_translate)}] Translated answer parameters for sample {modified_sample['id']}")
+
+                        translated_answers_results.append(modified_sample)
+
+                        # Write to file immediately
+                        write_json_lines_to_file(translated_answers_path, translated_answers_results)
+
+                # Run the async translation
+                await translate_answers_async()
+
+                print(f"All {len(samples_to_translate)} answers translated.")
+
+                # Final sort and write
+                if len(translated_answers_results) > 0:
+                    append_and_rewrite_json_lines(translated_answers_path, translated_answers_results)
+
+            # Update post_processing_results to use translated answers for evaluation
+            post_processing_results = translated_answers_results
+
+        if requires_evaluation:
+            # reload post processing results only if we didn't just translate them
+            if not requires_post_translate:
+                try:
+                    post_processing_results, _ = load_json_lines_from_file(post_processing_result_path)
+                except FileNotFoundError:
+                    print(f"File {post_processing_result_path} not found. Skipping evaluation.")
+                    continue
             if evaluation_caching:
                 try:
                     evaluation_results, existing_evaluation_ids = load_json_lines_from_file(evaluation_result_path)

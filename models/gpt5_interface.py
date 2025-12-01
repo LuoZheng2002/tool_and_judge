@@ -276,6 +276,100 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         except Exception as e:
             return f"Error parsing output: {str(e)}. Raw string: {raw_output}"
 
+    async def translate_tool_question_async(
+        self,
+        backend: ModelBackend,
+        question: str,
+        max_new_tokens: int = 512,
+        temperature: float = 0.0,
+    ) -> str:
+        """
+        Translate a user question to English using GPT-5.
+
+        Args:
+            backend: The backend (OpenAI client) to use for inference
+            question: The question text to translate
+            max_new_tokens: Maximum number of tokens to generate (unused for GPT-5)
+            temperature: Sampling temperature (unused for GPT-5)
+
+        Returns:
+            Translated question as a string
+        """
+        messages = [
+            {
+                "role": "developer",
+                "content": "You are a professional translator. Translate the given text to English accurately. If the given text is already in English or is language agnostic, return it unchanged."
+            },
+            {
+                "role": "user",
+                "content": f"Translate the following question to English. Only output the translated question, nothing else:\n\n{question}"
+            }
+        ]
+
+        # Get the OpenAI client from the backend
+        from .api_backend import APIBackend
+
+        if isinstance(backend, APIBackend):
+            client = backend.client
+        else:
+            # Fallback: assume backend is an OpenAI client directly (backward compatibility)
+            client = backend
+
+        response = await client.responses.create(
+            input=messages,
+            model=self.model_variant,
+            store=False
+        )
+
+        return response.output_text.strip()
+
+    async def translate_tool_answer_async(
+        self,
+        backend: ModelBackend,
+        parameter_value: str,
+        max_new_tokens: int = 256,
+        temperature: float = 0.0,
+    ) -> str:
+        """
+        Translate a single function parameter value to English using GPT-5.
+
+        Args:
+            backend: The backend (OpenAI client) to use for inference
+            parameter_value: The parameter value to translate
+            max_new_tokens: Maximum number of tokens to generate (unused for GPT-5)
+            temperature: Sampling temperature (unused for GPT-5)
+
+        Returns:
+            Translated parameter value as a string
+        """
+        messages = [
+            {
+                "role": "developer",
+                "content": "You are a professional translator. Translate the given text to English accurately. If the given text is already in English or is language agnostic, return it unchanged."
+            },
+            {
+                "role": "user",
+                "content": f"Translate the following text to English. Only output the translated text, nothing else:\n\n{parameter_value}"
+            }
+        ]
+
+        # Get the OpenAI client from the backend
+        from .api_backend import APIBackend
+
+        if isinstance(backend, APIBackend):
+            client = backend.client
+        else:
+            # Fallback: assume backend is an OpenAI client directly (backward compatibility)
+            client = backend
+
+        response = await client.responses.create(
+            input=messages,
+            model=self.model_variant,
+            store=False
+        )
+
+        return response.output_text.strip()
+
     # =========================================================================
     # JudgeModelInterface Methods
     # =========================================================================
