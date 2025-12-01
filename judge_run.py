@@ -3,10 +3,10 @@ LLM as Judge: Exploring the relationship between perplexity and preference
 """
 import os
 
-from collect_perplexity_local import collect_perplexity_local
-from collect_preference_local_direct import collect_preference_local_direct
-from collect_preference_local_cot import collect_preference_local_cot
-from generate_dataset import generate_answer_datasets
+from judge.collect_perplexity_local import collect_perplexity_local
+from judge.collect_preference_local_direct import collect_preference_local_direct
+from judge.collect_preference_local_cot import collect_preference_local_cot
+from judge.generate_dataset import generate_answer_datasets
 os.environ["HF_HOME"] = "/work/nvme/bfdz/zluo8/huggingface"
 import sys
 from datasets import load_dataset
@@ -16,9 +16,9 @@ import json
 import re
 import math
 import argparse
-from parse_dataset import parse_dataset, prepare_answer_pairs_bilingual
+from judge.parse_dataset import parse_dataset, prepare_answer_pairs_bilingual
 
-from config import *
+from judge.config import *
 from models import create_backend, create_interface
 
 # Set UTF-8 encoding for console output (Windows fix)
