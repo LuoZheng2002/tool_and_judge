@@ -9,10 +9,10 @@ from parse_ast import *
 import re
 from call_llm import make_chat_pipeline
 from models.model_factory import create_model_interface
-from post_processing import (
+from tool.allow_synonym import (
     load_or_create_cache,
     save_cache,
-    process_post_processing_sample
+    process_allow_synonym_sample
 )
 from utils.name_mapping import get_global_name_mapper
 
@@ -466,7 +466,7 @@ post_processing_cache_stats_same = {'hits': 0, 'misses': 0}
 for config in configs:
     print(f"Processing config: {config}", flush=True)   
     
-    post_process_option = PostProcessOption.DONT_POST_PROCESS
+    post_process_option = AllowSynonymOption.DONT_POST_PROCESS
     prompt_translate = False
     # map translate_info to language_postfix, translate_dataset_prefix, translate_mode_prefix
     match config.translate_mode:
@@ -486,21 +486,21 @@ for config in configs:
                     translate_mode_postfix = "_pt"  # prompt translate
                     translate_postfix = "_fp" # fully translated, prompt translate
                     prompt_translate = True
-                case TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT:
+                case TranslateOption.FULLY_TRANSLATED_ALLOW_SYNONYM_DIFFERENT_LANGUAGE:
                     translate_dataset_postfix = "_full"
                     translate_mode_postfix = "_ppd"  # post-process different
                     translate_postfix = "_f" # fully translated, do not prompt translate
-                    post_process_option = PostProcessOption.POST_PROCESS_DIFFERENT
-                case TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME:
+                    post_process_option = AllowSynonymOption.POST_PROCESS_DIFFERENT
+                case TranslateOption.FULLY_TRANSLATED_ALLOW_SYNONYM_SAME_LANGUAGE:
                     translate_dataset_postfix = "_full"
                     translate_mode_postfix = "_pps"  # post-process same
                     translate_postfix = "_f" # fully translated, do not prompt translate
-                    post_process_option = PostProcessOption.POST_PROCESS_SAME
-                case TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME:
+                    post_process_option = AllowSynonymOption.POST_PROCESS_SAME
+                case TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE:
                     translate_dataset_postfix = "_full"
                     translate_mode_postfix = "_ptps"  # prompt translate + post-process same
                     translate_postfix = "_fp" # fully translated, prompt translate
-                    post_process_option = PostProcessOption.POST_PROCESS_SAME
+                    post_process_option = AllowSynonymOption.POST_PROCESS_SAME
                 case TranslateOption.PARTIALLY_TRANSLATED:
                     translate_dataset_postfix = "_partial"
                     translate_mode_postfix = "_par" # partial
@@ -702,7 +702,7 @@ for config in configs:
         if len(inference_json_results) > 0:
             append_and_rewrite_json_lines(inference_json_result_path, inference_json_results)
     if requires_post_processing:
-        if post_process_option == PostProcessOption.DONT_POST_PROCESS:
+        if post_process_option == AllowSynonymOption.DONT_POST_PROCESS:
             # Simply copy inference_json results to post_processing results without modification
             try:
                 inference_json_results, _ = load_json_lines_from_file(inference_json_result_path)
@@ -735,11 +735,11 @@ for config in configs:
         else:
             # POST_PROCESS_DIFFERENT or POST_PROCESS_SAME: use LLM-based parameter matching
             # Select appropriate cache based on post_process_option
-            if post_process_option == PostProcessOption.POST_PROCESS_SAME:
+            if post_process_option == AllowSynonymOption.POST_PROCESS_SAME:
                 post_processing_cache = post_processing_cache_same
                 post_processing_cache_stats = post_processing_cache_stats_same
                 cache_path = post_processing_cache_same_path
-            elif post_process_option == PostProcessOption.POST_PROCESS_DIFFERENT:  # POST_PROCESS_DIFFERENT
+            elif post_process_option == AllowSynonymOption.POST_PROCESS_DIFFERENT:  # POST_PROCESS_DIFFERENT
                 post_processing_cache = post_processing_cache_different
                 post_processing_cache_stats = post_processing_cache_stats_different
                 cache_path = post_processing_cache_different_path
@@ -779,7 +779,7 @@ for config in configs:
                 if ground_truth_line is None:
                     raise ValueError(f"Ground truth not found for id: {id}")
                 # Process with LLM-based parameter matching
-                post_processing_entry = process_post_processing_sample(
+                post_processing_entry = process_allow_synonym_sample(
                     inference_json_line,
                     ground_truth_line,
                     ApiModel.GPT_4O_MINI,  # Use a powerful model for post-processing

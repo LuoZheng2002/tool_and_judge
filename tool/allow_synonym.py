@@ -10,7 +10,7 @@ import json
 import os
 from typing import Any, Dict, List, Tuple
 from tool.call_llm import api_inference
-from config import ApiModel, PostProcessOption
+from config import ApiModel, AllowSynonymOption
 
 
 def load_or_create_cache(cache_path: str) -> Dict[str, bool]:
@@ -79,7 +79,7 @@ def _make_cache_key(param_value: Any, ground_truth_value: Any) -> str:
 
 
 def llm_match_parameters(param_value: Any, ground_truth_value: Any,
-                         model: ApiModel, post_process_option: PostProcessOption,
+                         model: ApiModel, post_process_option: AllowSynonymOption,
                          cache: Dict[str, bool],
                          cache_path: str,
                          cache_stats: Dict[str, int]) -> bool:
@@ -134,7 +134,7 @@ def llm_match_parameters(param_value: Any, ground_truth_value: Any,
 Respond with only "yes" if they match, or "no" if they don't. Do not include any other text."""
 
     # Conditional user prompt based on post_process_option
-    if post_process_option == PostProcessOption.POST_PROCESS_SAME:
+    if post_process_option == AllowSynonymOption.POST_PROCESS_SAME:
         # Strict: require same language AND same meaning
         user_prompt = f"""Parameter value from model: {json.dumps(param_value, ensure_ascii=False)}
 Ground truth value: {json.dumps(ground_truth_value, ensure_ascii=False)}
@@ -173,7 +173,7 @@ Do these values match in meaning (ignoring language differences)?"""
 
 
 def recursive_replace_parameters(parsed_result: Any, ground_truth_result: Any,
-                                 model: ApiModel, post_process_option: PostProcessOption,
+                                 model: ApiModel, post_process_option: AllowSynonymOption,
                                  cache: Dict[str, bool],
                                  cache_path: str,
                                  cache_stats: Dict[str, int]) -> Any:
@@ -252,10 +252,10 @@ def recursive_replace_parameters(parsed_result: Any, ground_truth_result: Any,
         return parsed_result
 
 
-def process_post_processing_sample(inference_json_line: Dict[str, Any],
+def process_allow_synonym_sample(inference_json_line: Dict[str, Any],
                                    ground_truth_line: Dict[str, Any],
                                    model: ApiModel,
-                                   post_process_option: PostProcessOption,
+                                   post_process_option: AllowSynonymOption,
                                    cache: Dict[str, bool],
                                    cache_path: str,
                                    cache_stats: Dict[str, int]) -> Dict[str, Any]:

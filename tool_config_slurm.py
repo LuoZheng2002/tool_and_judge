@@ -40,10 +40,10 @@ for model in [LocalModel.QWEN3_30B_A3B]:
         NotTranslated(),
         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED),
         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE),
-        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT),
-        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME),
+        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_ALLOW_SYNONYM_DIFFERENT_LANGUAGE),
+        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_ALLOW_SYNONYM_SAME_LANGUAGE),
         Translated(language=Language.CHINESE, option=TranslateOption.PARTIALLY_TRANSLATED),
-        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME),
+        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE),
     ]:
         for add_noise_mode in [
             AddNoiseMode.NO_NOISE,
