@@ -15,6 +15,8 @@ DeepSeek models:
 import ast
 import json
 from typing import List, Dict, Any, Union, Optional, TYPE_CHECKING
+
+from models.api_backend import APIBackend
 from .base import (
     JudgeModelInterface,
     ToolModelInterface,
@@ -23,8 +25,7 @@ from .base import (
     ForwardResult,
 )
 
-if TYPE_CHECKING:
-    from .name_mapping import FunctionNameMapper
+from models.name_mapping import FunctionNameMapper
 
 
 class DeepSeekInterface(JudgeModelInterface, ToolModelInterface):
@@ -60,12 +61,12 @@ class DeepSeekInterface(JudgeModelInterface, ToolModelInterface):
     async def generate_tool_call_async(
         self,
         backend: ModelBackend,
-        functions: List[Dict[str, Any]],
+        raw_functions: List[Dict[str, Any]],
         user_query: str,
-        prompt_passing_in_english: bool = True,
+        name_mapper: FunctionNameMapper,
+        prompt_passing_in_english: bool,
         max_new_tokens: int = 512,
-        temperature: float = 0.0,
-        **kwargs
+        temperature: float = 0.0,        
     ) -> str:
         """
         Generate tool/function calls from a user query using DeepSeek API.
@@ -91,7 +92,7 @@ class DeepSeekInterface(JudgeModelInterface, ToolModelInterface):
         """
         # Build system prompt
         system_prompt = self._generate_system_prompt(
-            functions=functions,
+            functions=raw_functions,
             prompt_passing_in_english=prompt_passing_in_english
         )
 
@@ -102,7 +103,12 @@ class DeepSeekInterface(JudgeModelInterface, ToolModelInterface):
         ]
 
         # Call API through backend (which should be an OpenAI-compatible client)
-        client = backend
+        if isinstance(backend, APIBackend):
+            client = backend.client
+        else:
+            # Fallback: assume backend is an OpenAI client directly (backward compatibility)
+            client = backend
+        
         if not hasattr(client, 'chat'):
             raise TypeError(
                 "Backend must be an OpenAI-compatible client with chat.completions API. "
@@ -116,6 +122,7 @@ class DeepSeekInterface(JudgeModelInterface, ToolModelInterface):
         )
 
         return response.choices[0].message.content
+
 
     def postprocess_tool_calls(
         self,

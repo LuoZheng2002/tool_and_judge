@@ -22,8 +22,7 @@ from .base import (
     ForwardResult,
 )
 
-if TYPE_CHECKING:
-    from .name_mapping import FunctionNameMapper
+from models.name_mapping import FunctionNameMapper
 
 
 class Qwen3Interface(JudgeModelInterface, ToolModelInterface):
@@ -63,12 +62,12 @@ class Qwen3Interface(JudgeModelInterface, ToolModelInterface):
     async def generate_tool_call_async(
         self,
         backend: ModelBackend,
-        functions: List[Dict[str, Any]],
+        raw_functions: List[Dict[str, Any]],
         user_query: str,
-        prompt_passing_in_english: bool = True,
+        name_mapper: FunctionNameMapper,
+        prompt_passing_in_english: bool,
         max_new_tokens: int = 512,
-        temperature: float = 0.0,
-        **kwargs
+        temperature: float = 0.0,        
     ) -> str:
         """
         Generate tool/function calls from a user query.
@@ -118,7 +117,7 @@ At each turn, you should try your best to complete the tasks requested by the us
             "You are provided with function signatures within <tools></tools> XML tags:\n"
             "<tools>"
         )
-        for func in functions:
+        for func in preprocessed_functions:
             formatted_prompt += "\n" + json.dumps(func, ensure_ascii=False)
         formatted_prompt += (
             "\n</tools>\n\n"
@@ -145,10 +144,13 @@ At each turn, you should try your best to complete the tasks requested by the us
             max_new_tokens=max_new_tokens,
             temperature=temperature,
             do_sample=(temperature > 0),
-            **kwargs
         )
 
         return result.generated_text
+    
+    def preprocess_functions(self, functions, name_mapper):
+        # Preprocess function definitions for Qwen3 (no sanitization needed).
+        return functions
 
     def postprocess_tool_calls(
         self,

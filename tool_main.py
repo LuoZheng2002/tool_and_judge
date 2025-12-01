@@ -14,7 +14,11 @@ from tool.post_processing import (
     save_cache,
     process_post_processing_sample
 )
-from tool.utils.name_mapping import get_global_name_mapper
+from models.name_mapping import get_global_name_mapper
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ============================================================================
 # LOCAL MODEL INFERENCE BACKEND CONFIGURATION
@@ -279,6 +283,8 @@ post_processing_cache_same = load_or_create_cache(post_processing_cache_same_pat
 post_processing_cache_stats_different = {'hits': 0, 'misses': 0}
 post_processing_cache_stats_same = {'hits': 0, 'misses': 0}
 
+
+
 for config in configs:
     print(f"Processing config: {config}", flush=True)   
     
@@ -432,11 +438,11 @@ for config in configs:
                     """Process a single case and return the result with case info."""
                     functions = case['function']
                     user_question = case["question"][0][0]['content']
-
                     result = await model_interface.generate_tool_call_async(
                         backend=backend,
-                        functions=functions,
+                        raw_functions=functions,
                         user_query=user_question,
+                        name_mapper=get_global_name_mapper(),
                         prompt_passing_in_english=prompt_translate
                     )
                     return case, result
@@ -491,16 +497,7 @@ for config in configs:
         name_mapper = None
 
     # Ensure model_interface is created before inference_json or other passes
-    # This is needed when requires_inference_raw=False or all cases were skipped
-    if requires_inference_json or requires_post_processing or requires_evaluation or requires_score:
-        # Create model_interface if it doesn't exist yet
-        # Note: We don't create generator here since it's not used in these phases
-        # (only needed for actual inference)
-        if 'model_interface' not in locals():
-            model_interface = get_or_create_model_interface(config.model)
-
-        # Note: We no longer call populate_name_mapping() on model_interface
-        # Name mapping is handled by the global name_mapper instead
+    model_interface = get_or_create_model_interface(config.model)
 
     if requires_inference_json:
         # reload inference raw results
@@ -531,7 +528,7 @@ for config in configs:
             # convert raw result to json format
             # decoded_output = raw_to_json(config.model, id, inference_raw['result'])
             # Pass name_mapper to parse_output for models that need name sanitization
-            decoded_output = model_interface.parse_output(inference_raw['result'], name_mapper=name_mapper)
+            decoded_output = model_interface.postprocess_tool_calls(inference_raw['result'], name_mapper=name_mapper)
             inference_json_entry = {
                 "id": id,
                 "result": decoded_output

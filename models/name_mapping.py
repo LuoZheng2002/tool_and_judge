@@ -69,6 +69,8 @@ class FunctionNameMapper:
         """
         return self.name_mapping.get(sanitized_name, sanitized_name)
 
+
+    
     def get_sanitized_name(self, original_name: str) -> str:
         """
         Get sanitized version of original name (with automatic caching).
@@ -85,7 +87,6 @@ class FunctionNameMapper:
         # Check cache first
         if original_name in self.reverse_mapping:
             return self.reverse_mapping[original_name]
-
         # Cache miss: sanitize and register
         # Get all currently used sanitized names to avoid collisions
         existing_sanitized = set(self.name_mapping.keys())
@@ -147,7 +148,7 @@ class FunctionNameMapper:
             while f"{base_sanitized}_{counter}" in existing_sanitized:
                 counter += 1
             sanitized = f"{base_sanitized}_{counter}"
-
+        # print("sanitized name:", sanitized)
         return sanitized
 
 

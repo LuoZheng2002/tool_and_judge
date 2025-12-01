@@ -23,8 +23,7 @@ from .base import (
     ForwardResult,
 )
 
-if TYPE_CHECKING:
-    from .name_mapping import FunctionNameMapper
+from models.name_mapping import FunctionNameMapper
 
 
 class GPT5Interface(JudgeModelInterface, ToolModelInterface):
@@ -68,12 +67,12 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
     async def generate_tool_call_async(
         self,
         backend: ModelBackend,
-        functions: List[Dict[str, Any]],
+        raw_functions: List[Dict[str, Any]],
         user_query: str,
-        prompt_passing_in_english: bool = True,
+        name_mapper: FunctionNameMapper,
+        prompt_passing_in_english: bool,
         max_new_tokens: int = 512,
-        temperature: float = 0.0,
-        **kwargs
+        temperature: float = 0.0,        
     ) -> str:
         """
         Generate tool/function calls from a user query using GPT-5 API.
@@ -100,8 +99,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         """
         # Preprocess functions (sanitization + schema fixes)
         # Note: name_mapper should be passed in kwargs if needed, or create one here
-        name_mapper = kwargs.get('name_mapper')
-        tools = self._preprocess_and_convert_to_tools(functions, prompt_passing_in_english, name_mapper)
+        tools = self._sanitize_and_convert_functions_to_tools(raw_functions, prompt_passing_in_english, name_mapper=name_mapper)
 
         # Build developer message with strong instructions
         developer_message = {
@@ -140,15 +138,22 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         if tools:
             api_params["tools"] = tools
 
-        # Call the API through backend (which should be an OpenAI client)
-        client = backend
+        # Get the OpenAI client from the backend
+        from .api_backend import APIBackend
+
+        if isinstance(backend, APIBackend):
+            client = backend.client
+        else:
+            # Fallback: assume backend is an OpenAI client directly (backward compatibility)
+            client = backend
+
         if not hasattr(client, 'responses'):
             raise TypeError(
-                "Backend must be an OpenAI client with responses API. "
-                "Got: " + str(type(client))
+                "Backend must be an APIBackend or OpenAI client with responses API. "
+                "Got: " + str(type(backend))
             )
 
-        response = client.responses.create(**api_params)
+        response = await client.responses.create(**api_params)
 
         # Parse response
         model_responses = []
@@ -183,7 +188,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
     def preprocess_functions(
         self,
         functions: List[Dict[str, Any]],
-        name_mapper: Optional['FunctionNameMapper'] = None
+        name_mapper: Optional['FunctionNameMapper']
     ) -> List[Dict[str, Any]]:
         """
         Preprocess function definitions for GPT-5.
@@ -200,7 +205,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         Returns:
             Preprocessed function definitions in GPT-5 tools format
         """
-        return self._preprocess_and_convert_to_tools(functions, prompt_passing_in_english=True, name_mapper=name_mapper)
+        return self._sanitize_and_convert_functions_to_tools(functions, prompt_passing_in_english=True, name_mapper=name_mapper)
 
     def postprocess_tool_calls(
         self,
@@ -323,8 +328,15 @@ Provide your judgment IMMEDIATELY without reasoning or explanation. Provide your
             }
         ]
 
-        # Call API
-        client = backend
+        # Get the OpenAI client from the backend
+        from .api_backend import APIBackend
+
+        if isinstance(backend, APIBackend):
+            client = backend.client
+        else:
+            # Fallback: assume backend is an OpenAI client directly (backward compatibility)
+            client = backend
+
         response = client.responses.create(
             input=messages,
             model=self.model_variant,
@@ -389,8 +401,16 @@ Please briefly explain your reasoning, and then provide your final decision in t
             }
         ]
 
+        # Get the OpenAI client from the backend
+        from .api_backend import APIBackend
+
+        if isinstance(backend, APIBackend):
+            client = backend.client
+        else:
+            # Fallback: assume backend is an OpenAI client directly (backward compatibility)
+            client = backend
+
         # Call API with reasoning enabled
-        client = backend
         response = client.responses.create(
             input=messages,
             model=self.model_variant,
@@ -597,11 +617,11 @@ Please briefly explain your reasoning, and then provide your final decision in t
 
         return fixed
 
-    def _preprocess_and_convert_to_tools(
+    def _sanitize_and_convert_functions_to_tools(
         self,
         functions: List[Dict[str, Any]],
-        prompt_passing_in_english: bool = True,
-        name_mapper: Optional['FunctionNameMapper'] = None
+        prompt_passing_in_english: bool,
+        name_mapper: FunctionNameMapper,
     ) -> List[Dict[str, Any]]:
         """
         Preprocess and convert function definitions to GPT-5 tools format.
@@ -626,12 +646,8 @@ Please briefly explain your reasoning, and then provide your final decision in t
             func_description = func.get("description", "")
             func_parameters = func.get("parameters", {})
 
-            # Sanitize function name using name_mapper (automatically caches)
-            if name_mapper:
-                sanitized_name = name_mapper.get_sanitized_name(original_name)
-            else:
-                # Fallback: no sanitization if no mapper provided
-                sanitized_name = original_name
+            sanitized_name = name_mapper.get_sanitized_name(original_name)
+
 
             # Add English parameter instruction
             if prompt_passing_in_english and func_description:

@@ -185,12 +185,11 @@ def _create_api_backend(config: BackendConfig) -> ModelBackend:
         ValueError: If API configuration is invalid
     """
     # Import the API backend implementation
-    # Note: This assumes you have an api_backend.py module
     try:
         from .api_backend import APIBackend
     except ImportError:
         raise ImportError(
-            "API backend not available. Please create models/api_backend.py "
+            "API backend not available. Please ensure models/api_backend.py exists "
             "implementing the APIBackend class."
         )
 

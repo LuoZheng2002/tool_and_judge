@@ -14,12 +14,12 @@ Key Design Principles:
 """
 
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Tuple, Union, TYPE_CHECKING
+from typing import List, Dict, Any, Optional, Tuple, Union
 from dataclasses import dataclass
 import asyncio
 
-if TYPE_CHECKING:
-    from .name_mapping import FunctionNameMapper
+
+from models.name_mapping import FunctionNameMapper
 
 
 # =============================================================================
@@ -268,12 +268,12 @@ class ToolModelInterface(ModelInterface):
     async def generate_tool_call_async(
         self,
         backend: ModelBackend,
-        functions: List[Dict[str, Any]],
+        raw_functions: List[Dict[str, Any]],
         user_query: str,
-        prompt_passing_in_english: bool = True,
+        name_mapper: FunctionNameMapper,
+        prompt_passing_in_english: bool,
         max_new_tokens: int = 512,
-        temperature: float = 0.0,
-        **kwargs
+        temperature: float = 0.0,        
     ) -> str:
         """
         Generate tool/function calls from a user query.
@@ -301,7 +301,7 @@ class ToolModelInterface(ModelInterface):
     def generate_tool_call(
         self,
         backend: ModelBackend,
-        functions: List[Dict[str, Any]],
+        raw_functions: List[Dict[str, Any]],
         user_query: str,
         prompt_passing_in_english: bool = True,
         max_new_tokens: int = 512,
@@ -316,7 +316,7 @@ class ToolModelInterface(ModelInterface):
         return asyncio.run(
             self.generate_tool_call_async(
                 backend=backend,
-                functions=functions,
+                raw_functions=raw_functions,
                 user_query=user_query,
                 prompt_passing_in_english=prompt_passing_in_english,
                 max_new_tokens=max_new_tokens,
@@ -325,31 +325,31 @@ class ToolModelInterface(ModelInterface):
             )
         )
 
-    def preprocess_functions(
-        self,
-        functions: List[Dict[str, Any]],
-        name_mapper: Optional['FunctionNameMapper'] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        Preprocess function definitions before passing to model.
+    # def preprocess_functions(
+    #     self,
+    #     functions: List[Dict[str, Any]],
+    #     name_mapper: Optional['FunctionNameMapper']
+    # ) -> List[Dict[str, Any]]:
+    #     """
+    #     Preprocess function definitions before passing to model.
 
-        This is where you can:
-        - Sanitize function names (e.g., GPT-5 requires alphanumeric)
-        - Fix JSON schemas (e.g., convert "dict" to "object")
-        - Add prompt instructions
-        - Use name_mapper.get_sanitized_name() to sanitize and cache mappings
+    #     This is where you can:
+    #     - Sanitize function names (e.g., GPT-5 requires alphanumeric)
+    #     - Fix JSON schemas (e.g., convert "dict" to "object")
+    #     - Add prompt instructions
+    #     - Use name_mapper.get_sanitized_name() to sanitize and cache mappings
 
-        Default implementation returns functions unchanged.
+    #     Default implementation returns functions unchanged.
 
-        Args:
-            functions: List of function definitions
-            name_mapper: FunctionNameMapper instance for sanitizing names
-                        (automatically caches mappings on get_sanitized_name() calls)
+    #     Args:
+    #         functions: List of function definitions
+    #         name_mapper: FunctionNameMapper instance for sanitizing names
+    #                     (automatically caches mappings on get_sanitized_name() calls)
 
-        Returns:
-            Preprocessed function definitions
-        """
-        return functions
+    #     Returns:
+    #         Preprocessed function definitions
+    #     """
+    #     return functions
 
     @abstractmethod
     def postprocess_tool_calls(
