@@ -424,7 +424,8 @@ for config in configs:
                 backend_type=backend_type,
                 model_name=model_name,
                 device="cuda",
-                num_gpus=args.num_gpus
+                num_gpus=args.num_gpus,
+                max_model_len=2000
             )
             model_interface = get_or_create_model_interface(config.model)
 

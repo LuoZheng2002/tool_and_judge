@@ -162,14 +162,14 @@ def create_model_backend(
         # Extract vLLM-specific kwargs
         tensor_parallel_size = kwargs.get('tensor_parallel_size', 1)
         gpu_memory_utilization = kwargs.get('gpu_memory_utilization', 0.9)
-        max_model_len = kwargs.get('max_model_len', None)
+        # max_model_len = kwargs.get('max_model_len', None)
 
         return VLLMBackend(
             model_name=model_name,
             tokenizer=tokenizer,
             tensor_parallel_size=tensor_parallel_size,
             gpu_memory_utilization=gpu_memory_utilization,
-            max_model_len=max_model_len
+            max_model_len=1000 # Zheng: modify here for max_model_len
         )
 
     else:

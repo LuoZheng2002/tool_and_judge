@@ -117,7 +117,7 @@ At each turn, you should try your best to complete the tasks requested by the us
             "You are provided with function signatures within <tools></tools> XML tags:\n"
             "<tools>"
         )
-        for func in preprocessed_functions:
+        for func in raw_functions:
             formatted_prompt += "\n" + json.dumps(func, ensure_ascii=False)
         formatted_prompt += (
             "\n</tools>\n\n"
