@@ -342,6 +342,18 @@ async def process_all_configs():
                         prompt_translate_tag = "_noprompt"
                         post_translate_tag = "_noposttrans"
                         allow_synonym_tag = "_noallow"
+                    case TranslateOption.FULLY_TRANSLATED_PRE_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE:
+                        translate_level_tag = "_fulltrans"
+                        pre_translate_tag = "_pretrans"
+                        prompt_translate_tag = "_noprompt"
+                        post_translate_tag = "_noposttrans"
+                        allow_synonym_tag = "_allowsame"
+                    case TranslateOption.FULLY_TRANSLATED_POST_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE:
+                        translate_level_tag = "_fulltrans"
+                        pre_translate_tag = "_nopretrans"
+                        prompt_translate_tag = "_noprompt"
+                        post_translate_tag = "_posttrans"
+                        allow_synonym_tag = "_allowsame"
                     case _:
                         raise ValueError(f"Unsupported translate option: {option}")
             case NotTranslated():
@@ -366,7 +378,7 @@ async def process_all_configs():
         model_dir_name = get_model_directory_name(config.model)
 
 
-        dataset_path = f"tool/dataset/BFCL_v4_multiple{language_tag}{translate_level_tag}{noise_tag}.json"
+        unpretranslated_dataset_path = f"tool/dataset/BFCL_v4_multiple{language_tag}{translate_level_tag}{noise_tag}.json"
         ground_truth_path = f"tool/dataset/possible_answer/BFCL_v4_multiple.json"
         # file names to write to or read from if applicable
 
@@ -378,15 +390,15 @@ async def process_all_configs():
         # assign pre_translate_input_path
         # assign pre_translate_output_path
         if pre_translate_tag == "_pretrans":
-            pre_translate_input_path = dataset_path
-            pre_translate_output_path = f"tool/result/translated_questions/{model_dir_name}/{pre_translate_output_combined_tags}.json"
+            pre_translate_input_path = unpretranslated_dataset_path
+            pre_translate_output_path = f"tool/result/pre_translate/{model_dir_name}/{pre_translate_output_combined_tags}.json"
         else:
             assert pre_translate_tag == "_nopretrans"
         # assign inference_raw_input_path
         if pre_translate_tag == "_pretrans":            
-            inference_raw_input_path = f"tool/result/translated_questions/{model_dir_name}/{pre_translate_output_combined_tags}.json"
+            inference_raw_input_path = f"tool/result/pre_translate/{model_dir_name}/{pre_translate_output_combined_tags}.json"
         elif pre_translate_tag == "_nopretrans":            
-            inference_raw_input_path = dataset_path
+            inference_raw_input_path = unpretranslated_dataset_path
         else:
             raise ValueError(f"Unsupported pre_translate_tag: {pre_translate_tag}")
         
@@ -427,7 +439,7 @@ async def process_all_configs():
         # assign score_output_path
         score_output_path = f"tool/result/score/{model_dir_name}/{allow_synonym_output_combined_tags}.json"
 
-        test_cases, _ = load_json_lines_from_file(dataset_path)
+        test_cases, _ = load_json_lines_from_file(unpretranslated_dataset_path)
         ground_truths, _ = load_json_lines_from_file(ground_truth_path)
 
         # ═══════════════════════════════════════════════════════════════════════
@@ -435,7 +447,7 @@ async def process_all_configs():
         # ═══════════════════════════════════════════════════════════════════════
         # Translates questions from the source language to English before inference.
         # This pass runs when FULLY_TRANSLATED_PRE_TRANSLATE option is enabled.
-        # Output: tool/result/translated_questions/{model}/{language}.json
+        # Output: tool/result/pre_translate/{model}/{language}.json
         # ═══════════════════════════════════════════════════════════════════════
         if pre_translate_tag == "_nopretrans":
             # Skip translation - pass through original test cases
@@ -443,15 +455,15 @@ async def process_all_configs():
         else:
             assert pre_translate_tag == "_pretrans"
             try:
-                translated_questions_results, existing_translated_questions_ids = load_json_lines_from_file(pre_translate_output_path)
-                existing_translated_questions_ids = {entry["id"] for entry in translated_questions_results}
+                pre_translate_results, existing_pre_translate_ids = load_json_lines_from_file(pre_translate_output_path)
+                existing_pre_translate_ids = {entry["id"] for entry in pre_translate_results}
             except FileNotFoundError:
                 print(f"File {pre_translate_output_path} not found. It will be created.")
-                translated_questions_results = []
-                existing_translated_questions_ids = set()
+                pre_translate_results = []
+                existing_pre_translate_ids = set()
 
             # Filter cases that haven't been translated yet
-            cases_to_translate = [case for case in test_cases if case['id'] not in existing_translated_questions_ids]
+            cases_to_translate = [case for case in test_cases if case['id'] not in existing_pre_translate_ids]
 
             if len(cases_to_translate) == 0:
                 print(f"All test cases have already been translated. Skipping translation.")
@@ -495,10 +507,10 @@ async def process_all_configs():
 
                         print(f"[{completed_count}/{len(cases_to_translate)}] Translated question for case {modified_case['id']}")
 
-                        translated_questions_results.append(modified_case)
+                        pre_translate_results.append(modified_case)
 
                         # Write to file immediately
-                        write_json_lines_to_file(pre_translate_output_path, translated_questions_results)
+                        write_json_lines_to_file(pre_translate_output_path, pre_translate_results)
 
                 # Run the async translation
                 await translate_questions_async()
@@ -506,14 +518,14 @@ async def process_all_configs():
                 print(f"All {len(cases_to_translate)} questions translated.")
 
                 # Final sort and write
-                if len(translated_questions_results) > 0:
-                    append_and_rewrite_json_lines(pre_translate_output_path, translated_questions_results)
+                if len(pre_translate_results) > 0:
+                    append_and_rewrite_json_lines(pre_translate_output_path, pre_translate_results)
 
         # ═══════════════════════════════════════════════════════════════════════
         # PASS 2: Inference Raw
         # ═══════════════════════════════════════════════════════════════════════
         # Generates raw model outputs for each test case using function calling.
-        # Input: test_cases (from translated_questions if pre-translate enabled, else dataset)
+        # Input: test_cases (from pre_translate if pre-translate enabled, else dataset)
         # Output: tool/result/inference_raw/{model}/{filename}.json
         # ═══════════════════════════════════════════════════════════════════════
         try:
