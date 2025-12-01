@@ -761,6 +761,22 @@
     "\"user_table\"|||\"user\"": false,
     "\"True\"|||true": false,
     "2023|||\"\"": false,
-    "2023|||2024": false
+    "2023|||2024": false,
+    "2|||1": false,
+    "\"西雅图\"|||\"Seattle\"": false,
+    "\"西雅图\"|||\"Seattle, WA\"": false,
+    "\"R v. Adams\"|||\"R vs Adams\"": true,
+    "\"rosewood\"|||\"Rosewood\"": true,
+    "\"classic\"|||\"classical\"": false,
+    "\"noodles\"|||\"pasta\"": true,
+    "\"波士顿\"|||\"Boston\"": false,
+    "\"波士顿\"|||\"Boston, MA\"": false,
+    "\"寿司\"|||\"Sushi\"": false,
+    "\"紫檀木\"|||\"Rosewood\"": false,
+    "\"海鲜\"|||\"Seafood\"": false,
+    "\"圣地亚哥\"|||\"San Diego\"": false,
+    "\"圣地亚哥\"|||\"San Diego County\"": false,
+    "\"行为心理学和群体动力学\"|||\"psychology\"": false,
+    "\"行为心理学和群体动力学\"|||\"Psychology\"": false
   }
 }

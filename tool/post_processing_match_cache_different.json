@@ -532,6 +532,18 @@
     "\"small area gardening design\"|||\"small space garden design\"": true,
     "\"timings, exhibitions, accessibility\"|||[\"timings\", \"exhibitions\", \"accessibility\"]": true,
     "\"芝加哥希尔顿旅馆\"|||\"Hilton Hotel\"": true,
-    "\"England\"|||\"\"": false
+    "\"England\"|||\"\"": false,
+    "2|||1": false,
+    "\"西雅图\"|||\"Seattle\"": true,
+    "\"R v. Adams\"|||\"R vs Adams\"": true,
+    "\"rosewood\"|||\"Rosewood\"": true,
+    "\"classic\"|||\"classical\"": true,
+    "\"noodles\"|||\"pasta\"": true,
+    "\"波士顿\"|||\"Boston\"": true,
+    "\"寿司\"|||\"Sushi\"": true,
+    "\"紫檀木\"|||\"Rosewood\"": true,
+    "\"海鲜\"|||\"Seafood\"": true,
+    "\"圣地亚哥\"|||\"San Diego\"": true,
+    "\"行为心理学和群体动力学\"|||\"psychology\"": true
   }
 }

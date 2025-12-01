@@ -1,0 +1,118 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+Process EngineCore_0:
+Traceback (most recent call last):
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 400, in run_engine_core
+    raise e
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 387, in run_engine_core
+    engine_core = EngineCoreProc(*args, **kwargs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 329, in __init__
+    super().__init__(vllm_config, executor_class, log_stats,
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 64, in __init__
+    self.model_executor = executor_class(vllm_config)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/executor/executor_base.py", line 52, in __init__
+    self._init_executor()
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/executor/uniproc_executor.py", line 47, in _init_executor
+    self.collective_rpc("load_model")
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/executor/uniproc_executor.py", line 56, in collective_rpc
+    answer = run_method(self.driver_worker, method, args, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/utils.py", line 2456, in run_method
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 162, in load_model
+    self.model_runner.load_model()
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 1332, in load_model
+    self.model = get_model(vllm_config=self.vllm_config)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/__init__.py", line 14, in get_model
+    return loader.load_model(vllm_config=vllm_config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 452, in load_model
+    model = _initialize_model(vllm_config=vllm_config)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 133, in _initialize_model
+    return model_class(vllm_config=vllm_config, prefix=prefix)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 488, in __init__
+    self.model = Qwen3MoeModel(vllm_config=vllm_config,
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/compilation/decorators.py", line 151, in __init__
+    old_init(self, vllm_config=vllm_config, prefix=prefix, **kwargs)
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 334, in __init__
+    self.start_layer, self.end_layer, self.layers = make_layers(
+                                                    ^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/utils.py", line 610, in make_layers
+    maybe_offload_to_cpu(layer_fn(prefix=f"{prefix}.{idx}"))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 336, in <lambda>
+    lambda prefix: Qwen3MoeDecoderLayer(config=config,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 278, in __init__
+    self.mlp = Qwen3MoeSparseMoeBlock(config=config,
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 113, in __init__
+    self.experts = FusedMoE(num_experts=config.num_experts,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/layer.py", line 517, in __init__
+    self.quant_method.create_weights(layer=self, **moe_quant_params)
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/layer.py", line 93, in create_weights
+    w2_weight = torch.nn.Parameter(torch.empty(
+                                   ^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/torch/utils/_device.py", line 104, in __torch_function__
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 384.00 MiB. GPU 0 has a total capacity of 39.38 GiB of which 364.12 MiB is free. Including non-PyTorch memory, this process has 39.02 GiB memory in use. Of the allocated memory 38.52 GiB is allocated by PyTorch, and 13.45 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Traceback (most recent call last):
+  File "/projects/bfdz/zluo8/tool_and_judge/tool_main.py", line 747, in <module>
+    asyncio.run(process_all_configs())
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/tool_main.py", line 493, in process_all_configs
+    await process_batch_async()
+  File "/projects/bfdz/zluo8/tool_and_judge/tool_main.py", line 453, in process_batch_async
+    backend = get_or_create_backend(
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/tool_main.py", line 282, in get_or_create_backend
+    return create_backend(
+           ^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/models/model_factory.py", line 467, in create_backend
+    return _global_backend_cache.get_or_create(config, creator_func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/models/model_factory.py", line 135, in get_or_create
+    self._current_backend = creator_func(config)
+                            ^^^^^^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/models/model_factory.py", line 365, in _create_vllm_backend
+    return VLLMBackend(
+           ^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/models/vllm_backend.py", line 57, in __init__
+    self.engine = AsyncLLMEngine.from_engine_args(engine_args)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/engine/async_llm_engine.py", line 684, in from_engine_args
+    return async_engine_cls.from_vllm_config(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/async_llm.py", line 150, in from_vllm_config
+    return cls(
+           ^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/async_llm.py", line 118, in __init__
+    self.engine_core = core_client_class(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 642, in __init__
+    super().__init__(
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 398, in __init__
+    self._wait_for_engine_startup()
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 430, in _wait_for_engine_startup
+    raise RuntimeError("Engine core initialization failed. "
+RuntimeError: Engine core initialization failed. See root cause above.

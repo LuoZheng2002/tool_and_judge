@@ -1,0 +1,224 @@
+Loading configs from: tool_config_slurm.py
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/vanilla.json: {'accuracy': 0.95, 'total_cases': 200, 'correct_cases': 190}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/syno.json: {'accuracy': 0.895, 'total_cases': 200, 'correct_cases': 179}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/para.json: {'accuracy': 0.94, 'total_cases': 200, 'correct_cases': 188}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED: 1>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_f.json: {'accuracy': 0.51, 'total_cases': 200, 'correct_cases': 102}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED: 1>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED: 1>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_f_syno.json: {'accuracy': 0.495, 'total_cases': 200, 'correct_cases': 99}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED: 1>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED: 1>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_f_para.json: {'accuracy': 0.52, 'total_cases': 200, 'correct_cases': 104}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED: 1>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE: 2>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_pt.json: {'accuracy': 0.59, 'total_cases': 200, 'correct_cases': 118}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE: 2>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE: 2>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_pt_syno.json: {'accuracy': 0.57, 'total_cases': 200, 'correct_cases': 114}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE: 2>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE: 2>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_pt_para.json: {'accuracy': 0.62, 'total_cases': 200, 'correct_cases': 124}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE: 2>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT: 4>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_DIFFERENT) completed - Hits: 158, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_ppd.json: {'accuracy': 0.94, 'total_cases': 200, 'correct_cases': 188}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT: 4>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT: 4>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_DIFFERENT) completed - Hits: 322, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_ppd_syno.json: {'accuracy': 0.925, 'total_cases': 200, 'correct_cases': 185}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT: 4>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT: 4>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_DIFFERENT) completed - Hits: 487, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_ppd_para.json: {'accuracy': 0.925, 'total_cases': 200, 'correct_cases': 185}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_DIFFERENT: 4>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME: (5,)>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_SAME) completed - Hits: 261, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_pps.json: {'accuracy': 0.58, 'total_cases': 200, 'correct_cases': 116}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME: (5,)>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME: (5,)>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_SAME) completed - Hits: 526, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_pps_syno.json: {'accuracy': 0.56, 'total_cases': 200, 'correct_cases': 112}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME: (5,)>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME: (5,)>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_SAME) completed - Hits: 786, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_pps_para.json: {'accuracy': 0.575, 'total_cases': 200, 'correct_cases': 115}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_POST_PROCESS_SAME: (5,)>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.PARTIALLY_TRANSLATED: 3>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+possible_answer keys: dict_keys(['t_test'])
+param:  unit
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_par.json: {'accuracy': 0.875, 'total_cases': 200, 'correct_cases': 175}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.PARTIALLY_TRANSLATED: 3>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.PARTIALLY_TRANSLATED: 3>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_par_syno.json: {'accuracy': 0.825, 'total_cases': 200, 'correct_cases': 165}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.PARTIALLY_TRANSLATED: 3>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.PARTIALLY_TRANSLATED: 3>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Post-processing: Copied 200 results without modification (DONT_POST_PROCESS)
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_par_para.json: {'accuracy': 0.83, 'total_cases': 200, 'correct_cases': 166}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.PARTIALLY_TRANSLATED: 3>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME: (6,)>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_SAME) completed - Hits: 1005, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_ptps.json: {'accuracy': 0.66, 'total_cases': 200, 'correct_cases': 132}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME: (6,)>), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME: (6,)>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_SAME) completed - Hits: 1227, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_ptps_syno.json: {'accuracy': 0.64, 'total_cases': 200, 'correct_cases': 128}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME: (6,)>), add_noise_mode=<AddNoiseMode.SYNONYM: 2>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME: (6,)>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Warning: some test cases already exist in inference result file. Skipping 200 cases.
+All test cases for Qwen/Qwen3-8B have already been processed. Skipping model loading and inference.
+Debug: matched special case
+Post-processing (POST_PROCESS_SAME) completed - Hits: 1442, Misses: 0
+Score result written to tool/result/score/Qwen-Qwen3-8B/zh_ptps_para.json: {'accuracy': 0.685, 'total_cases': 200, 'correct_cases': 137}
+Completed processing for config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=Translated(language=<Language.CHINESE: 1>, option=<TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_POST_PROCESS_SAME: (6,)>), add_noise_mode=<AddNoiseMode.PARAPHRASE: 3>)
+Processing config: ToolConfig(model=<LocalModel.QWEN3_30B_A3B: 'Qwen/Qwen3-30B-A3B'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+File tool/result/inference_raw/Qwen-Qwen3-30B-A3B/vanilla.json not found. It will be created.
+Entering inference phase...
+Local model inference configuration:
+  Model: Qwen/Qwen3-30B-A3B
+  Model size: 30B
+  Number of GPUs: 1
+  Backend: vLLM
+  Concurrent requests: 200 (vLLM handles internal batching)
+
+Submitting 200 requests concurrently...
+Creating new backend: vllm:Qwen/Qwen3-30B-A3B:1
+Loading tokenizer for: Qwen/Qwen3-30B-A3B
+INFO 12-01 01:55:13 [importing.py:53] Triton module has been replaced with a placeholder.
+INFO 12-01 01:55:15 [__init__.py:239] Automatically detected platform cuda.
+INFO 12-01 01:55:39 [config.py:717] This model supports multiple tasks: {'score', 'embed', 'generate', 'classify', 'reward'}. Defaulting to 'generate'.
+INFO 12-01 01:55:39 [config.py:2003] Chunked prefill is enabled with max_num_batched_tokens=2048.
+INFO 12-01 01:55:41 [core.py:58] Initializing a V1 LLM engine (v0.8.5) with config: model='Qwen/Qwen3-30B-A3B', speculative_config=None, tokenizer='Qwen/Qwen3-30B-A3B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=2000, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='auto', reasoning_backend=None), observability_config=ObservabilityConfig(show_hidden_metrics=False, otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=None, served_model_name=Qwen/Qwen3-30B-A3B, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=True, chunked_prefill_enabled=True, use_async_output_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"level":3,"custom_ops":["none"],"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"use_inductor":true,"compile_sizes":[],"use_cudagraph":true,"cudagraph_num_of_warmups":1,"cudagraph_capture_sizes":[512,504,496,488,480,472,464,456,448,440,432,424,416,408,400,392,384,376,368,360,352,344,336,328,320,312,304,296,288,280,272,264,256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":512}
+WARNING 12-01 01:55:43 [utils.py:2522] Methods determine_num_available_blocks,device_config,get_cache_block_size_bytes,initialize_cache not implemented in <vllm.v1.worker.gpu_worker.Worker object at 0x7efbdd2e4950>
+INFO 12-01 01:55:45 [parallel_state.py:1004] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, TP rank 0
+INFO 12-01 01:55:45 [cuda.py:221] Using Flash Attention backend on V1 engine.
+WARNING 12-01 01:55:45 [topk_topp_sampler.py:69] FlashInfer is not available. Falling back to the PyTorch-native implementation of top-p & top-k sampling. For the best performance, please install FlashInfer.
+INFO 12-01 01:55:45 [gpu_model_runner.py:1329] Starting to load model Qwen/Qwen3-30B-A3B...
+ERROR 12-01 01:55:45 [core.py:396] EngineCore failed to start.
+ERROR 12-01 01:55:45 [core.py:396] Traceback (most recent call last):
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 387, in run_engine_core
+ERROR 12-01 01:55:45 [core.py:396]     engine_core = EngineCoreProc(*args, **kwargs)
+ERROR 12-01 01:55:45 [core.py:396]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 329, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     super().__init__(vllm_config, executor_class, log_stats,
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 64, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     self.model_executor = executor_class(vllm_config)
+ERROR 12-01 01:55:45 [core.py:396]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/executor/executor_base.py", line 52, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     self._init_executor()
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/executor/uniproc_executor.py", line 47, in _init_executor
+ERROR 12-01 01:55:45 [core.py:396]     self.collective_rpc("load_model")
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/executor/uniproc_executor.py", line 56, in collective_rpc
+ERROR 12-01 01:55:45 [core.py:396]     answer = run_method(self.driver_worker, method, args, kwargs)
+ERROR 12-01 01:55:45 [core.py:396]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/utils.py", line 2456, in run_method
+ERROR 12-01 01:55:45 [core.py:396]     return func(*args, **kwargs)
+ERROR 12-01 01:55:45 [core.py:396]            ^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 162, in load_model
+ERROR 12-01 01:55:45 [core.py:396]     self.model_runner.load_model()
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 1332, in load_model
+ERROR 12-01 01:55:45 [core.py:396]     self.model = get_model(vllm_config=self.vllm_config)
+ERROR 12-01 01:55:45 [core.py:396]                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/__init__.py", line 14, in get_model
+ERROR 12-01 01:55:45 [core.py:396]     return loader.load_model(vllm_config=vllm_config)
+ERROR 12-01 01:55:45 [core.py:396]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 452, in load_model
+ERROR 12-01 01:55:45 [core.py:396]     model = _initialize_model(vllm_config=vllm_config)
+ERROR 12-01 01:55:45 [core.py:396]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 133, in _initialize_model
+ERROR 12-01 01:55:45 [core.py:396]     return model_class(vllm_config=vllm_config, prefix=prefix)
+ERROR 12-01 01:55:45 [core.py:396]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 488, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     self.model = Qwen3MoeModel(vllm_config=vllm_config,
+ERROR 12-01 01:55:45 [core.py:396]                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/compilation/decorators.py", line 151, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     old_init(self, vllm_config=vllm_config, prefix=prefix, **kwargs)
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 334, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     self.start_layer, self.end_layer, self.layers = make_layers(
+ERROR 12-01 01:55:45 [core.py:396]                                                     ^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/utils.py", line 610, in make_layers
+ERROR 12-01 01:55:45 [core.py:396]     maybe_offload_to_cpu(layer_fn(prefix=f"{prefix}.{idx}"))
+ERROR 12-01 01:55:45 [core.py:396]                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 336, in <lambda>
+ERROR 12-01 01:55:45 [core.py:396]     lambda prefix: Qwen3MoeDecoderLayer(config=config,
+ERROR 12-01 01:55:45 [core.py:396]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 278, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     self.mlp = Qwen3MoeSparseMoeBlock(config=config,
+ERROR 12-01 01:55:45 [core.py:396]                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/models/qwen3_moe.py", line 113, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     self.experts = FusedMoE(num_experts=config.num_experts,
+ERROR 12-01 01:55:45 [core.py:396]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/layer.py", line 517, in __init__
+ERROR 12-01 01:55:45 [core.py:396]     self.quant_method.create_weights(layer=self, **moe_quant_params)
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/layers/fused_moe/layer.py", line 93, in create_weights
+ERROR 12-01 01:55:45 [core.py:396]     w2_weight = torch.nn.Parameter(torch.empty(
+ERROR 12-01 01:55:45 [core.py:396]                                    ^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/torch/utils/_device.py", line 104, in __torch_function__
+ERROR 12-01 01:55:45 [core.py:396]     return func(*args, **kwargs)
+ERROR 12-01 01:55:45 [core.py:396]            ^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-01 01:55:45 [core.py:396] torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 384.00 MiB. GPU 0 has a total capacity of 39.38 GiB of which 364.12 MiB is free. Including non-PyTorch memory, this process has 39.02 GiB memory in use. Of the allocated memory 38.52 GiB is allocated by PyTorch, and 13.45 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
