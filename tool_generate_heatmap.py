@@ -220,7 +220,7 @@ if __name__ == "__main__":
     # Generate heatmaps for different models
     # Model names should match the directory names in result/score/
     # Examples: "gpt-5", "gpt-5-mini", "gpt-5-nano"
-    models = ["gpt-5", "gpt-5-mini", "gpt-5-nano"]
+    models = ["Qwen-Qwen3-14B"]
 
     for model in models:
         print(f"\n{'='*60}")
