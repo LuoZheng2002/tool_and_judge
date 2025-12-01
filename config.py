@@ -26,7 +26,7 @@ class LocalModel(Enum):
     QWEN3_14B = "Qwen/Qwen3-14B"
     QWEN3_30B_A3B = "Qwen/Qwen3-30B-A3B"
     QWEN3_32B = "Qwen/Qwen3-32B-A3B"
-    QWEN3_NEXT_80B = "Qwen/Qwen3-Next-80B-A3B-Instruct"
+    QWEN3_NEXT_80B_A3B = "Qwen/Qwen3-Next-80B-A3B-Instruct"
 
 ToolModel = Union[ApiModel, LocalModel]
 

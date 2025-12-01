@@ -35,7 +35,7 @@ class BackendConfig:
     base_url: Optional[str] = None  # For custom API endpoints
     device: str = "cuda"  # For local backends
     num_gpus: int = 1  # For local backends
-    tensor_parallel_size: Optional[int] = None  # For vLLM
+    
     gpu_memory_utilization: float = 0.9  # For vLLM
     max_model_len: Optional[int] = None  # For vLLM
     max_batch_size: Optional[int] = None  # For HuggingFace
@@ -360,7 +360,7 @@ def _create_vllm_backend(config: BackendConfig) -> ModelBackend:
     )
 
     # Determine tensor parallel size
-    tensor_parallel_size = config.tensor_parallel_size or config.num_gpus
+    tensor_parallel_size = config.num_gpus
 
     return VLLMBackend(
         model_name=config.model_name,
@@ -442,7 +442,6 @@ def create_backend(
         base_url=base_url,
         device=device,
         num_gpus=num_gpus,
-        tensor_parallel_size=kwargs.get('tensor_parallel_size'),
         gpu_memory_utilization=kwargs.get('gpu_memory_utilization', 0.9),
         max_model_len=kwargs.get('max_model_len'),
         max_batch_size=kwargs.get('max_batch_size'),

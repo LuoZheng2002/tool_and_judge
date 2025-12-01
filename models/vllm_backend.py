@@ -43,7 +43,7 @@ class VLLMBackend(ModelBackend):
         self.model_name = model_name
         self.tokenizer = tokenizer
         self.SamplingParams = SamplingParams
-
+        print(f"Initializing vLLM backend with tensor parallel size {tensor_parallel_size}...")
         # Create engine args
         engine_args = AsyncEngineArgs(
             model=model_name,

@@ -106,7 +106,7 @@ def _create_local_model_interface(model: LocalModel) -> ModelInterface:
             return Qwen3Interface(model_id="Qwen/Qwen3-14B")
         case LocalModel.QWEN3_32B:
             return Qwen3Interface(model_id="Qwen/Qwen3-32B-A3B")
-        case LocalModel.QWEN3_NEXT_80B:
+        case LocalModel.QWEN3_NEXT_80B_A3B:
             return Qwen3Interface(model_id="Qwen/Qwen3-Next-80B-A3B-Instruct")
         case _:
             raise ValueError(f"Unsupported local model: {model}")
