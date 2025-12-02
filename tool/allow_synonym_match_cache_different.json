@@ -570,6 +570,21 @@
     "\"Las Vegas Paradise Hotel\"|||\"Hotel Paradise\"": true,
     "\"New York, NY and surrounding areas\"|||\"NY\"": false,
     "\"New York, NY and surrounding areas\"|||\"New York City\"": false,
-    "\"New York, NY and surrounding areas\"|||\"NYC\"": false
+    "\"New York, NY and surrounding areas\"|||\"NYC\"": false,
+    "\"suite with a king bed\"|||\"suite with queen size bed\"": false,
+    "\"英超\"|||\"\"": false,
+    "\"葡萄牙\"|||\"\"": false,
+    "\"不同任务\"|||\"\"": false,
+    "\"葡萄牙\"|||\"global\"": false,
+    "\"奖杯\"|||\"\"": false,
+    "\"葡萄牙\"|||\"Lisbon\"": false,
+    "\"葡萄牙\"|||\"Lisbon, Portugal\"": false,
+    "\"各类工作\"|||\"\"": false,
+    "\"古典式\"|||\"classical\"": true,
+    "\"奖项\"|||\"\"": false,
+    "\"各类任务\"|||\"\"": false,
+    "\"Crypto.com Arena\"|||\"\"": false,
+    "\"奖杯条件\"|||\"\"": false,
+    "\"behavioral psychology and group dynamics\"|||\"psychology\"": true
   }
 }

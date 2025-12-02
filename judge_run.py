@@ -7,6 +7,7 @@ from judge.collect_perplexity_local import collect_perplexity_local
 from judge.collect_preference_local_direct import collect_preference_local_direct
 from judge.collect_preference_local_cot import collect_preference_local_cot
 from judge.generate_dataset import generate_answer_datasets
+from util import get_model_directory_name
 os.environ["HF_HOME"] = "/work/nvme/bfdz/zluo8/huggingface"
 import sys
 import importlib.util
@@ -327,19 +328,7 @@ if __name__ == "__main__":
 
         # Get or create backend with caching
         model_name = config.model.value
-        match config.model:
-            case LocalModel.GRANITE_3_1_8B_INSTRUCT:
-                display_model_name = "granite_3_1_8b"
-            # case LocalModel.QWEN_2_5_7B_INSTRUCT:
-            #     display_model_name = "qwen_2_5_7b"
-            # case LocalModel.QWEN_2_5_14B_INSTRUCT:
-            #     display_model_name = "qwen_2_5_14b"
-            # case LocalModel.QWEN_2_5_32B_INSTRUCT:
-            #     display_model_name = "qwen_2_5_32b"
-            # case LocalModel.QWEN_2_5_72B_INSTRUCT:
-            #     display_model_name = "qwen_2_5_72b"
-            case LocalModel.QWEN3_30B_A3B:
-                display_model_name = "qwen_3_30b_a3b"
+        display_model_name = get_model_directory_name(config.model)
 
         # Get or create backend (batch size will be calculated automatically)
         backend = get_or_create_backend(

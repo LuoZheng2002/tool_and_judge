@@ -1,0 +1,38 @@
+Loading configs from: judge_config_slurm.py
+Using 1 GPU(s)
+Processing configuration:  JudgeConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, lang1='zh_cn', lang2='en', result_type=<ResultType.PREFERENCE_DIRECT: 1>)
+Loaded 11478 entries from judge/datasets/en_correct.jsonl
+Loaded 11478 entries from judge/datasets/en_incorrect.jsonl
+Loaded 11478 entries from judge/datasets/zh_cn_correct.jsonl
+Loaded 11478 entries from judge/datasets/zh_cn_incorrect.jsonl
+Created 11478 pairs for en_correct_zh_cn_incorrect
+Created 11478 pairs for en_incorrect_zh_cn_correct
+Created 11478 pairs for en_correct_zh_cn_correct
+Created 11478 pairs for en_incorrect_zh_cn_incorrect
+Creating backend...
+Creating new backend [default]: vllm:Qwen/Qwen3-8B:1
+Loading tokenizer for: Qwen/Qwen3-8B
+INFO 12-01 20:58:30 [importing.py:53] Triton module has been replaced with a placeholder.
+INFO 12-01 20:58:31 [__init__.py:239] Automatically detected platform cuda.
+Initializing vLLM backend with tensor parallel size 1...
+INFO 12-01 20:58:51 [config.py:717] This model supports multiple tasks: {'generate', 'embed', 'score', 'reward', 'classify'}. Defaulting to 'generate'.
+INFO 12-01 20:58:51 [config.py:2003] Chunked prefill is enabled with max_num_batched_tokens=2048.
+INFO 12-01 20:58:54 [core.py:58] Initializing a V1 LLM engine (v0.8.5) with config: model='Qwen/Qwen3-8B', speculative_config=None, tokenizer='Qwen/Qwen3-8B', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=40960, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=1, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='auto', reasoning_backend=None), observability_config=ObservabilityConfig(show_hidden_metrics=False, otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=None, served_model_name=Qwen/Qwen3-8B, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=True, chunked_prefill_enabled=True, use_async_output_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"level":3,"custom_ops":["none"],"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"use_inductor":true,"compile_sizes":[],"use_cudagraph":true,"cudagraph_num_of_warmups":1,"cudagraph_capture_sizes":[512,504,496,488,480,472,464,456,448,440,432,424,416,408,400,392,384,376,368,360,352,344,336,328,320,312,304,296,288,280,272,264,256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":512}
+WARNING 12-01 20:58:55 [utils.py:2522] Methods determine_num_available_blocks,device_config,get_cache_block_size_bytes,initialize_cache not implemented in <vllm.v1.worker.gpu_worker.Worker object at 0x7f0a19186180>
+INFO 12-01 20:58:56 [parallel_state.py:1004] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, TP rank 0
+INFO 12-01 20:58:56 [cuda.py:221] Using Flash Attention backend on V1 engine.
+WARNING 12-01 20:58:56 [topk_topp_sampler.py:69] FlashInfer is not available. Falling back to the PyTorch-native implementation of top-p & top-k sampling. For the best performance, please install FlashInfer.
+INFO 12-01 20:58:57 [gpu_model_runner.py:1329] Starting to load model Qwen/Qwen3-8B...
+INFO 12-01 20:58:57 [weight_utils.py:265] Using model weights format ['*.safetensors']
+INFO 12-01 20:59:09 [loader.py:458] Loading weights took 11.50 seconds
+INFO 12-01 20:59:09 [gpu_model_runner.py:1347] Model loading took 15.2683 GiB and 12.179050 seconds
+INFO 12-01 20:59:24 [backends.py:420] Using cache directory: /u/zluo8/.cache/vllm/torch_compile_cache/15e7818422/rank_0_0 for vLLM's torch.compile
+INFO 12-01 20:59:24 [backends.py:430] Dynamo bytecode transform time: 14.92 s
+INFO 12-01 20:59:34 [backends.py:118] Directly load the compiled graph(s) for shape None from the cache, took 9.189 s
+INFO 12-01 20:59:37 [monitor.py:33] torch.compile takes 14.92 s in total
+INFO 12-01 20:59:37 [kv_cache_utils.py:634] GPU KV cache size: 133,616 tokens
+INFO 12-01 20:59:37 [kv_cache_utils.py:637] Maximum concurrency for 40,960 tokens per request: 3.26x
+INFO 12-01 21:00:02 [gpu_model_runner.py:1686] Graph capturing finished in 24 secs, took 0.60 GiB
+INFO 12-01 21:00:02 [core.py:159] init engine (profile, create kv cache, warmup model) took 52.60 seconds
+INFO 12-01 21:00:02 [core_client.py:439] Core engine process 0 ready.
+Using model interface: Qwen3Interface

@@ -1,0 +1,41 @@
+Lmod has detected the following error: The following module(s) are unknown:
+"python/3.12.1"
+
+Please check the spelling or version number. Also try "module spider ..."
+It is also possible your cache file is out-of-date; it may help to try:
+  $ module --ignore_cache load "python/3.12.1"
+
+Also make sure that all modulefiles written in TCL start with the string
+#%Module
+
+
+
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading safetensors checkpoint shards:   0% Completed | 0/5 [00:00<?, ?it/s]
+Loading safetensors checkpoint shards:  20% Completed | 1/5 [00:00<00:03,  1.12it/s]
+Loading safetensors checkpoint shards:  40% Completed | 2/5 [00:03<00:05,  1.75s/it]
+Loading safetensors checkpoint shards:  60% Completed | 3/5 [00:05<00:04,  2.19s/it]
+Loading safetensors checkpoint shards:  80% Completed | 4/5 [00:08<00:02,  2.45s/it]
+Loading safetensors checkpoint shards: 100% Completed | 5/5 [00:11<00:00,  2.65s/it]
+Loading safetensors checkpoint shards: 100% Completed | 5/5 [00:11<00:00,  2.36s/it]
+
+Traceback (most recent call last):
+  File "/projects/bfdz/zluo8/tool_and_judge/judge_run.py", line 356, in <module>
+    collect_preference_local_direct(
+  File "/projects/bfdz/zluo8/tool_and_judge/judge/collect_preference_local_direct.py", line 44, in collect_preference_local_direct
+    asyncio.run(_collect_preference_local_direct_async(
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/judge/collect_preference_local_direct.py", line 227, in _collect_preference_local_direct_async
+    await asyncio.gather(*tasks)
+  File "/projects/bfdz/zluo8/tool_and_judge/judge/collect_preference_local_direct.py", line 111, in process_single_sample
+    formatted_prompt = model_interface.build_messages_for_compare_directly(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Qwen3Interface' object has no attribute 'build_messages_for_compare_directly'
