@@ -35,7 +35,7 @@ configs = [
 ]
 
 # Uncomment to generate all combinations programmatically
-for model in [LocalModel.QWEN3_30B_A3B]:
+for model in [LocalModel.QWEN3_8B]:
     for translate_mode in [
         NotTranslated(),
         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED),
@@ -44,6 +44,10 @@ for model in [LocalModel.QWEN3_30B_A3B]:
         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_ALLOW_SYNONYM_SAME_LANGUAGE),
         Translated(language=Language.CHINESE, option=TranslateOption.PARTIALLY_TRANSLATED),
         Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE),
+        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_PRE_TRANSLATE),
+        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_POST_TRANSLATE),
+        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_PRE_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE),
+        Translated(language=Language.CHINESE, option=TranslateOption.FULLY_TRANSLATED_POST_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE),
     ]:
         for add_noise_mode in [
             AddNoiseMode.NO_NOISE,

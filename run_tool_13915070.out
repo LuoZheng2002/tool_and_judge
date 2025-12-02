@@ -1,0 +1,5 @@
+Loading configs from: tool_config_slurm.py
+Processing config: ToolConfig(model=<LocalModel.QWEN3_8B: 'Qwen/Qwen3-8B'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Skipping question translation (pre-translate not enabled)
+File tool/result/inference_raw/Qwen-Qwen3-8B/_en_na_nopretrans_nonoise_noprompt.json not found. It will be created.
+Entering inference phase...
