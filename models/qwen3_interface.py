@@ -376,7 +376,7 @@ Provide your judgment IMMEDIATELY without reasoning or explanation. Provide your
             max_new_tokens=100,
             temperature=0.0,
             do_sample=False,
-            logprobs=20,  # Request top 20 logprobs to ensure we capture "1" and "2"
+            return_logprobs=True,  # Request logprobs in unified format
             **kwargs
         )
 
@@ -553,12 +553,12 @@ Please briefly explain your reasoning, and then provide your final decision in t
         Extract probability logits for choices "1" and "2" from generation result.
 
         This method extracts the probabilities for tokens "1" and "2" from the
-        logprobs returned by the backend. This is MANDATORY - if logits cannot
-        be extracted, the method raises a RuntimeError.
+        unified logprobs format returned by the backend. This is MANDATORY - if
+        logits cannot be extracted, the method raises a RuntimeError.
 
         Args:
             backend: The backend used for generation (to access tokenizer)
-            result: GenerationResult from backend.generate_async
+            result: GenerationResult from backend.generate_async with unified logits format
 
         Returns:
             Tuple of (logit_1, logit_2) containing probabilities for choices "1" and "2"
@@ -572,7 +572,7 @@ Please briefly explain your reasoning, and then provide your final decision in t
             raise RuntimeError(
                 "Backend failed to provide logits. "
                 "Direct comparison requires logprobs to be enabled in the backend. "
-                "Please ensure the backend is configured with logprobs support."
+                "Please ensure return_logprobs=True was passed to generate_async."
             )
 
         try:
@@ -581,48 +581,50 @@ Please briefly explain your reasoning, and then provide your final decision in t
             token_1_id = tokenizer.encode("1", add_special_tokens=False)[0]
             token_2_id = tokenizer.encode("2", add_special_tokens=False)[0]
 
-            # Extract logprobs from the result
-            # The format varies by backend:
-            # - vLLM: list of dicts per token with 'logprobs' key containing dict of token_id -> logprob
-            # - HuggingFace: tuple of tensors
-
+            # Extract logprobs from the unified format: List[Dict[int, float]]
             logprobs_data = result.logits
 
-            # Handle vLLM format (list of dicts)
-            if isinstance(logprobs_data, list) and len(logprobs_data) > 0:
-                # Get the first token's logprobs (the decision token)
-                first_token_logprobs = logprobs_data[0]
+            if not isinstance(logprobs_data, list):
+                raise RuntimeError(
+                    f"Unexpected logprobs format. Expected List[Dict[int, float]], "
+                    f"got {type(logprobs_data)}"
+                )
 
-                if isinstance(first_token_logprobs, dict) and 'logprobs' in first_token_logprobs:
-                    # vLLM format: {'logprobs': {token_id: logprob, ...}, ...}
-                    token_logprobs = first_token_logprobs['logprobs']
+            if len(logprobs_data) == 0:
+                raise RuntimeError(
+                    "Backend returned empty logprobs list. Expected at least one token."
+                )
 
-                    # Get logprobs for "1" and "2"
-                    if token_1_id not in token_logprobs:
-                        raise RuntimeError(
-                            f"Token '1' (ID: {token_1_id}) not found in logprobs. "
-                            f"Available tokens: {list(token_logprobs.keys())[:10]}..."
-                        )
-                    if token_2_id not in token_logprobs:
-                        raise RuntimeError(
-                            f"Token '2' (ID: {token_2_id}) not found in logprobs. "
-                            f"Available tokens: {list(token_logprobs.keys())[:10]}..."
-                        )
+            # Get the first token's logprobs (the decision token)
+            first_token_logprobs = logprobs_data[0]
 
-                    logprob_1 = token_logprobs[token_1_id]
-                    logprob_2 = token_logprobs[token_2_id]
+            if not isinstance(first_token_logprobs, dict):
+                raise RuntimeError(
+                    f"Unexpected format for first token logprobs. "
+                    f"Expected Dict[int, float], got {type(first_token_logprobs)}"
+                )
 
-                    # Convert log probabilities to probabilities
-                    prob_1 = math.exp(logprob_1)
-                    prob_2 = math.exp(logprob_2)
+            # Get logprobs for "1" and "2"
+            if token_1_id not in first_token_logprobs:
+                raise RuntimeError(
+                    f"Token '1' (ID: {token_1_id}) not found in logprobs. "
+                    f"Available tokens (first 10): {list(first_token_logprobs.keys())[:10]}..."
+                )
+            if token_2_id not in first_token_logprobs:
+                raise RuntimeError(
+                    f"Token '2' (ID: {token_2_id}) not found in logprobs. "
+                    f"Available tokens (first 10): {list(first_token_logprobs.keys())[:10]}..."
+                )
 
-                    return (prob_1, prob_2)
+            # Get log probabilities
+            logprob_1 = first_token_logprobs[token_1_id]
+            logprob_2 = first_token_logprobs[token_2_id]
 
-            # If we can't extract probabilities, raise error
-            raise RuntimeError(
-                f"Unsupported logprobs format from backend. "
-                f"Expected vLLM format (list of dicts), got: {type(logprobs_data)}"
-            )
+            # Convert log probabilities to probabilities
+            prob_1 = math.exp(logprob_1)
+            prob_2 = math.exp(logprob_2)
+
+            return (prob_1, prob_2)
 
         except RuntimeError:
             # Re-raise RuntimeError as-is

@@ -152,7 +152,8 @@ class HuggingFaceBackend(ModelBackend):
             max_new_tokens_list = [item[1] for item in batch]
             temperatures = [item[2] for item in batch]
             do_samples = [item[3] for item in batch]
-            futures = [item[4] for item in batch]
+            return_logprobs_list = [item[4] for item in batch]
+            futures = [item[5] for item in batch]
 
             try:
                 # Use max values from batch
@@ -160,6 +161,8 @@ class HuggingFaceBackend(ModelBackend):
                 # For temperature and do_sample, use the most common value or first value
                 temperature = temperatures[0]
                 do_sample = do_samples[0]
+                # Check if any request needs logprobs
+                any_return_logprobs = any(return_logprobs_list)
 
                 # Set padding side to left for generation
                 self.tokenizer.padding_side = 'left'
@@ -174,7 +177,7 @@ class HuggingFaceBackend(ModelBackend):
                 )
                 inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
-                # Generate with scores to get logits
+                # Generate with scores to get logits (only if requested)
                 with torch.no_grad():
                     outputs = self.model.generate(
                         **inputs,
@@ -184,15 +187,16 @@ class HuggingFaceBackend(ModelBackend):
                         pad_token_id=self.tokenizer.pad_token_id,
                         eos_token_id=self.tokenizer.eos_token_id,
                         return_dict_in_generate=True,
-                        output_scores=True
+                        output_scores=any_return_logprobs  # Only compute scores if needed
                     )
 
                 output_ids = outputs.sequences
-                scores = outputs.scores  # Tuple of tensors, one per generated token
+                scores = outputs.scores if any_return_logprobs else None  # Tuple of tensors, one per generated token
 
                 # Decode results for each request
                 for i, future in enumerate(futures):
                     input_length = inputs['input_ids'][i].shape[0]
+                    return_logprobs = return_logprobs_list[i]
 
                     # Extract generated tokens
                     generated_ids = output_ids[i][input_length:].cpu().tolist()
@@ -208,16 +212,49 @@ class HuggingFaceBackend(ModelBackend):
                         skip_special_tokens=True
                     ).strip()
 
-                    # Extract logits for this sample's generated tokens
-                    # scores is a tuple of [batch_size, vocab_size] tensors
-                    sample_logits = tuple(score[i].cpu() for score in scores) if scores else None
+                    # Convert logits to unified format if requested
+                    unified_logits = None
+                    if return_logprobs:
+                        if scores is None or len(scores) == 0:
+                            # Logprobs were requested but not available
+                            future.set_exception(RuntimeError(
+                                "HuggingFace backend failed to provide logprobs. "
+                                "return_logprobs=True was specified but scores are not available. "
+                                "This may indicate a backend configuration issue."
+                            ))
+                            continue
+
+                        # Convert HuggingFace scores to unified format
+                        # scores is a tuple of [batch_size, vocab_size] tensors
+                        unified_logits = []
+                        for score_tensor in scores:
+                            # Get logits for this sample (i-th element in batch)
+                            token_logits = score_tensor[i].cpu()
+
+                            # Apply log_softmax to convert logits to log probabilities
+                            log_probs = torch.nn.functional.log_softmax(token_logits, dim=-1)
+
+                            # Convert to dict format: {token_id: log_prob}
+                            token_dict = {
+                                token_id: float(log_probs[token_id])
+                                for token_id in range(len(log_probs))
+                            }
+                            unified_logits.append(token_dict)
+
+                        # Verify length matches generated tokens
+                        if len(unified_logits) != len(generated_ids):
+                            future.set_exception(RuntimeError(
+                                f"Logprobs length mismatch: expected {len(generated_ids)} tokens, "
+                                f"but got {len(unified_logits)} logprob entries."
+                            ))
+                            continue
 
                     result = GenerationResult(
                         generated_text=generated_text,
                         generated_ids=generated_ids,
                         full_text=full_text,
                         full_ids=full_ids,
-                        logits=sample_logits
+                        logits=unified_logits
                     )
                     future.set_result(result)
 
@@ -262,12 +299,26 @@ class HuggingFaceBackend(ModelBackend):
         max_new_tokens: int = 100,
         temperature: float = 0.0,
         do_sample: bool = False,
+        return_logprobs: bool = False,
         **kwargs
     ) -> GenerationResult:
         """
         Asynchronously generate text from a formatted prompt.
 
         Adds the request to a queue that will be batched with other concurrent requests.
+
+        Args:
+            prompt: The input prompt text
+            max_new_tokens: Maximum number of tokens to generate
+            temperature: Sampling temperature
+            do_sample: Whether to use sampling
+            return_logprobs: If True, return log probabilities in unified format
+
+        Returns:
+            GenerationResult with unified logits format if return_logprobs=True
+
+        Raises:
+            RuntimeError: If return_logprobs=True but backend fails to provide logprobs
         """
         # Start batch processors if not already running
         await self._start_batch_processors()
@@ -283,6 +334,7 @@ class HuggingFaceBackend(ModelBackend):
                 max_new_tokens,
                 temperature,
                 do_sample,
+                return_logprobs,
                 future
             ))
 
@@ -295,6 +347,7 @@ class HuggingFaceBackend(ModelBackend):
         max_new_tokens: int = 100,
         temperature: float = 0.0,
         do_sample: bool = False,
+        return_logprobs: bool = False,
         **kwargs
     ) -> GenerationResult:
         """Synchronous version of generate_async."""
@@ -304,6 +357,7 @@ class HuggingFaceBackend(ModelBackend):
                 max_new_tokens=max_new_tokens,
                 temperature=temperature,
                 do_sample=do_sample,
+                return_logprobs=return_logprobs,
                 **kwargs
             )
         )

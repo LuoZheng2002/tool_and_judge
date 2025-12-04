@@ -96,21 +96,36 @@ class VLLMBackend(ModelBackend):
         max_new_tokens: int = 100,
         temperature: float = 0.0,
         do_sample: bool = False,
+        return_logprobs: bool = False,
         **kwargs
     ) -> GenerationResult:
         """
         Asynchronously generate text from a formatted prompt.
 
         vLLM handles batching automatically, so we just submit the request.
+
+        Args:
+            prompt: The input prompt text
+            max_new_tokens: Maximum number of tokens to generate
+            temperature: Sampling temperature
+            do_sample: Whether to use sampling
+            return_logprobs: If True, return log probabilities in unified format
+
+        Returns:
+            GenerationResult with unified logits format if return_logprobs=True
+
+        Raises:
+            RuntimeError: If return_logprobs=True but backend fails to provide logprobs
         """
         request_id = await self._get_next_request_id()
 
-        # Create sampling params with logprobs
+        # Create sampling params - only request logprobs if needed
+        # vLLM's logprobs parameter specifies how many top logprobs to return per token
         sampling_params = self.SamplingParams(
             max_tokens=max_new_tokens,
             temperature=temperature if do_sample else 0.0,
             top_p=1.0 if not do_sample else 0.95,
-            logprobs=1  # Request logprobs for generated tokens
+            logprobs=20 if return_logprobs else None  # Request top 20 logprobs if needed
         )
 
         # Submit request to vLLM engine
@@ -140,17 +155,54 @@ class VLLMBackend(ModelBackend):
         full_ids = prompt_ids + generated_ids
         full_text = self.tokenizer.decode(full_ids, skip_special_tokens=True).strip()
 
-        # Extract logprobs (vLLM format: list of dicts)
-        # output.logprobs is a list where each element corresponds to a generated token
-        # Each element is a dict mapping token_id -> Logprob object
-        logprobs = output.logprobs if hasattr(output, 'logprobs') else None
+        # Convert vLLM logprobs to unified format if requested
+        unified_logits = None
+        if return_logprobs:
+            # output.logprobs is a list where each element corresponds to a generated token
+            # Each element is a dict mapping token_id -> Logprob object
+            vllm_logprobs = output.logprobs if hasattr(output, 'logprobs') else None
+
+            if vllm_logprobs is None:
+                raise RuntimeError(
+                    "vLLM backend failed to provide logprobs. "
+                    "return_logprobs=True was specified but logprobs are not available. "
+                    "This may indicate a backend configuration issue."
+                )
+
+            # Convert to unified format: List[Dict[int, float]]
+            unified_logits = []
+            for token_logprobs in vllm_logprobs:
+                if token_logprobs is None:
+                    raise RuntimeError(
+                        "vLLM backend returned None for token logprobs. "
+                        "Expected a dict mapping token_id -> Logprob."
+                    )
+
+                # Convert vLLM Logprob objects to float values
+                token_dict = {}
+                for token_id, logprob_obj in token_logprobs.items():
+                    # Logprob object has a 'logprob' attribute with the float value
+                    if hasattr(logprob_obj, 'logprob'):
+                        token_dict[token_id] = float(logprob_obj.logprob)
+                    else:
+                        # Fallback: try to convert directly to float
+                        token_dict[token_id] = float(logprob_obj)
+
+                unified_logits.append(token_dict)
+
+            # Verify length matches generated tokens
+            if len(unified_logits) != len(generated_ids):
+                raise RuntimeError(
+                    f"vLLM logprobs length mismatch: expected {len(generated_ids)} tokens, "
+                    f"but got {len(unified_logits)} logprob entries."
+                )
 
         result = GenerationResult(
             generated_text=generated_text,
             generated_ids=generated_ids,
             full_text=full_text,
             full_ids=full_ids,
-            logits=logprobs  # vLLM provides logprobs, not full logits
+            logits=unified_logits
         )
 
         return result
@@ -161,6 +213,7 @@ class VLLMBackend(ModelBackend):
         max_new_tokens: int = 100,
         temperature: float = 0.0,
         do_sample: bool = False,
+        return_logprobs: bool = False,
         **kwargs
     ) -> GenerationResult:
         """Synchronous version of generate_async."""
@@ -170,6 +223,7 @@ class VLLMBackend(ModelBackend):
                 max_new_tokens=max_new_tokens,
                 temperature=temperature,
                 do_sample=do_sample,
+                return_logprobs=return_logprobs,
                 **kwargs
             )
         )

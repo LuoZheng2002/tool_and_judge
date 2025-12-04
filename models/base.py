@@ -51,7 +51,7 @@ class GenerationResult:
     generated_ids: List[int]  # List of token IDs for the generated text only
     full_text: str  # The complete text (prompt + generated)
     full_ids: List[int]  # List of token IDs for the complete sequence
-    logits: Optional[Any] = None  # Logits/logprobs (format varies by backend)
+    logits: Optional[List[Dict[int, float]]] = None  # Unified logprobs format
 
     def __init__(
         self,
@@ -59,7 +59,7 @@ class GenerationResult:
         generated_ids: List[int],
         full_text: str,
         full_ids: List[int],
-        logits: Optional[Any] = None
+        logits: Optional[List[Dict[int, float]]] = None
     ):
         """
         Args:
@@ -67,10 +67,16 @@ class GenerationResult:
             generated_ids: List of token IDs for the generated text only
             full_text: The complete text (prompt + generated)
             full_ids: List of token IDs for the complete sequence (prompt + generated)
-            logits: Logits/logprobs for generated tokens (format varies by backend):
-                    - HuggingFace: tuple of tensors, one per generated token [vocab_size]
-                    - vLLM: list of dicts with logprob information per token
-                    - API: typically None (not provided by most APIs)
+            logits: Unified log probability format for generated tokens:
+                    - List length matches number of generated tokens
+                    - Each element is a Dict[int, float] mapping token_id -> log_probability
+                    - None if logprobs were not requested or backend doesn't support them
+
+                    Example for 2 generated tokens:
+                    [
+                        {101: -0.5, 102: -1.2, 103: -2.0, ...},  # Token 1 logprobs
+                        {201: -0.3, 202: -1.5, 203: -1.8, ...}   # Token 2 logprobs
+                    ]
         """
         self.generated_text = generated_text
         self.generated_ids = generated_ids
@@ -184,6 +190,7 @@ class ModelBackend(ABC):
         max_new_tokens: int = 100,
         temperature: float = 0.0,
         do_sample: bool = False,
+        return_logprobs: bool = False,
         **kwargs
     ) -> GenerationResult:
         """
@@ -194,10 +201,17 @@ class ModelBackend(ABC):
             max_new_tokens: Maximum number of new tokens to generate
             temperature: Sampling temperature (0.0 for greedy decoding)
             do_sample: Whether to use sampling
+            return_logprobs: If True, return log probabilities for generated tokens.
+                           Backend MUST provide logprobs when this is True, or raise error.
             **kwargs: Additional backend-specific parameters
 
         Returns:
-            GenerationResult containing generated text and token IDs
+            GenerationResult containing generated text and token IDs.
+            If return_logprobs=True, GenerationResult.logits will contain
+            List[Dict[int, float]] with log probabilities.
+
+        Raises:
+            RuntimeError: If return_logprobs=True but backend fails to provide logprobs
         """
         pass
 
@@ -208,6 +222,7 @@ class ModelBackend(ABC):
         max_new_tokens: int = 100,
         temperature: float = 0.0,
         do_sample: bool = False,
+        return_logprobs: bool = False,
         **kwargs
     ) -> GenerationResult:
         """
@@ -220,10 +235,17 @@ class ModelBackend(ABC):
             max_new_tokens: Maximum number of new tokens to generate
             temperature: Sampling temperature (0.0 for greedy decoding)
             do_sample: Whether to use sampling
+            return_logprobs: If True, return log probabilities for generated tokens.
+                           Backend MUST provide logprobs when this is True, or raise error.
             **kwargs: Additional backend-specific parameters
 
         Returns:
-            GenerationResult containing generated text and token IDs
+            GenerationResult containing generated text and token IDs.
+            If return_logprobs=True, GenerationResult.logits will contain
+            List[Dict[int, float]] with log probabilities.
+
+        Raises:
+            RuntimeError: If return_logprobs=True but backend fails to provide logprobs
         """
         pass
 
