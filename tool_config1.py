@@ -35,7 +35,7 @@ configs = [
 ]
 
 # Uncomment to generate all combinations programmatically
-for model in [ApiModel.GPT_5, ApiModel.GPT_5_MINI, ApiModel.GPT_5_NANO]:
+for model in [ApiModel.GPT_5_NANO, ApiModel.GPT_5_MINI, ApiModel.GPT_5]:
     for translate_mode in [
         NotTranslated(allow_synonym_same_language=False),
         NotTranslated(allow_synonym_same_language=True),

@@ -660,15 +660,8 @@ async def process_all_configs():
             exit(1)
 
         inference_json_results = []
-        existing_inference_json_ids = set()
-        printed_warning = False
-        # Filter samples that haven't been processed yet
-        samples_to_process = [sample for sample in inference_json_inputs if sample['id'] not in existing_inference_json_ids]
-        if not printed_warning and len(samples_to_process) < len(inference_json_inputs):
-            print(f"Warning: some test cases already exist in inference json result file. Skipping {len(inference_json_inputs) - len(samples_to_process)} cases.")
-            printed_warning = True
 
-        for inference_raw in samples_to_process:
+        for inference_raw in inference_json_inputs:
             id = inference_raw['id']
             # convert raw result to json format
             # decoded_output = raw_to_json(config.model, id, inference_raw['result'])
