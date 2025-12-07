@@ -1213,6 +1213,18 @@
     "\"January\"|||\"next\"": false,
     "\"European Parliament\"|||\"Lisbon\"": false,
     "\"January\"|||\"\"": false,
-    "\"European Parliament\"|||\"Lisbon, Portugal\"": false
+    "\"European Parliament\"|||\"Lisbon, Portugal\"": false,
+    "\"The Museum of Modern Art (MoMA)\"|||\"Museum of Modern Art\"": true,
+    "\"All fields\"|||\"\"": false,
+    "\"Alphabet (GOOGL)\"|||\"Google\"": false,
+    "\"Alphabet (GOOGL)\"|||\"GOOG\"": false,
+    "\"All fields\"|||\"all\"": true,
+    "\"km\"|||\"\"": false,
+    "\"km\"|||\"kilometers\"": true,
+    "\"Behavioral Psychology\"|||\"psychology\"": false,
+    "\"Behavioral Psychology\"|||\"Psychology\"": false,
+    "\"The Alchemist (Paulo Coelho)\"|||\"The Alchemist\"": true,
+    "\"New York City, NY, USA\"|||\"New York City\"": true,
+    "\"Washington, DC, USA\"|||\"Washington D.C.\"": true
   }
 }

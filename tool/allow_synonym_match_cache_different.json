@@ -637,6 +637,25 @@
     "\"纽约及周边\"|||\"New York, NY\"": false,
     "\"纽约及周边\"|||\"NY\"": false,
     "\"纽约及周边\"|||\"New York City\"": false,
-    "\"纽约及周边\"|||\"NYC\"": false
+    "\"纽约及周边\"|||\"NYC\"": false,
+    "\"The Museum of Modern Art (MoMA)\"|||\"Museum of Modern Art\"": true,
+    "\"All fields\"|||\"\"": false,
+    "\"Alphabet (GOOGL)\"|||\"Google\"": false,
+    "\"Pope Innocent III\"|||\"Innocent III\"": true,
+    "\"Tiger\"|||\"wild tiger\"": false,
+    "\"Tiger\"|||\"tiger\"": true,
+    "\"Alphabet (GOOGL)\"|||\"GOOG\"": false,
+    "\"All fields\"|||\"all\"": true,
+    "\"square units\"|||\"\"": false,
+    "1.256637061e-06|||\"\"": false,
+    "\"km\"|||\"\"": false,
+    "\"Luxury Room\"|||\"luxury\"": true,
+    "\"square units\"|||\"square meters\"": false,
+    "\"km\"|||\"kilometers\"": true,
+    "1.256637061e-06|||0.01": false,
+    "\"California Superior Court\"|||\"California\"": false,
+    "\"Behavioral Psychology\"|||\"psychology\"": false,
+    "\"California Superior Court\"|||\"CA\"": false,
+    "\"Behavioral Psychology\"|||\"Psychology\"": false
   }
 }
