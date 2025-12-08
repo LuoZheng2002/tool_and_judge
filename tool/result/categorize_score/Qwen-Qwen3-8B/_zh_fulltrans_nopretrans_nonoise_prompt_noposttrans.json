@@ -1,0 +1,102 @@
+{
+  "summary": {
+    "language_mismatch_exactly_same_meaning": 47,
+    "misc_errors": 3,
+    "wrong_values": 4,
+    "exactly_same_meaning": 12,
+    "relevant_but_incorrect": 11,
+    "language_mismatch_relevant_but_incorrect": 1
+  },
+  "samples": {
+    "language_mismatch_exactly_same_meaning": [
+      "multiple_7",
+      "multiple_9",
+      "multiple_16",
+      "multiple_18",
+      "multiple_19",
+      "multiple_23",
+      "multiple_25",
+      "multiple_27",
+      "multiple_38",
+      "multiple_39",
+      "multiple_44",
+      "multiple_55",
+      "multiple_56",
+      "multiple_59",
+      "multiple_60",
+      "multiple_68",
+      "multiple_73",
+      "multiple_74",
+      "multiple_79",
+      "multiple_83",
+      "multiple_85",
+      "multiple_87",
+      "multiple_88",
+      "multiple_89",
+      "multiple_93",
+      "multiple_115",
+      "multiple_119",
+      "multiple_122",
+      "multiple_134",
+      "multiple_135",
+      "multiple_136",
+      "multiple_137",
+      "multiple_139",
+      "multiple_140",
+      "multiple_142",
+      "multiple_147",
+      "multiple_153",
+      "multiple_155",
+      "multiple_160",
+      "multiple_171",
+      "multiple_172",
+      "multiple_174",
+      "multiple_176",
+      "multiple_178",
+      "multiple_188",
+      "multiple_193",
+      "multiple_194"
+    ],
+    "misc_errors": [
+      "multiple_10",
+      "multiple_13",
+      "multiple_53"
+    ],
+    "wrong_values": [
+      "multiple_26",
+      "multiple_156",
+      "multiple_173",
+      "multiple_182"
+    ],
+    "exactly_same_meaning": [
+      "multiple_29",
+      "multiple_33",
+      "multiple_104",
+      "multiple_114",
+      "multiple_138",
+      "multiple_151",
+      "multiple_164",
+      "multiple_177",
+      "multiple_181",
+      "multiple_183",
+      "multiple_190",
+      "multiple_199"
+    ],
+    "relevant_but_incorrect": [
+      "multiple_32",
+      "multiple_58",
+      "multiple_61",
+      "multiple_75",
+      "multiple_91",
+      "multiple_94",
+      "multiple_99",
+      "multiple_157",
+      "multiple_184",
+      "multiple_186",
+      "multiple_191"
+    ],
+    "language_mismatch_relevant_but_incorrect": [
+      "multiple_196"
+    ]
+  }
+}

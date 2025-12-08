@@ -1,0 +1,54 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+[1;36m(VllmWorker rank=0 pid=1688539)[0;0m Loading safetensors checkpoint shards:   0% Completed | 0/5 [00:00<?, ?it/s]
+[1;36m(VllmWorker rank=0 pid=1688539)[0;0m Loading safetensors checkpoint shards:  20% Completed | 1/5 [00:00<00:01,  2.54it/s]
+[1;36m(VllmWorker rank=0 pid=1688539)[0;0m Loading safetensors checkpoint shards:  40% Completed | 2/5 [00:02<00:04,  1.58s/it]
+[1;36m(VllmWorker rank=0 pid=1688539)[0;0m Loading safetensors checkpoint shards:  60% Completed | 3/5 [00:05<00:04,  2.13s/it]
+[1;36m(VllmWorker rank=0 pid=1688539)[0;0m Loading safetensors checkpoint shards:  80% Completed | 4/5 [00:08<00:02,  2.37s/it]
+[1;36m(VllmWorker rank=0 pid=1688539)[0;0m Loading safetensors checkpoint shards: 100% Completed | 5/5 [00:11<00:00,  2.55s/it]
+[1;36m(VllmWorker rank=0 pid=1688539)[0;0m Loading safetensors checkpoint shards: 100% Completed | 5/5 [00:11<00:00,  2.24s/it]
+[1;36m(VllmWorker rank=0 pid=1688539)[0;0m 
+[2025-12-08 01:22:44] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:22:45] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:22:46] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:22:47] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:22:47] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:22:47] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:22:52] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:23:05] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:23:20] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:23:27] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:23:35] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:23:37] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:23:39] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:23:51] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:23:57] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:24:03] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:24:12] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:24:20] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:24:25] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:24:37] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:24:45] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:24:47] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:00] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:01] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:06] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:12] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:13] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:13] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:21] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:24] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:27] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:31] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:37] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:37] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:38] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:40] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:41] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:43] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:43] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:44] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:52] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:25:58] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:26:03] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:26:07] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+[2025-12-08 01:26:11] INFO _client.py:1740: HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

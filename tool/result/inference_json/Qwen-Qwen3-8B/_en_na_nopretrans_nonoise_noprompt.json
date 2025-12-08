@@ -78,7 +78,7 @@
 {"id": "multiple_77", "valid": true, "result": [{"artwork_search.find": {"type": "sculpture", "location": "New York", "era": "contemporary"}}]}
 {"id": "multiple_78", "valid": true, "result": [{"museum_info": {"museum": "Natural History Museum", "city": "London", "features": ["timings", "exhibitions", "accessibility"]}}]}
 {"id": "multiple_79", "valid": true, "result": [{"exhibition_info": {"museum_name": "Museum of Modern Art, New York", "month": 1}}]}
-{"id": "multiple_80", "valid": true, "result": [{"music_shop.find_nearby": {"location": "Nashville, TN", "services": ["Violin Lessons"], "instruments": ["Guitars"]}}]}
+{"id": "multiple_80", "valid": true, "result": [{"music_shop.find_nearby": {"location": "Nashville, TN", "services": ["Guitar Lessons", "Violin Lessons"]}}]}
 {"id": "multiple_81", "valid": true, "result": [{"concert.book_ticket": {"artist": "Eminem", "location": "New York City", "add_ons": ["Backstage Pass"]}}]}
 {"id": "multiple_82", "valid": true, "result": [{"music.generate": {"key": "C Major", "tempo": 120}}]}
 {"id": "multiple_83", "valid": true, "result": [{"player_stats.get_all_time_goals": {"player_name": "Lionel Messi", "team_name": "Barcelona"}}]}
@@ -101,7 +101,7 @@
 {"id": "multiple_100", "valid": true, "result": [{"math.hcf": {"number1": 36, "number2": 24}}]}
 {"id": "multiple_101", "valid": true, "result": [{"math.gcd": {"num1": 12, "num2": 18}}]}
 {"id": "multiple_102", "valid": true, "result": [{"calculate_displacement": {"initial_velocity": 10, "time": 5, "acceleration": 9.8}}]}
-{"id": "multiple_103", "valid": true, "result": [{"calculate_final_speed": {"initial_velocity": 0, "height": 100, "gravity": 9.8}}]}
+{"id": "multiple_103", "valid": true, "result": [{"calculate_final_speed": {"initial_velocity": 0, "height": 100}}]}
 {"id": "multiple_104", "valid": true, "result": [{"get_shortest_driving_distance": {"origin": "New York City", "destination": "Washington D.C."}}]}
 {"id": "multiple_105", "valid": true, "result": [{"calculate_magnetic_field": {"current": 5, "radius": 4}}]}
 {"id": "multiple_106", "valid": true, "result": [{"calculate_electric_field_strength": {"charge": 0.01, "distance": 4}}]}

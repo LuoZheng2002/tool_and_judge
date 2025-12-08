@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "misc_errors": 3,
+    "exactly_same_meaning": 2,
+    "relevant_but_incorrect": 5,
+    "wrong_values": 1
+  },
+  "samples": {
+    "misc_errors": [
+      "multiple_10",
+      "multiple_13",
+      "multiple_53"
+    ],
+    "exactly_same_meaning": [
+      "multiple_29",
+      "multiple_33"
+    ],
+    "relevant_but_incorrect": [
+      "multiple_61",
+      "multiple_75",
+      "multiple_79",
+      "multiple_91",
+      "multiple_99"
+    ],
+    "wrong_values": [
+      "multiple_173"
+    ]
+  }
+}

@@ -1,0 +1,99 @@
+`torch_dtype` is deprecated! Use `dtype` instead!
+[1;36m(VllmWorker rank=1 pid=1692122)[0;0m Exception ignored in: <function Group.__del__ at 0x7f5305607f60>
+[1;36m(VllmWorker rank=3 pid=1692124)[0;0m Exception ignored in: <function Group.__del__ at 0x7f5305607f60>
+[1;36m(VllmWorker rank=1 pid=1692122)[0;0m Traceback (most recent call last):
+[1;36m(VllmWorker rank=2 pid=1692123)[0;0m Exception ignored in: <function Group.__del__ at 0x7f5305607f60>
+[1;36m(VllmWorker rank=3 pid=1692124)[0;0m Traceback (most recent call last):
+[1;36m(VllmWorker rank=1 pid=1692122)[0;0m   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/regex/_regex_core.py", line 3075, in __del__
+[1;36m(VllmWorker rank=2 pid=1692123)[0;0m Traceback (most recent call last):
+[1;36m(VllmWorker rank=3 pid=1692124)[0;0m   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/regex/_regex_core.py", line 3075, in __del__
+[1;36m(VllmWorker rank=2 pid=1692123)[0;0m   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/regex/_regex_core.py", line 3075, in __del__
+[1;36m(VllmWorker rank=3 pid=1692124)[0;0m     def __del__(self):
+[1;36m(VllmWorker rank=2 pid=1692123)[0;0m     def __del__(self):
+[1;36m(VllmWorker rank=3 pid=1692124)[0;0m 
+[1;36m(VllmWorker rank=2 pid=1692123)[0;0m 
+[1;36m(VllmWorker rank=3 pid=1692124)[0;0m   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 398, in signal_handler
+[1;36m(VllmWorker rank=2 pid=1692123)[0;0m   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 398, in signal_handler
+[1;36m(VllmWorker rank=1 pid=1692122)[0;0m     def __del__(self):
+[1;36m(VllmWorker rank=1 pid=1692122)[0;0m 
+[1;36m(VllmWorker rank=1 pid=1692122)[0;0m   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 398, in signal_handler
+[1;36m(VllmWorker rank=3 pid=1692124)[0;0m     raise SystemExit()
+[1;36m(VllmWorker rank=2 pid=1692123)[0;0m     raise SystemExit()
+[1;36m(VllmWorker rank=3 pid=1692124)[0;0m SystemExit: 
+[1;36m(VllmWorker rank=2 pid=1692123)[0;0m SystemExit: 
+[1;36m(VllmWorker rank=1 pid=1692122)[0;0m     raise SystemExit()
+[1;36m(VllmWorker rank=1 pid=1692122)[0;0m SystemExit: 
+Process EngineCore_0:
+Traceback (most recent call last):
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 400, in run_engine_core
+    raise e
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 387, in run_engine_core
+    engine_core = EngineCoreProc(*args, **kwargs)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 329, in __init__
+    super().__init__(vllm_config, executor_class, log_stats,
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 64, in __init__
+    self.model_executor = executor_class(vllm_config)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/executor/executor_base.py", line 52, in __init__
+    self._init_executor()
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 91, in _init_executor
+    self.workers = WorkerProc.wait_for_ready(unready_workers)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 370, in wait_for_ready
+    raise e from None
+Exception: WorkerProc initialization failed due to an exception in a background process. See stack trace for root cause.
+Traceback (most recent call last):
+  File "/projects/bfdz/zluo8/tool_and_judge/tool_main.py", line 1160, in <module>
+    asyncio.run(process_all_configs())
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/runners.py", line 194, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/asyncio/base_events.py", line 684, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/tool_main.py", line 616, in process_all_configs
+    await process_batch_async()
+  File "/projects/bfdz/zluo8/tool_and_judge/tool_main.py", line 575, in process_batch_async
+    backend = get_or_create_backend(
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/tool_main.py", line 265, in get_or_create_backend
+/sw/spack/deltas11-2023-03/apps/linux-rhel8-zen3/gcc-11.4.0/python-3.12.1-ahcgi2c/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 2 leaked shared_memory objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+    return create_backend(
+           ^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/models/model_factory.py", line 497, in create_backend
+    return _global_backend_cache.get_or_create(config, creator_func, instance_name=instance_name)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/models/model_factory.py", line 144, in get_or_create
+    new_backend = creator_func(config)
+                  ^^^^^^^^^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/models/model_factory.py", line 382, in _create_vllm_backend
+    return VLLMBackend(
+           ^^^^^^^^^^^^
+  File "/projects/bfdz/zluo8/tool_and_judge/models/vllm_backend.py", line 57, in __init__
+    self.engine = AsyncLLMEngine.from_engine_args(engine_args)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/engine/async_llm_engine.py", line 684, in from_engine_args
+    return async_engine_cls.from_vllm_config(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/async_llm.py", line 150, in from_vllm_config
+    return cls(
+           ^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/async_llm.py", line 118, in __init__
+    self.engine_core = core_client_class(
+                       ^^^^^^^^^^^^^^^^^^
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 642, in __init__
+    super().__init__(
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 398, in __init__
+    self._wait_for_engine_startup()
+  File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core_client.py", line 430, in _wait_for_engine_startup
+    raise RuntimeError("Engine core initialization failed. "
+RuntimeError: Engine core initialization failed. See root cause above.
