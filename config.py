@@ -91,9 +91,11 @@ class ToolErrorCategory(Enum):
     SYNTAX_ERROR = "syntax_error"
     MISC_ERRORS = "misc_errors"
     WRONG_VALUES = "wrong_values"
-    LANGUAGE_MISMATCH = "language_mismatch"
     RELEVANT_BUT_INCORRECT = "relevant_but_incorrect"
     EXACTLY_SAME_MEANING = "exactly_same_meaning"
+    LANGUAGE_MISMATCH_WRONG_VALUES = "language_mismatch_wrong_values"
+    LANGUAGE_MISMATCH_RELEVANT_BUT_INCORRECT = "language_mismatch_relevant_but_incorrect"
+    LANGUAGE_MISMATCH_EXACTLY_SAME_MEANING = "language_mismatch_exactly_same_meaning"
     OTHER_ERRORS = "other_errors"
 
 class EvaluationError(Enum):
@@ -104,7 +106,6 @@ class EvaluationError(Enum):
     PARSING_ERROR = "parsing_error"  # General error during parsing
 
     # Evaluation errors (from evaluate_json)
-    DECODER_FAILED = "decoder_failed"  # Decoded output is a string (decoder failed)
     INVALID_ENTRY_COUNT = "invalid_entry_count"  # Expected exactly one AST entry
     WRONG_FUNC_NAME = "wrong_func_name"  # Function name mismatch
     MISSING_REQUIRED_PARAM = "missing_required_param"  # Missing required parameter

@@ -208,10 +208,12 @@ def evaluate_json(
         On error: Tuple of (EvaluationError, metadata_dict)
     """
     if isinstance(decoded_output, str):
-        return (EvaluationError.DECODER_FAILED, {
-            "decoded_output": decoded_output,
-            "possible_answer": possible_answer,
-        })
+        print("Error: Unreachable! parse_ast.py line 211")
+        exit(1)
+        # return (EvaluationError.DECODER_FAILED, {
+        #     "decoded_output": decoded_output,
+        #     "possible_answer": possible_answer,
+        # })
 
     if len(decoded_output) != 1:
         return (EvaluationError.INVALID_ENTRY_COUNT, {
