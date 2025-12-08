@@ -98,9 +98,7 @@ class ToolErrorCategory(Enum):
 
 class PostprocessError(Enum):
     """Error types that can occur during postprocess_tool_calls."""
-    MODEL_ERROR = "model_error"  # Model returned an error in the response
-    TEXT_INSTEAD_OF_FUNCTION_CALLS = "text_instead_of_function_calls"  # Model returned text instead of function calls
-    UNEXPECTED_RESPONSE_FORMAT = "unexpected_response_format"  # Response format is not recognized
+    # UNEXPECTED_RESPONSE_FORMAT = "unexpected_response_format"  # Response format is not recognized
     NO_FUNCTION_CALLS_FOUND = "no_function_calls_found"  # Response parsed but no function calls extracted
     JSON_DECODE_ERROR = "json_decode_error"  # Failed to parse JSON output
     PARSING_ERROR = "parsing_error"  # General error during parsing

@@ -233,24 +233,30 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
                 function_calls = response_data
             # Handle case where response_data is a dict with error
             elif isinstance(response_data, dict) and "error" in response_data:
-                return (PostprocessError.MODEL_ERROR, {
-                    "error_message": response_data['error'],
-                    "raw_output": raw_output
-                })
+                print("Error: Unreachable!")
+                exit(1)
+                # return (PostprocessError.MODEL_ERROR, {
+                #     "error_message": response_data['error'],
+                #     "raw_output": raw_output
+                # })
             # Handle case where response_data is a dict with function_calls (old format)
             elif isinstance(response_data, dict) and "function_calls" in response_data:
                 function_calls = response_data["function_calls"]
             # Fallback: no function calls
             elif isinstance(response_data, dict) and "output_text" in response_data:
-                return (PostprocessError.TEXT_INSTEAD_OF_FUNCTION_CALLS, {
-                    "output_text": str(response_data['output_text'])[:200],
-                    "raw_output": raw_output
-                })
+                print("Error: Unreachable!")
+                exit(1)
+                # return (PostprocessError.TEXT_INSTEAD_OF_FUNCTION_CALLS, {
+                #     "output_text": str(response_data['output_text'])[:200],
+                #     "raw_output": raw_output
+                # })
             else:
-                return (PostprocessError.UNEXPECTED_RESPONSE_FORMAT, {
-                    "response_preview": json.dumps(response_data)[:200],
-                    "raw_output": raw_output
-                })
+                print("Error: Unreachable!")
+                exit(1)
+                # return (PostprocessError.UNEXPECTED_RESPONSE_FORMAT, {
+                #     "response_preview": json.dumps(response_data)[:200],
+                #     "raw_output": raw_output
+                # })
 
             # Convert function calls to standard format
             extracted = []
@@ -261,11 +267,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
 
                     # Parse arguments if they come as a JSON string
                     if isinstance(arguments, str):
-                        try:
-                            arguments = json.loads(arguments)
-                        except json.JSONDecodeError:
-                            pass
-
+                        arguments = json.loads(arguments)
                     if sanitized_name:
                         # Convert sanitized name back to original using external name_mapper
                         if name_mapper:

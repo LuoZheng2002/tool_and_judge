@@ -637,19 +637,20 @@ async def process_all_configs():
             if isinstance(result, tuple):
                 # Error case: (PostprocessError, metadata_dict)
                 error, metadata = result
-                # Format error as string with metadata
-                error_msg = f"Error: {error.value}"
-                if "error_message" in metadata:
-                    error_msg += f": {metadata['error_message']}"
-                decoded_output = error_msg
+                inference_json_entry = {
+                    "id": id,
+                    "valid": False,
+                    "error": error.value,
+                    "error_meta": metadata
+                }
             else:
                 # Success case: list of function calls
-                decoded_output = result
-
-            inference_json_entry = {
-                "id": id,
-                "result": decoded_output
-            }
+                assert isinstance(result, list)
+                inference_json_entry = {
+                    "id": id,
+                    "valid": True,
+                    "result": result
+                }
             inference_json_results.append(inference_json_entry)
 
             # Write batch results to file
@@ -797,6 +798,10 @@ async def process_all_configs():
 
                     async def translate_single_answer(sample):
                         """Translate parameters in a single sample and return the modified sample."""
+                        # If sample is invalid (postprocess error), return as-is
+                        if not sample.get("valid", True):  # Default to True for backward compatibility
+                            return sample
+
                         result = sample.get("result", [])
 
                         # If result is not a list or is empty, return as is
@@ -885,12 +890,25 @@ async def process_all_configs():
             id = inference_line["id"]
             assert id == ground_truth_line["id"], f"Mismatch in IDs: {id} vs {ground_truth_line['id']}"
             assert id == test_case["id"], f"Mismatch in IDs: {id} vs {test_case['id']}"
-            inference_result = inference_line["result"]
-            ground_truth = ground_truth_line["ground_truth"]
-            func_description = test_case['function']
 
-            evaluation_result = evaluate_json(id, inference_result, ground_truth, func_description)
-            evaluation_result["id"] = id
+            # Check if postprocess result was valid
+            if inference_line.get("valid", True):  # Default to True for backward compatibility
+                # Valid result: evaluate normally
+                inference_result = inference_line["result"]
+                ground_truth = ground_truth_line["ground_truth"]
+                func_description = test_case['function']
+
+                evaluation_result = evaluate_json(id, inference_result, ground_truth, func_description)
+                evaluation_result["id"] = id
+            else:
+                # Invalid result: mark as invalid with error info
+                evaluation_result = {
+                    "id": id,
+                    "valid": False,
+                    "error": f"Postprocess error: {inference_line.get('error', 'unknown')}",
+                    "error_meta": inference_line.get("error_meta", {})
+                }
+
             evaluation_results.append(evaluation_result)
 
             # Write batch results to file
