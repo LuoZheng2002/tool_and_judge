@@ -14,7 +14,7 @@ Key features:
 
 import json
 import re
-from typing import List, Dict, Any, Union, Optional, TYPE_CHECKING
+from typing import List, Dict, Any, Union, Optional, TYPE_CHECKING, Tuple
 from .base import (
     JudgeModelInterface,
     ToolModelInterface,
@@ -24,6 +24,7 @@ from .base import (
 )
 
 from models.name_mapping import FunctionNameMapper
+from config import PostprocessError
 
 
 class GPT5Interface(JudgeModelInterface, ToolModelInterface):
@@ -183,7 +184,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
                 "items": model_responses
             })
 
-        return json.dumps({"function_calls": model_responses})
+        return json.dumps(model_responses)
 
     def preprocess_functions(
         self,
@@ -211,7 +212,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         self,
         raw_output: str,
         name_mapper: Optional['FunctionNameMapper'] = None
-    ) -> Union[List[Dict[str, Dict[str, Any]]], str]:
+    ) -> Union[List[Dict[str, Dict[str, Any]]], Tuple[PostprocessError, Dict[str, Any]]]:
         """
         Postprocess raw output from GPT-5's structured response format.
 
@@ -220,61 +221,80 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
             name_mapper: External name mapper to convert sanitized names back to original
 
         Returns:
-            List of function call dictionaries in format: [{func_name: {arguments}}, ...]
-            Returns error string if parsing fails
+            On success: List of function calls
+            On error: Tuple of (PostprocessError, metadata dict with error details)
         """
         try:
             # Parse the JSON response
             response_data = json.loads(raw_output)
 
-            # Handle error responses
-            if "error" in response_data:
-                return f"Error from model: {response_data['error']}"
-
-            # Check if we have function calls
-            if "function_calls" in response_data:
+            # Handle case where response_data is a list (new format)
+            if isinstance(response_data, list):
+                function_calls = response_data
+            # Handle case where response_data is a dict with error
+            elif isinstance(response_data, dict) and "error" in response_data:
+                return (PostprocessError.MODEL_ERROR, {
+                    "error_message": response_data['error'],
+                    "raw_output": raw_output
+                })
+            # Handle case where response_data is a dict with function_calls (old format)
+            elif isinstance(response_data, dict) and "function_calls" in response_data:
                 function_calls = response_data["function_calls"]
-
-                # Convert function calls to standard format
-                extracted = []
-                for func_call in function_calls:
-                    if func_call.get("type") == "function_call":
-                        sanitized_name = func_call.get("name")
-                        arguments = func_call.get("arguments", {})
-
-                        # Parse arguments if they come as a JSON string
-                        if isinstance(arguments, str):
-                            try:
-                                arguments = json.loads(arguments)
-                            except json.JSONDecodeError:
-                                pass
-
-                        if sanitized_name:
-                            # Convert sanitized name back to original using external name_mapper
-                            if name_mapper:
-                                original_name = name_mapper.get_original_name(sanitized_name)
-                            else:
-                                # Fallback: if no name_mapper, assume no sanitization was done
-                                original_name = sanitized_name
-
-                            # Convert to standard format
-                            extracted.append({original_name: arguments})
-
-                if extracted:
-                    return extracted
-                else:
-                    return "No function calls found in response"
-
             # Fallback: no function calls
-            elif "output_text" in response_data:
-                return f"Model returned text instead of function calls: {str(response_data['output_text'])[:200]}..."
+            elif isinstance(response_data, dict) and "output_text" in response_data:
+                return (PostprocessError.TEXT_INSTEAD_OF_FUNCTION_CALLS, {
+                    "output_text": str(response_data['output_text'])[:200],
+                    "raw_output": raw_output
+                })
             else:
-                return f"Unexpected response format: {json.dumps(response_data)[:200]}..."
+                return (PostprocessError.UNEXPECTED_RESPONSE_FORMAT, {
+                    "response_preview": json.dumps(response_data)[:200],
+                    "raw_output": raw_output
+                })
+
+            # Convert function calls to standard format
+            extracted = []
+            for func_call in function_calls:
+                if func_call.get("type") == "function_call":
+                    sanitized_name = func_call.get("name")
+                    arguments = func_call.get("arguments", {})
+
+                    # Parse arguments if they come as a JSON string
+                    if isinstance(arguments, str):
+                        try:
+                            arguments = json.loads(arguments)
+                        except json.JSONDecodeError:
+                            pass
+
+                    if sanitized_name:
+                        # Convert sanitized name back to original using external name_mapper
+                        if name_mapper:
+                            original_name = name_mapper.get_original_name(sanitized_name)
+                        else:
+                            # Fallback: if no name_mapper, assume no sanitization was done
+                            original_name = sanitized_name
+
+                        # Convert to standard format
+                        extracted.append({original_name: arguments})
+
+            if extracted:
+                return extracted
+            else:
+                return (PostprocessError.NO_FUNCTION_CALLS_FOUND, {
+                    "raw_output": raw_output
+                })
 
         except json.JSONDecodeError as e:
-            return f"Failed to parse JSON output: {str(e)}. Raw string: {raw_output}"
+            return (PostprocessError.JSON_DECODE_ERROR, {
+                "error_message": str(e),
+                "raw_output": raw_output
+            })
         except Exception as e:
-            return f"Error parsing output: {str(e)}. Raw string: {raw_output}"
+            return (PostprocessError.PARSING_ERROR, {
+                "error_message": str(e),
+                "exception_type": type(e).__name__,
+                "raw_output": raw_output
+            })
 
     async def translate_tool_question_async(
         self,

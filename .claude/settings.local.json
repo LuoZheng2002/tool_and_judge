@@ -5,7 +5,8 @@
       "Bash(python:*)",
       "Bash(cat:*)",
       "WebFetch(domain:qwen.readthedocs.io)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

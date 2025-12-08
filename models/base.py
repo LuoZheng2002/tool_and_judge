@@ -20,6 +20,7 @@ import asyncio
 
 
 from models.name_mapping import FunctionNameMapper
+from config import PostprocessError
 
 
 # =============================================================================
@@ -432,7 +433,7 @@ class ToolModelInterface(ModelInterface):
         self,
         raw_output: str,
         name_mapper: Optional['FunctionNameMapper'] = None
-    ) -> Union[List[Dict[str, Dict[str, Any]]], str]:
+    ) -> Union[List[Dict[str, Dict[str, Any]]], Tuple[PostprocessError, Dict[str, Any]]]:
         """
         Postprocess raw model output to extract function calls.
 
@@ -445,26 +446,41 @@ class ToolModelInterface(ModelInterface):
                         to original using get_original_name()
 
         Returns:
-            List of function call dictionaries in format:
-            [
-                {
-                    "function_name": {
-                        "param1": value1,
-                        "param2": value2,
-                        ...
-                    }
-                },
-                ...
-            ]
-
-            For error cases, returns a string describing the error.
+            On success: List of function call dictionaries in format:
+                [
+                    {
+                        "function_name": {
+                            "param1": value1,
+                            "param2": value2,
+                            ...
+                        }
+                    },
+                    ...
+                ]
+            On error: Tuple of (PostprocessError, metadata_dict) where metadata_dict
+                contains error details (e.g., raw_output, error_message, exception
+                details, etc.)
 
         Examples:
             >>> from models.name_mapping import FunctionNameMapper
             >>> name_mapper = FunctionNameMapper()
             >>> raw_output = '<tool_call>{"name": "get_weather", "arguments": {"location": "Paris"}}</tool_call>'
-            >>> interface.postprocess_tool_calls(raw_output, name_mapper)
+            >>> result = interface.postprocess_tool_calls(raw_output, name_mapper)
+            >>> isinstance(result, list)
+            True
+            >>> result
             [{"get_weather": {"location": "Paris"}}]
+
+            >>> # Error case
+            >>> raw_output = 'invalid json'
+            >>> result = interface.postprocess_tool_calls(raw_output, name_mapper)
+            >>> isinstance(result, tuple)
+            True
+            >>> error, metadata = result
+            >>> error == PostprocessError.JSON_DECODE_ERROR
+            True
+            >>> 'raw_output' in metadata
+            True
         """
         pass
 

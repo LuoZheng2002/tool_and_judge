@@ -9,11 +9,6 @@ from config import *
 from tool.parse_ast import *
 import re
 from models import create_backend, create_interface
-from allow_synonym import (
-    load_or_create_cache,
-    save_cache,
-    process_allow_synonym_sample_async
-)
 from tool_categorize import categorize_single_sample_async
 from models.name_mapping import get_global_name_mapper
 
@@ -253,7 +248,7 @@ def get_or_create_backend(model: Model, num_gpus: int = 1, max_model_len: int = 
         num_gpus: Number of GPUs to use
         max_model_len: Maximum model length
         instance_name: Name for this backend instance (default: "default")
-                      Use "experiment" for experiment runs, "allow_synonym" for allow_synonym
+                      Use "experiment" for experiment runs
 
     Returns:
         The backend for the given model
@@ -291,16 +286,6 @@ def get_or_create_model_interface(model: Model):
     return create_interface(model_identifier)
 
 
-# Global caches for post-processing parameter matching (shared across all configs)
-# Separate caches for different language handling options
-allow_synonym_cache_different_path = "tool/allow_synonym_match_cache_different.json"
-allow_synonym_cache_same_path = "tool/allow_synonym_match_cache_same.json"
-allow_synonym_cache_different = load_or_create_cache(allow_synonym_cache_different_path)
-allow_synonym_cache_same = load_or_create_cache(allow_synonym_cache_same_path)
-allow_synonym_cache_stats_different = {'hits': 0, 'misses': 0}
-allow_synonym_cache_stats_same = {'hits': 0, 'misses': 0}
-
-
 async def process_all_configs():
     """Process all configs within a single event loop to allow backend reuse."""
     for config in configs:
@@ -320,70 +305,34 @@ async def process_all_configs():
                         pre_translate_tag = "_nopretrans"
                         prompt_translate_tag = "_noprompt"
                         post_translate_tag = "_noposttrans"
-                        allow_synonym_tag = "_noallow"                        
                     case TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE:
                         translate_level_tag = "_fulltrans"
                         pre_translate_tag = "_nopretrans"
                         prompt_translate_tag = "_prompt"
                         post_translate_tag = "_noposttrans"
-                        allow_synonym_tag = "_noallow"                        
-                    case TranslateOption.FULLY_TRANSLATED_ALLOW_SYNONYM_DIFFERENT_LANGUAGE:
-                        translate_level_tag = "_fulltrans"
-                        pre_translate_tag = "_nopretrans"
-                        prompt_translate_tag = "_noprompt"
-                        post_translate_tag = "_noposttrans"
-                        allow_synonym_tag = "_allowdiff"
-                    case TranslateOption.FULLY_TRANSLATED_ALLOW_SYNONYM_SAME_LANGUAGE:
-                        translate_level_tag = "_fulltrans"
-                        pre_translate_tag = "_nopretrans"
-                        prompt_translate_tag = "_noprompt"
-                        post_translate_tag = "_noposttrans"
-                        allow_synonym_tag = "_allowsame"
-                    case TranslateOption.FULLY_TRANSLATED_PROMPT_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE:
-                        translate_level_tag = "_fulltrans"
-                        pre_translate_tag = "_nopretrans"
-                        prompt_translate_tag = "_prompt"
-                        post_translate_tag = "_noposttrans"
-                        allow_synonym_tag = "_allowsame"
                     case TranslateOption.FULLY_TRANSLATED_PRE_TRANSLATE:
                         translate_level_tag = "_fulltrans"
                         pre_translate_tag = "_pretrans"
                         prompt_translate_tag = "_noprompt"
                         post_translate_tag = "_noposttrans"
-                        allow_synonym_tag = "_noallow"
                     case TranslateOption.FULLY_TRANSLATED_POST_TRANSLATE:
                         translate_level_tag = "_fulltrans"
                         pre_translate_tag = "_nopretrans"
                         prompt_translate_tag = "_noprompt"
                         post_translate_tag = "_posttrans"
-                        allow_synonym_tag = "_noallow"
                     case TranslateOption.PARTIALLY_TRANSLATED:
                         translate_level_tag = "_parttrans"
                         pre_translate_tag = "_nopretrans"
                         prompt_translate_tag = "_noprompt"
                         post_translate_tag = "_noposttrans"
-                        allow_synonym_tag = "_noallow"
-                    case TranslateOption.FULLY_TRANSLATED_PRE_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE:
-                        translate_level_tag = "_fulltrans"
-                        pre_translate_tag = "_pretrans"
-                        prompt_translate_tag = "_noprompt"
-                        post_translate_tag = "_noposttrans"
-                        allow_synonym_tag = "_allowsame"
-                    case TranslateOption.FULLY_TRANSLATED_POST_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE:
-                        translate_level_tag = "_fulltrans"
-                        pre_translate_tag = "_nopretrans"
-                        prompt_translate_tag = "_noprompt"
-                        post_translate_tag = "_posttrans"
-                        allow_synonym_tag = "_allowsame"
                     case _:
                         raise ValueError(f"Unsupported translate option: {option}")
-            case NotTranslated(allow_synonym_same_language):
+            case NotTranslated():
                 language_tag = "_en"
                 translate_level_tag = "_na"
                 pre_translate_tag = "_nopretrans"
                 prompt_translate_tag = "_noprompt"
                 post_translate_tag = "_noposttrans"
-                allow_synonym_tag = "_allowsame" if allow_synonym_same_language else "_noallow"
         match config.add_noise_mode:
             case AddNoiseMode.NO_NOISE:
                 noise_tag = "_nonoise" # no noise
@@ -406,7 +355,6 @@ async def process_all_configs():
         pre_translate_output_combined_tags = language_tag + translate_level_tag + pre_translate_tag + noise_tag
         inference_raw_output_combined_tags = language_tag + translate_level_tag + pre_translate_tag + noise_tag + prompt_translate_tag
         post_translate_output_combined_tags = language_tag + translate_level_tag + pre_translate_tag + noise_tag + prompt_translate_tag + post_translate_tag
-        allow_synonym_output_combined_tags = language_tag + translate_level_tag + pre_translate_tag + noise_tag + prompt_translate_tag + post_translate_tag + allow_synonym_tag
         
         # assign pre_translate_input_path
         # assign pre_translate_output_path
@@ -437,36 +385,25 @@ async def process_all_configs():
             post_translate_output_path = f"tool/result/post_translate/{model_dir_name}/{post_translate_output_combined_tags}.json"
         else:
             assert post_translate_tag == "_noposttrans"
-        # assign allow_synonym_input_path
-        if post_translate_tag == "_posttrans":
-            allow_synonym_input_path = f"tool/result/post_translate/{model_dir_name}/{post_translate_output_combined_tags}.json"
-        else:
-            allow_synonym_input_path = post_translate_input_path
-        # assign allow_synonym_output_path
-        if allow_synonym_tag in ["_allowdiff", "_allowsame"]:
-            allow_synonym_output_path = f"tool/result/allow_synonym/{model_dir_name}/{allow_synonym_output_combined_tags}.json"
-        else:
-            assert allow_synonym_tag == "_noallow"
         # assign evaluation_input_path
-        if allow_synonym_tag in ["_allowdiff", "_allowsame"]:
-            evaluation_input_path = f"tool/result/allow_synonym/{model_dir_name}/{allow_synonym_output_combined_tags}.json"
+        if post_translate_tag == "_posttrans":
+            evaluation_input_path = f"tool/result/post_translate/{model_dir_name}/{post_translate_output_combined_tags}.json"
         else:
-            assert allow_synonym_tag == "_noallow"
-            evaluation_input_path = allow_synonym_input_path
+            evaluation_input_path = post_translate_input_path
         # assign evaluation_output_path
-        evaluation_output_path = f"tool/result/evaluation/{model_dir_name}/{allow_synonym_output_combined_tags}.json"
+        evaluation_output_path = f"tool/result/evaluation/{model_dir_name}/{post_translate_output_combined_tags}.json"
         # assign score_input_path
         score_input_path = evaluation_output_path
         # assign score_output_path
-        score_output_path = f"tool/result/score/{model_dir_name}/{allow_synonym_output_combined_tags}.json"
+        score_output_path = f"tool/result/score/{model_dir_name}/{post_translate_output_combined_tags}.json"
         # assign categorize_input_path
         categorize_input_path = score_output_path
         # assign categorize_output_path
-        categorize_output_path = f"tool/result/categorize/{model_dir_name}/{allow_synonym_output_combined_tags}.json"
+        categorize_output_path = f"tool/result/categorize/{model_dir_name}/{post_translate_output_combined_tags}.json"
         # assign categorize_score_input_path
         categorize_score_input_path = categorize_output_path
         # assign categorize_score_output_path
-        categorize_score_output_path = f"tool/result/categorize_score/{model_dir_name}/{allow_synonym_output_combined_tags}.json"
+        categorize_score_output_path = f"tool/result/categorize_score/{model_dir_name}/{post_translate_output_combined_tags}.json"
 
         test_cases = load_json_lines(unpretranslated_dataset_path)
         ground_truths = load_json_lines(ground_truth_path)
@@ -694,7 +631,21 @@ async def process_all_configs():
             # convert raw result to json format
             # decoded_output = raw_to_json(config.model, id, inference_raw['result'])
             # Pass name_mapper to parse_output for models that need name sanitization
-            decoded_output = model_interface.postprocess_tool_calls(inference_raw['result'], name_mapper=name_mapper)
+            result = model_interface.postprocess_tool_calls(inference_raw['result'], name_mapper=name_mapper)
+
+            # Check if result is an error tuple or success list
+            if isinstance(result, tuple):
+                # Error case: (PostprocessError, metadata_dict)
+                error, metadata = result
+                # Format error as string with metadata
+                error_msg = f"Error: {error.value}"
+                if "error_message" in metadata:
+                    error_msg += f": {metadata['error_message']}"
+                decoded_output = error_msg
+            else:
+                # Success case: list of function calls
+                decoded_output = result
+
             inference_json_entry = {
                 "id": id,
                 "result": decoded_output
@@ -711,7 +662,6 @@ async def process_all_configs():
         # PASS 4: Translated Answers (Post-Translation)
         # ═══════════════════════════════════════════════════════════════════════
         # Translates function call parameter values from source language to English.
-        # This pass runs BEFORE allow_synonym so that allow_synonym works with English parameters.
         # This pass runs when FULLY_TRANSLATED_POST_TRANSLATE option is enabled.
         # Input: tool/result/inference_json/{model}/{filename}.json
         # Output: tool/result/translated_answers/{model}/{language}.json
@@ -916,128 +866,30 @@ async def process_all_configs():
                     append_and_rewrite_json_lines(post_translate_output_path, translated_answers_results)
 
         # ═══════════════════════════════════════════════════════════════════════
-        # PASS 5: Allow-Synonym
-        # ═══════════════════════════════════════════════════════════════════════
-        # Optionally rephrases parameter values using LLM to match ground truth format.
-        # Can handle different language modes (same language or different language).
-        # Input: tool/result/translated_answers if post-translate enabled, else inference_json
-        # Output: tool/result/allow_synonym/{model}/{filename}.json
-        # ═══════════════════════════════════════════════════════════════════════
-        if allow_synonym_tag == "_noallow":
-            pass  # Skip allow-synonym processing
-            print(f"Skipping allow synonym processing (DONT_ALLOW_SYNONYM)")
-            # source_results, _ = load_json_lines_from_file(allow_synonym_input_path)
-            # allow_synonym_results = []
-            # existing_allow_synonym_ids = set()
-
-            # # Copy unprocessed results
-            # for source_line in source_results:
-            #     if source_line['id'] not in existing_allow_synonym_ids:
-            #         allow_synonym_results.append(source_line)
-
-            # # Final sort and write
-            # if len(allow_synonym_results) > 0:
-            #     append_and_rewrite_json_lines(post_processing_result_path, allow_synonym_results)
-
-            # print(f"Post-processing: Copied {len(source_results)} results without modification (DONT_POST_PROCESS)")
-
-        else:
-            # POST_PROCESS_DIFFERENT or POST_PROCESS_SAME: use LLM-based parameter matching
-            # Select appropriate cache based on post_process_option
-            if allow_synonym_tag == "_allowsame":  # POST_PROCESS_SAME
-                allow_synonym_cache = allow_synonym_cache_same
-                allow_synonym_cache_stats = allow_synonym_cache_stats_same
-                cache_path = allow_synonym_cache_same_path
-                allow_synonym_option = AllowSynonymOption.ALLOW_SYNONYM_SAME_LANGUAGE
-            elif allow_synonym_tag == "_allowdiff":  # POST_PROCESS_DIFFERENT
-                allow_synonym_cache = allow_synonym_cache_different
-                allow_synonym_cache_stats = allow_synonym_cache_stats_different
-                cache_path = allow_synonym_cache_different_path
-                allow_synonym_option = AllowSynonymOption.ALLOW_SYNONYM_DIFFERENT_LANGUAGE
-            else:
-                raise ValueError(f"Unsupported allow synonym tag: {allow_synonym_tag}")
-            source_results = load_json_lines(allow_synonym_input_path)
-
-            print(f"Processing {len(source_results)} samples with allow_synonym in parallel...")
-
-            async def process_allow_synonym_async():
-                """Process all allow_synonym samples asynchronously in parallel."""
-
-                async def process_single_sample(source_line):
-                    """Process a single sample and return the result."""
-                    id = source_line['id']
-                    # Find matching ground truth
-                    ground_truth_line = next((gt for gt in ground_truths if gt['id'] == id), None)
-                    if ground_truth_line is None:
-                        raise ValueError(f"Ground truth not found for id: {id}")
-
-                    # Process with LLM-based parameter matching
-                    return await process_allow_synonym_sample_async(
-                        source_line,
-                        ground_truth_line,
-                        allow_synonym_option,
-                        allow_synonym_cache,
-                        cache_path,
-                        allow_synonym_cache_stats
-                    )
-
-                # Create all tasks
-                tasks = [process_single_sample(source_line) for source_line in source_results]
-
-                # Process results as they complete
-                allow_synonym_results = []
-                completed_count = 0
-                print(f"\nSubmitting {len(source_results)} allow_synonym requests concurrently...")
-                for coro in asyncio.as_completed(tasks):
-                    allow_synonym_entry = await coro
-                    completed_count += 1
-
-                    # print(f"[{completed_count}/{len(source_results)}] Processed allow_synonym for sample {allow_synonym_entry['id']}")
-
-                    allow_synonym_results.append(allow_synonym_entry)
-
-                    # Write to file immediately (unsorted)
-                    write_json_lines_to_file(allow_synonym_output_path, allow_synonym_results)
-                print(f"All {len(source_results)} allow_synonym samples processed.")
-
-                return allow_synonym_results
-
-            # Run the async processing
-            allow_synonym_results = await process_allow_synonym_async()
-
-            print(f"All {len(source_results)} allow_synonym samples completed.")
-
-            # Final sort and write
-            if len(allow_synonym_results) > 0:
-                append_and_rewrite_json_lines(allow_synonym_output_path, allow_synonym_results)
-
-            print(f"Allow synonym ({allow_synonym_tag}) completed - Hits: {allow_synonym_cache_stats['hits']}, Misses: {allow_synonym_cache_stats['misses']}")
-
-        # ═══════════════════════════════════════════════════════════════════════
-        # PASS 6: Evaluation
+        # PASS 5: Evaluation
         # ═══════════════════════════════════════════════════════════════════════
         # Evaluates model outputs against ground truth to determine correctness.
         # Checks function names, parameter names, and parameter values.
-        # Input: tool/result/post_processing/{model}/{filename}.json
+        # Input: tool/result/post_translate if post-translate enabled, else inference_json
         # Output: tool/result/evaluation/{model}/{filename}.json
         # ═══════════════════════════════════════════════════════════════════════
-        # reload allow synonym results
+        # reload inference results for evaluation
         try:
-            allow_synonym_results = load_json_lines(evaluation_input_path)
+            inference_results = load_json_lines(evaluation_input_path)
         except FileNotFoundError:
             print(f"File {evaluation_input_path} not found. Skipping evaluation.")
             exit(1)
         evaluation_results = []
 
-        for (post_processing_line, ground_truth_line, test_case) in zip(allow_synonym_results, ground_truths, test_cases):
-            id = post_processing_line["id"]
+        for (inference_line, ground_truth_line, test_case) in zip(inference_results, ground_truths, test_cases):
+            id = inference_line["id"]
             assert id == ground_truth_line["id"], f"Mismatch in IDs: {id} vs {ground_truth_line['id']}"
             assert id == test_case["id"], f"Mismatch in IDs: {id} vs {test_case['id']}"
-            post_processing_result = post_processing_line["result"]
+            inference_result = inference_line["result"]
             ground_truth = ground_truth_line["ground_truth"]
             func_description = test_case['function']
 
-            evaluation_result = evaluate_json(id, post_processing_result, ground_truth, func_description)
+            evaluation_result = evaluate_json(id, inference_result, ground_truth, func_description)
             evaluation_result["id"] = id
             evaluation_results.append(evaluation_result)
 
@@ -1048,7 +900,7 @@ async def process_all_configs():
         if len(evaluation_results) > 0:
             append_and_rewrite_json_lines(evaluation_output_path, evaluation_results)
         # ═══════════════════════════════════════════════════════════════════════
-        # PASS 7: Score
+        # PASS 6: Score
         # ═══════════════════════════════════════════════════════════════════════
         # Calculates accuracy and aggregates wrong cases for analysis.
         # Input: tool/result/evaluation/{model}/{filename}.json
@@ -1090,7 +942,7 @@ async def process_all_configs():
         print(f"Score result written to {score_output_path}: {score_result}")
 
         # ═══════════════════════════════════════════════════════════════════════
-        # PASS 8: Categorize
+        # PASS 7: Categorize
         # ═══════════════════════════════════════════════════════════════════════
         # Categorizes each error sample into different error types.
         # Uses skip existing mechanism similar to inference_raw.
@@ -1164,7 +1016,7 @@ async def process_all_configs():
                 append_and_rewrite_json_lines(categorize_output_path, categorize_results)
 
         # ═══════════════════════════════════════════════════════════════════════
-        # PASS 9: Categorize Score
+        # PASS 8: Categorize Score
         # ═══════════════════════════════════════════════════════════════════════
         # Aggregates categorization results and counts errors for each category.
         # Lightweight pass that always overwrites existing file.

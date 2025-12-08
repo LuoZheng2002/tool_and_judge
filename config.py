@@ -59,13 +59,8 @@ class TranslateOption(Enum):
     FULLY_TRANSLATED = auto()
     FULLY_TRANSLATED_PROMPT_TRANSLATE = auto()
     PARTIALLY_TRANSLATED = auto()
-    FULLY_TRANSLATED_ALLOW_SYNONYM_DIFFERENT_LANGUAGE = auto()
-    FULLY_TRANSLATED_ALLOW_SYNONYM_SAME_LANGUAGE = auto()
-    FULLY_TRANSLATED_PROMPT_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE = auto()
     FULLY_TRANSLATED_PRE_TRANSLATE = auto()
     FULLY_TRANSLATED_POST_TRANSLATE = auto()
-    FULLY_TRANSLATED_PRE_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE = auto()
-    FULLY_TRANSLATED_POST_TRANSLATE_ALLOW_SYNONYM_SAME_LANGUAGE = auto()
 
 class AddNoiseMode(Enum):
     NO_NOISE = auto()
@@ -79,14 +74,9 @@ class Translated:
 
 @dataclass(frozen=True)
 class NotTranslated:
-    allow_synonym_same_language: bool
+    pass
 
 TranslateMode = Union[Translated, NotTranslated]
-
-class AllowSynonymOption(Enum):
-    DONT_ALLOW_SYNONYM = 0
-    ALLOW_SYNONYM_DIFFERENT_LANGUAGE = 1
-    ALLOW_SYNONYM_SAME_LANGUAGE = 2
 
 @dataclass(frozen=True)
 class ToolConfig:
@@ -105,6 +95,15 @@ class ToolErrorCategory(Enum):
     RELEVANT_BUT_INCORRECT = "relevant_but_incorrect"
     EXACTLY_SAME_MEANING = "exactly_same_meaning"
     OTHER_ERRORS = "other_errors"
+
+class PostprocessError(Enum):
+    """Error types that can occur during postprocess_tool_calls."""
+    MODEL_ERROR = "model_error"  # Model returned an error in the response
+    TEXT_INSTEAD_OF_FUNCTION_CALLS = "text_instead_of_function_calls"  # Model returned text instead of function calls
+    UNEXPECTED_RESPONSE_FORMAT = "unexpected_response_format"  # Response format is not recognized
+    NO_FUNCTION_CALLS_FOUND = "no_function_calls_found"  # Response parsed but no function calls extracted
+    JSON_DECODE_ERROR = "json_decode_error"  # Failed to parse JSON output
+    PARSING_ERROR = "parsing_error"  # General error during parsing
 
 
 # ============================================================================
