@@ -137,7 +137,7 @@ Put your final answer in \\boxed{{category_name}}."""
 async def categorize_single_sample_async(
     evaluation_entry: Dict[str, Any],
     category_cache: Dict[Tuple[str, Tuple], str]
-) -> ToolErrorCategory:
+) -> Tuple[ToolErrorCategory, bool]:
     """
     Asynchronously categorize a single evaluation sample to determine error type.
 
@@ -152,7 +152,8 @@ async def categorize_single_sample_async(
         category_cache: Dict mapping (actual_value, expected_values_tuple) to category name
 
     Returns:
-        ToolErrorCategory enum
+        Tuple of (ToolErrorCategory enum, cache_hit: bool)
+        cache_hit is True if result was found in cache, False otherwise
     """
     # If the sample is valid, it shouldn't be categorized
     is_valid = evaluation_entry.get("valid", False)
@@ -162,22 +163,23 @@ async def categorize_single_sample_async(
     error_type = evaluation_entry.get("error", "")
 
     # Map postprocess errors to categories directly (no LLM needed)
+    # These don't count as cache hits/misses since they don't use the cache
     if error_type == EvaluationError.NO_FUNCTION_CALLS_FOUND.value:
-        return ToolErrorCategory.SYNTAX_ERROR
+        return ToolErrorCategory.SYNTAX_ERROR, False
     elif error_type == EvaluationError.JSON_DECODE_ERROR.value:
-        return ToolErrorCategory.SYNTAX_ERROR
+        return ToolErrorCategory.SYNTAX_ERROR, False
     elif error_type == EvaluationError.PARSING_ERROR.value:
-        return ToolErrorCategory.SYNTAX_ERROR
+        return ToolErrorCategory.SYNTAX_ERROR, False
 
     # Map evaluation errors to categories
     elif error_type == EvaluationError.INVALID_ENTRY_COUNT.value:
-        return ToolErrorCategory.MISC_ERRORS
+        return ToolErrorCategory.MISC_ERRORS, False
     elif error_type == EvaluationError.WRONG_FUNC_NAME.value:
-        return ToolErrorCategory.MISC_ERRORS
+        return ToolErrorCategory.MISC_ERRORS, False
     elif error_type == EvaluationError.MISSING_REQUIRED_PARAM.value:
-        return ToolErrorCategory.MISC_ERRORS
+        return ToolErrorCategory.MISC_ERRORS, False
     elif error_type == EvaluationError.UNEXPECTED_PARAM.value:
-        return ToolErrorCategory.MISC_ERRORS
+        return ToolErrorCategory.MISC_ERRORS, False
 
     # For INVALID_PARAM_VALUE, use LLM to categorize the specific parameter
     elif error_type == EvaluationError.INVALID_PARAM_VALUE.value:
@@ -207,7 +209,7 @@ async def categorize_single_sample_async(
                 "misc_errors": ToolErrorCategory.MISC_ERRORS,
                 "other_errors": ToolErrorCategory.OTHER_ERRORS,
             }
-            return category_map.get(category_name, ToolErrorCategory.OTHER_ERRORS)
+            return category_map.get(category_name, ToolErrorCategory.OTHER_ERRORS), True  # Cache hit
 
         # Call LLM to categorize this specific parameter value
         category = await _categorize_parameter_value_async(
@@ -217,8 +219,8 @@ async def categorize_single_sample_async(
         # Store result in cache
         category_cache[cache_key] = category.value
 
-        return category
+        return category, False  # Cache miss
 
     else:
         # Unknown error type
-        return ToolErrorCategory.OTHER_ERRORS
+        return ToolErrorCategory.OTHER_ERRORS, False

@@ -11,6 +11,7 @@ import re
 from models import create_backend, create_interface
 from tool_categorize import categorize_single_sample_async
 from models.name_mapping import get_global_name_mapper
+from filelock import FileLock
 
 from dotenv import load_dotenv
 
@@ -286,13 +287,11 @@ def get_or_create_model_interface(model: Model):
     return create_interface(model_identifier)
 
 
-async def process_all_configs():
-    """Process all configs within a single event loop to allow backend reuse."""
-    # Load global category cache from JSON file (one entry per line)
-    category_cache_path = "tool_category_cache.json"
+def load_category_cache(cache_path: str) -> dict:
+    """Load category cache from file. Assumes lock is already acquired."""
     category_cache = {}
     try:
-        with open(category_cache_path, 'r', encoding='utf-8') as f:
+        with open(cache_path, 'r', encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -305,7 +304,23 @@ async def process_all_configs():
         print(f"Category cache file not found. Creating new cache.")
     except json.JSONDecodeError as e:
         print(f"Error decoding category cache: {e}. Creating new cache.")
-        category_cache = {}
+    return category_cache
+
+
+def save_category_cache(cache_path: str, category_cache: dict) -> None:
+    """Save category cache to file. Assumes lock is already acquired."""
+    with open(cache_path, 'w', encoding='utf-8') as f:
+        for key, value in category_cache.items():
+            cache_entry = [[key[0], list(key[1])], value]
+            f.write(json.dumps(cache_entry, ensure_ascii=False) + '\n')
+
+
+async def process_all_configs():
+    """Process all configs within a single event loop to allow backend reuse."""
+    # Setup category cache with file locking
+    category_cache_path = "tool_category_cache.json"
+    category_cache_lock_path = "tool_category_cache.json.lock"
+    cache_lock = FileLock(category_cache_lock_path, timeout=60)
 
     for config in configs:
         print(f"Processing config: {config}", flush=True)
@@ -996,18 +1011,9 @@ async def process_all_configs():
         # PASS 7: Categorize
         # ═══════════════════════════════════════════════════════════════════════
         # Categorizes each error sample into different error types.
-        # Uses skip existing mechanism similar to inference_raw.
         # Input: tool/result/score/{model}/{filename}.json
         # Output: tool/result/categorize/{model}/{filename}.json
         # ═══════════════════════════════════════════════════════════════════════
-        try:
-            categorize_results, existing_categorize_ids = load_json_lines_with_id(categorize_output_path)
-            existing_categorize_ids = {entry["id"] for entry in categorize_results}
-        except FileNotFoundError:
-            print(f"File {categorize_output_path} not found. It will be created.")
-            categorize_results = []
-            existing_categorize_ids = set()
-
         # Load error samples from score file
         try:
             score_entries = load_json_lines(categorize_input_path)
@@ -1016,22 +1022,33 @@ async def process_all_configs():
             score_entries = []
 
         # Filter out the summary entry (first line in score file)
-        all_error_samples = [entry for entry in score_entries if 'accuracy' not in entry]
-
-        # Filter samples that haven't been categorized yet
-        samples_to_categorize = [sample for sample in all_error_samples if sample['id'] not in existing_categorize_ids]
+        samples_to_categorize = [entry for entry in score_entries if 'accuracy' not in entry]
 
         if len(samples_to_categorize) == 0:
-            print(f"All error samples have already been categorized. Skipping categorization.")
+            print(f"No error samples found. Skipping categorization.")
         else:
             print(f"Categorizing {len(samples_to_categorize)} error samples...")
 
+            # Acquire cache lock for entire categorize pass
+            print("Acquiring cache lock...")
+            cache_lock.acquire()
+            print("Acquired cache lock")
+
+            # Load category cache
+            category_cache = load_category_cache(category_cache_path)
+
+            categorize_results = []
+            cache_hits = 0
+            cache_misses = 0
+
             async def categorize_samples_async():
                 """Categorize error samples asynchronously."""
+                nonlocal cache_hits, cache_misses
+
                 async def categorize_with_sample(sample):
-                    """Wrapper to return sample and category."""
-                    category_enum = await categorize_single_sample_async(sample, category_cache)
-                    return sample, category_enum
+                    """Wrapper to return sample, category, and cache hit status."""
+                    category_enum, cache_hit = await categorize_single_sample_async(sample, category_cache)
+                    return sample, category_enum, cache_hit
 
                 # Create all categorization tasks
                 tasks = [categorize_with_sample(sample) for sample in samples_to_categorize]
@@ -1039,8 +1056,14 @@ async def process_all_configs():
                 # Process results as they complete
                 completed_count = 0
                 for coro in asyncio.as_completed(tasks):
-                    sample, category_enum = await coro
+                    sample, category_enum, cache_hit = await coro
                     completed_count += 1
+
+                    # Track cache statistics
+                    if cache_hit:
+                        cache_hits += 1
+                    else:
+                        cache_misses += 1
 
                     # Assemble the result dict (assembly logic in tool_main.py)
                     categorized_sample = {
@@ -1049,28 +1072,39 @@ async def process_all_configs():
                         "evaluation_entry": sample
                     }
 
-                    print(f"[{completed_count}/{len(samples_to_categorize)}] Categorized sample {categorized_sample['id']}: {categorized_sample['category']}")
+                    # Only print on cache miss, and only show parameter comparison details
+                    if not cache_hit:
+                        error_meta = sample.get("error_meta", {})
+                        actual_value = error_meta.get("actual_value")
+                        expected_values = error_meta.get("expected_values", [])
+                        if actual_value is not None and expected_values:
+                            print(f"[{completed_count}/{len(samples_to_categorize)}] Comparing actual: {json.dumps(actual_value, ensure_ascii=False)} with expected: {json.dumps(expected_values, ensure_ascii=False)} -> {category_enum.value}")
 
                     categorize_results.append(categorized_sample)
 
                     # Write to file immediately
                     write_json_lines_to_file(categorize_output_path, categorize_results)
 
-            # Run the async categorization
-            await categorize_samples_async()
+            try:
+                # Run the async categorization
+                await categorize_samples_async()
 
-            print(f"All {len(samples_to_categorize)} samples categorized.")
+                print(f"All {len(samples_to_categorize)} samples categorized.")
+                print(f"Cache statistics - Hits: {cache_hits}, Misses: {cache_misses}, Hit rate: {cache_hits / (cache_hits + cache_misses) * 100:.2f}%" if (cache_hits + cache_misses) > 0 else "Cache statistics - No cache lookups performed")
 
-            # Final sort and write
-            if len(categorize_results) > 0:
-                append_and_rewrite_json_lines(categorize_output_path, categorize_results)
+                # Final sort and write
+                if len(categorize_results) > 0:
+                    append_and_rewrite_json_lines(categorize_output_path, categorize_results)
 
-            # Save category cache to JSON file (one entry per line)
-            # Convert dict with tuple keys to list of [key, value] pairs for JSON compatibility
-            with open(category_cache_path, 'w', encoding='utf-8') as f:
-                for key, value in category_cache.items():
-                    cache_entry = [[key[0], list(key[1])], value]
-                    f.write(json.dumps(cache_entry, ensure_ascii=False) + '\n')
+                # Write cache back to file once at the end
+                save_category_cache(category_cache_path, category_cache)
+            finally:
+                # Release lock at the end of categorize pass
+                cache_lock.release()
+                print("Released cache lock")
+
+            # Destroy local cache container (Python will handle this automatically when it goes out of scope)
+            del category_cache
 
         # ═══════════════════════════════════════════════════════════════════════
         # PASS 8: Categorize Score

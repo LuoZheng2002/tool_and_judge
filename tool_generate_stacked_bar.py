@@ -12,17 +12,11 @@ from pathlib import Path
 # -----------------------------
 translate_modes = [
     "NT", # Not Translated
-    "NT_ASS", # Not Translated + Allow-Synonym Same
     "PAR", # Partially Translated
     "FT", # Fully Translated
     "PT", # Fully Translated + Prompt Translate
-    "ASD", # Fully translated + Allow-Synonym Different
-    "ASS", # Fully translated + Allow-Synonym Same
-    "PTASS", # Fully Translated + Prompt Translate + Allow-Synonym Same
     "PRE", # Fully Translated + Pre-Translate
     "POST", # Fully Translated + Post-Translate
-    "PREASS", # Fully Translated + Pre-Translate + Allow-Synonym Same
-    "POSTASS", # Fully Translated + Post-Translate + Allow-Synonym Same
 ]
 
 noise_modes = ["NO_NOISE", "PARAPHRASE", "SYNONYM"]
@@ -98,8 +92,8 @@ def generate_stacked_bar_chart(model_name: str, output_dir: str, result_dir: str
 
                 tags = filename.split("_")
 
-                if len(tags) != 7:
-                    print(f"Warning: Unexpected filename format '{score_file.name}' (expected 7 tags, got {len(tags)})")
+                if len(tags) != 6:
+                    print(f"Warning: Unexpected filename format '{score_file.name}' (expected 6 tags, got {len(tags)})")
                     continue
 
                 language_tag = tags[0]
@@ -108,7 +102,6 @@ def generate_stacked_bar_chart(model_name: str, output_dir: str, result_dir: str
                 noise_tag = tags[3]
                 prompt_translate_tag = tags[4]
                 post_translate_tag = tags[5]
-                allow_synonym_tag = tags[6]
 
                 # Map noise_tag to noise_mode
                 if noise_tag == "nonoise":
@@ -122,40 +115,23 @@ def generate_stacked_bar_chart(model_name: str, output_dir: str, result_dir: str
                     continue
 
                 # Map combination of tags to translate_mode (same logic as heatmap)
-                if language_tag == "en" and translate_level_tag == "na" and allow_synonym_tag == "noallow":
+                if language_tag == "en" and translate_level_tag == "na":
                     translate_mode = "NT"
-                elif language_tag == "en" and translate_level_tag == "na" and allow_synonym_tag == "allowsame":
-                    translate_mode = "NT_ASS"
                 elif language_tag in ["zh", "hi"] and translate_level_tag == "parttrans":
                     translate_mode = "PAR"
                 elif language_tag in ["zh", "hi"] and translate_level_tag == "fulltrans":
                     if (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
-                        post_translate_tag == "noposttrans" and allow_synonym_tag == "noallow"):
+                        post_translate_tag == "noposttrans"):
                         translate_mode = "FT"
                     elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "prompt" and
-                          post_translate_tag == "noposttrans" and allow_synonym_tag == "noallow"):
+                          post_translate_tag == "noposttrans"):
                         translate_mode = "PT"
-                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
-                          post_translate_tag == "noposttrans" and allow_synonym_tag == "allowdiff"):
-                        translate_mode = "ASD"
-                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
-                          post_translate_tag == "noposttrans" and allow_synonym_tag == "allowsame"):
-                        translate_mode = "ASS"
-                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "prompt" and
-                          post_translate_tag == "noposttrans" and allow_synonym_tag == "allowsame"):
-                        translate_mode = "PTASS"
                     elif (pre_translate_tag == "pretrans" and prompt_translate_tag == "noprompt" and
-                          post_translate_tag == "noposttrans" and allow_synonym_tag == "noallow"):
+                          post_translate_tag == "noposttrans"):
                         translate_mode = "PRE"
                     elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
-                          post_translate_tag == "posttrans" and allow_synonym_tag == "noallow"):
+                          post_translate_tag == "posttrans"):
                         translate_mode = "POST"
-                    elif (pre_translate_tag == "pretrans" and prompt_translate_tag == "noprompt" and
-                          post_translate_tag == "noposttrans" and allow_synonym_tag == "allowsame"):
-                        translate_mode = "PREASS"
-                    elif (pre_translate_tag == "nopretrans" and prompt_translate_tag == "noprompt" and
-                          post_translate_tag == "posttrans" and allow_synonym_tag == "allowsame"):
-                        translate_mode = "POSTASS"
                     else:
                         print(f"Warning: Unknown tag combination in {score_file.name}")
                         continue
