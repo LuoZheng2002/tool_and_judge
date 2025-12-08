@@ -1,5 +1,6 @@
 import ast
-from config import Model, ApiModel, LocalModel
+from typing import Union, Dict, Any, List, Tuple
+from config import Model, ApiModel, LocalModel, EvaluationError
 def recursive_match(value, expected_list):
     """
     Recursively match a value against a list of expected values.
@@ -197,30 +198,27 @@ def evaluate_json(
     decoded_output,
     possible_answer,
     func_description,
-):
+) -> Union[Dict[str, Any], Tuple[EvaluationError, Dict[str, Any]]]:
     # print("case id:", case_id)
     # print("decoded output:", decoded_output)
-    """Helper method to process a single AST entry."""
+    """Helper method to process a single AST entry.
+
+    Returns:
+        On success: Dict with "id", "valid"=True, "model_result_decoded", "possible_answer"
+        On error: Tuple of (EvaluationError, metadata_dict)
+    """
     if isinstance(decoded_output, str):
-        return {
-            "id": case_id,
-            "valid": False,
-            "error": [decoded_output],
-            "error_type": "ast_decoder:decoder_failed",
-            "model_result_raw": decoded_output,
-            "model_result_decoded": decoded_output,
+        return (EvaluationError.DECODER_FAILED, {
+            "decoded_output": decoded_output,
             "possible_answer": possible_answer,
-        }
-    
+        })
+
     if len(decoded_output) != 1:
-        return {
-            "id": case_id,
-            "valid": False,
-            "error": [f"Expected exactly one AST entry, but got {len(decoded_output)}."],
-            "error_type": "ast_checker:invalid_entry_count",
-            "model_result_decoded": decoded_output,
+        return (EvaluationError.INVALID_ENTRY_COUNT, {
+            "entry_count": len(decoded_output),
+            "decoded_output": decoded_output,
             "possible_answer": possible_answer,
-        }
+        })
     model_result = decoded_output[0]
     possible_answer = possible_answer[0]
 
@@ -237,14 +235,12 @@ def evaluate_json(
     model_result_func_name = next(iter(model_result))
     # print("func_name:", possible_answer_func_name)
     if possible_answer_func_name != model_result_func_name:
-        return {
-            "id": case_id,
-            "valid": False,
-            "error": [f"Function name mismatch. Expected {repr(possible_answer_func_name)}, but got {repr(model_result_func_name)}."],
-            "error_type": "simple_function_checker:wrong_func_name",
-            "model_result_decoded": decoded_output,
+        return (EvaluationError.WRONG_FUNC_NAME, {
+            "expected_func_name": possible_answer_func_name,
+            "actual_func_name": model_result_func_name,
+            "decoded_output": decoded_output,
             "possible_answer": possible_answer,
-        }
+        })
     # first see if function name matches
 
     # param_details = func_description["parameters"]["properties"]
@@ -258,14 +254,12 @@ def evaluate_json(
     model_params = model_result[possible_answer_func_name]
     for param in required_params:
         if param not in model_params:
-            return {
-                "id": case_id,
-                "valid": False,
-                "error": [f"Missing required parameter: {repr(param)}."],
-                "error_type": "simple_function_checker:missing_required",
-                "model_result_decoded": decoded_output,
+            return (EvaluationError.MISSING_REQUIRED_PARAM, {
+                "missing_param": param,
+                "required_params": required_params,
+                "decoded_output": decoded_output,
                 "possible_answer": possible_answer,
-            }
+            })
         
     possible_answer_params = possible_answer[possible_answer_func_name]
     # print("model_params:", model_params)
@@ -275,24 +269,21 @@ def evaluate_json(
         if param not in possible_answer_params:
             print("possible_answer keys:", possible_answer.keys())
             print("param: ", param)
-            return {
-                "id": case_id,
-                "valid": False,
-                "error": [f"Unexpected parameter: {repr(param)}."],
-                "error_type": "simple_function_checker:unexpected_param",
-                "model_result_decoded": decoded_output,
+            return (EvaluationError.UNEXPECTED_PARAM, {
+                "unexpected_param": param,
+                "expected_params": list(possible_answer_params.keys()),
+                "decoded_output": decoded_output,
                 "possible_answer": possible_answer,
-            }
+            })
         # Check if the value is within the possible answers using recursive matching
         if not recursive_match(value, possible_answer_params[param]):
-            return {
-                "id": case_id,
-                "valid": False,
-                "error": [f"Invalid value for parameter {repr(param)}: {repr(value)}. Expected one of {possible_answer_params[param]}."],
-                "error_type": "value_error:others",
-                "model_result_decoded": decoded_output,
+            return (EvaluationError.INVALID_PARAM_VALUE, {
+                "param": param,
+                "actual_value": value,
+                "expected_values": possible_answer_params[param],
+                "decoded_output": decoded_output,
                 "possible_answer": possible_answer,
-            }
+            })
     return {
         "id": case_id,
         "valid": True,

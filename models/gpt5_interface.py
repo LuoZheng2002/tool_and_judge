@@ -24,7 +24,7 @@ from .base import (
 )
 
 from models.name_mapping import FunctionNameMapper
-from config import PostprocessError
+from config import EvaluationError
 
 
 class GPT5Interface(JudgeModelInterface, ToolModelInterface):
@@ -212,7 +212,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         self,
         raw_output: str,
         name_mapper: Optional['FunctionNameMapper'] = None
-    ) -> Union[List[Dict[str, Dict[str, Any]]], Tuple[PostprocessError, Dict[str, Any]]]:
+    ) -> Union[List[Dict[str, Dict[str, Any]]], Tuple[EvaluationError, Dict[str, Any]]]:
         """
         Postprocess raw output from GPT-5's structured response format.
 
@@ -222,7 +222,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
 
         Returns:
             On success: List of function calls
-            On error: Tuple of (PostprocessError, metadata dict with error details)
+            On error: Tuple of (EvaluationError, metadata dict with error details)
         """
         try:
             # Parse the JSON response
@@ -235,7 +235,7 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
             elif isinstance(response_data, dict) and "error" in response_data:
                 print("Error: Unreachable!")
                 exit(1)
-                # return (PostprocessError.MODEL_ERROR, {
+                # return (EvaluationError.MODEL_ERROR, {
                 #     "error_message": response_data['error'],
                 #     "raw_output": raw_output
                 # })
@@ -246,14 +246,14 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
             elif isinstance(response_data, dict) and "output_text" in response_data:
                 print("Error: Unreachable!")
                 exit(1)
-                # return (PostprocessError.TEXT_INSTEAD_OF_FUNCTION_CALLS, {
+                # return (EvaluationError.TEXT_INSTEAD_OF_FUNCTION_CALLS, {
                 #     "output_text": str(response_data['output_text'])[:200],
                 #     "raw_output": raw_output
                 # })
             else:
                 print("Error: Unreachable!")
                 exit(1)
-                # return (PostprocessError.UNEXPECTED_RESPONSE_FORMAT, {
+                # return (EvaluationError.UNEXPECTED_RESPONSE_FORMAT, {
                 #     "response_preview": json.dumps(response_data)[:200],
                 #     "raw_output": raw_output
                 # })
@@ -282,17 +282,17 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
             if extracted:
                 return extracted
             else:
-                return (PostprocessError.NO_FUNCTION_CALLS_FOUND, {
+                return (EvaluationError.NO_FUNCTION_CALLS_FOUND, {
                     "raw_output": raw_output
                 })
 
         except json.JSONDecodeError as e:
-            return (PostprocessError.JSON_DECODE_ERROR, {
+            return (EvaluationError.JSON_DECODE_ERROR, {
                 "error_message": str(e),
                 "raw_output": raw_output
             })
         except Exception as e:
-            return (PostprocessError.PARSING_ERROR, {
+            return (EvaluationError.PARSING_ERROR, {
                 "error_message": str(e),
                 "exception_type": type(e).__name__,
                 "raw_output": raw_output

@@ -20,7 +20,7 @@ import asyncio
 
 
 from models.name_mapping import FunctionNameMapper
-from config import PostprocessError
+from config import EvaluationError
 
 
 # =============================================================================
@@ -433,7 +433,7 @@ class ToolModelInterface(ModelInterface):
         self,
         raw_output: str,
         name_mapper: Optional['FunctionNameMapper'] = None
-    ) -> Union[List[Dict[str, Dict[str, Any]]], Tuple[PostprocessError, Dict[str, Any]]]:
+    ) -> Union[List[Dict[str, Dict[str, Any]]], Tuple[EvaluationError, Dict[str, Any]]]:
         """
         Postprocess raw model output to extract function calls.
 
@@ -457,7 +457,7 @@ class ToolModelInterface(ModelInterface):
                     },
                     ...
                 ]
-            On error: Tuple of (PostprocessError, metadata_dict) where metadata_dict
+            On error: Tuple of (EvaluationError, metadata_dict) where metadata_dict
                 contains error details (e.g., raw_output, error_message, exception
                 details, etc.)
 
@@ -477,7 +477,7 @@ class ToolModelInterface(ModelInterface):
             >>> isinstance(result, tuple)
             True
             >>> error, metadata = result
-            >>> error == PostprocessError.JSON_DECODE_ERROR
+            >>> error == EvaluationError.JSON_DECODE_ERROR
             True
             >>> 'raw_output' in metadata
             True

@@ -898,18 +898,32 @@ async def process_all_configs():
                 ground_truth = ground_truth_line["ground_truth"]
                 func_description = test_case['function']
 
-                evaluation_result = evaluate_json(id, inference_result, ground_truth, func_description)
-                evaluation_result["id"] = id
+                eval_result = evaluate_json(id, inference_result, ground_truth, func_description)
+
+                # Check if evaluation returned error or success
+                if isinstance(eval_result, tuple):
+                    # Evaluation error
+                    error, metadata = eval_result
+                    evaluation_entry = {
+                        "id": id,
+                        "valid": False,
+                        "error": error.value,
+                        "error_meta": metadata
+                    }
+                else:
+                    # Evaluation success
+                    assert isinstance(eval_result, dict)
+                    evaluation_entry = eval_result
             else:
-                # Invalid result: mark as invalid with error info
-                evaluation_result = {
+                # Invalid result from postprocess: pass through the error
+                evaluation_entry = {
                     "id": id,
                     "valid": False,
-                    "error": f"Postprocess error: {inference_line.get('error', 'unknown')}",
+                    "error": inference_line.get('error', 'unknown'),
                     "error_meta": inference_line.get("error_meta", {})
                 }
 
-            evaluation_results.append(evaluation_result)
+            evaluation_results.append(evaluation_entry)
 
             # Write batch results to file
             write_json_lines_to_file(evaluation_output_path, evaluation_results)

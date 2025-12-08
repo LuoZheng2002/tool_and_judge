@@ -96,11 +96,20 @@ class ToolErrorCategory(Enum):
     EXACTLY_SAME_MEANING = "exactly_same_meaning"
     OTHER_ERRORS = "other_errors"
 
-class PostprocessError(Enum):
-    """Error types that can occur during postprocess_tool_calls."""
+class EvaluationError(Enum):
+    """Error types that can occur during postprocess and evaluation."""
+    # Postprocess errors (from postprocess_tool_calls)
     NO_FUNCTION_CALLS_FOUND = "no_function_calls_found"  # Response parsed but no function calls extracted
     JSON_DECODE_ERROR = "json_decode_error"  # Failed to parse JSON output
     PARSING_ERROR = "parsing_error"  # General error during parsing
+
+    # Evaluation errors (from evaluate_json)
+    DECODER_FAILED = "decoder_failed"  # Decoded output is a string (decoder failed)
+    INVALID_ENTRY_COUNT = "invalid_entry_count"  # Expected exactly one AST entry
+    WRONG_FUNC_NAME = "wrong_func_name"  # Function name mismatch
+    MISSING_REQUIRED_PARAM = "missing_required_param"  # Missing required parameter
+    UNEXPECTED_PARAM = "unexpected_param"  # Unexpected parameter
+    INVALID_PARAM_VALUE = "invalid_param_value"  # Invalid parameter value
 
 
 # ============================================================================
