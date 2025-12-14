@@ -6,7 +6,7 @@
 # #SBATCH --partition=gpu                  # Partition/queue with GPU
 # #SBATCH --mail-type=BEGIN,END,FAIL
 # #SBATCH --mail-user=luozheng@usc.edu
-# #SBATCH --partition=gpuH200x8
+#SBATCH --partition=gpuH200x8
 #SBATCH --gres=gpu:4                     # Request 4 GPU
 #SBATCH --cpus-per-task=4                # CPU cores
 #SBATCH --mem=16G                        # RAM

@@ -5,18 +5,18 @@
 {"id": "multiple_4", "valid": true, "result": [{"kinematics.calculate_displacement": {"initial_speed": 20, "acceleration": 10, "time": 5, "rounding": 2}}]}
 {"id": "multiple_5", "valid": true, "result": [{"weather.get_by_coordinates_date": {"coordinates": [46.603354, 1.888334], "date": "2019-12-13"}}]}
 {"id": "multiple_6", "valid": true, "result": [{"capacitance_calculator.calculate": {"A": 10, "d": 0.01, "K": 1.0}}]}
-{"id": "multiple_7", "valid": true, "result": [{"wildlife_population.assess_growth": {"species": "deer", "location": "Washington state", "duration": 10}}, {"ecological_impact.analyze": {"species": "deer", "ecosystem": "forests", "location": "Washington state", "timeframe": 10}}]}
+{"id": "multiple_7", "valid": true, "result": [{"wildlife_population.assess_growth": {"species": "deer", "location": "Washington State", "duration": 10}}, {"ecological_impact.analyze": {"species": "deer", "ecosystem": "forests", "location": "Washington State", "timeframe": 10}}]}
 {"id": "multiple_8", "valid": true, "result": [{"realestate.find_properties": {"location": "San Diego, CA", "propertyType": "house", "bedrooms": 3, "budget": {"min": 300000, "max": 400000}}}]}
 {"id": "multiple_9", "valid": true, "result": [{"calculate_average": {"student_name": "John", "scores": {"Math": 90, "Science": 75, "History": 82, "Music": 89}}}]}
-{"id": "multiple_10", "valid": true, "result": [{"database.create_backup": {"db_name": "employee_database", "backup_location": "/backups/employee_database/personal_data_backup.sql", "timestamp": true}}]}
+{"id": "multiple_10", "valid": true, "result": [{"database.create_backup": {"db_name": "employee_db", "backup_location": "/backups/employee_db/personal_data_backup.sql", "timestamp": true}}]}
 {"id": "multiple_11", "valid": true, "result": [{"math_roots.quadratic": {"a": 5, "b": 20, "c": -25}}]}
 {"id": "multiple_12", "valid": true, "result": [{"corporate_finance.calculate_YOY_growth_rate": {"company_name": "Tech Inc", "year1": 2019, "year1_revenue": 1000000, "year2": 2020, "year2_revenue": 1200000}}]}
-{"id": "multiple_13", "valid": true, "result": [{"corporate_finance.revenue_forecast": {"company": "XYZ", "product": "A", "sales_units_increase_percentage": 10}}]}
+{"id": "multiple_13", "valid": true, "result": [{"corporate_finance.revenue_forecast": {"company": "Company XYZ", "product": "Product A", "sales_units_increase_percentage": 10}}]}
 {"id": "multiple_14", "valid": true, "result": [{"finance.property_depreciation": {"initial_cost": 200000, "depreciation_rate": 3, "years": 5, "monthly": false}}]}
 {"id": "multiple_15", "valid": true, "result": [{"solarFarm.potential": {"coordinates": [43.653225, -79.383186], "panelArea": 80000, "month": "December"}}]}
-{"id": "multiple_16", "valid": true, "result": [{"population_genetics.calculate_ne": {"species": "wild tiger", "generations": 100, "probability": 0.95}}]}
+{"id": "multiple_16", "valid": true, "result": [{"population_genetics.calculate_ne": {"species": "tiger", "generations": 100, "probability": 0.95}}]}
 {"id": "multiple_17", "valid": true, "result": [{"currency_conversion.get_rate": {"from_currency": "EUR", "to_currency": "USD", "date": "2022-01-01"}}]}
-{"id": "multiple_18", "valid": true, "result": [{"european_history.war_details": {"war": "Battle of Stalingrad"}}]}
+{"id": "multiple_18", "valid": true, "result": [{"european_history.war_details": {"war": "Battle of Stalingrad"}}, {"european_history.battle_details": {"battle": "Battle of Stalingrad"}}]}
 {"id": "multiple_19", "valid": true, "result": [{"religion_history.get_schisms": {"religion": "Christianity", "count": 3}}]}
 {"id": "multiple_20", "valid": true, "result": [{"sculpture_price.calculate": {"material": "marble", "size": 3, "complexity": "medium"}}]}
 {"id": "multiple_21", "valid": true, "result": [{"generate_sound_wave": {"frequency": 440, "duration": 5, "wave_type": "sine"}}]}
@@ -24,7 +24,7 @@
 {"id": "multiple_23", "valid": true, "result": [{"basketball.player_stats.get": {"player_name": "LeBron James", "stats_fields": ["points", "assists", "minutes"]}}]}
 {"id": "multiple_24", "valid": true, "result": [{"route_planner.calculate_route": {"start": "London", "destination": "Edinburgh", "method": "shortest"}}]}
 {"id": "multiple_25", "valid": true, "result": [{"video_games.store_price": {"game_title": "Assassin's Creed Valhalla", "platform": "PlayStation", "region": "United States"}}]}
-{"id": "multiple_26", "valid": true, "result": [{"game_rewards.get": {"game": "Fortnite", "platform": "PlayStation", "mission": "", "trophy": ""}}]}
+{"id": "multiple_26", "valid": true, "result": [{"game_missions.list": {"game": "Fortnite"}}]}
 {"id": "multiple_27", "valid": true, "result": [{"maps.shortest_path": {"start_location": "Paris, France", "end_location": "Rome, Italy", "mode": "transit"}}]}
 {"id": "multiple_28", "valid": true, "result": [{"solve.quadratic_equation": {"a": 2, "b": 3, "c": -4}}]}
 {"id": "multiple_29", "valid": true, "result": [{"functions.intersect": {"function1": "3x+2", "function2": "2x+3"}}]}
@@ -37,7 +37,7 @@
 {"id": "multiple_36", "valid": true, "result": [{"kinematics.calculate_speed_from_rest": {"distance": 20, "time": 4, "initial_speed": 0}}]}
 {"id": "multiple_37", "valid": true, "result": [{"kinematics.final_velocity": {"initial_velocity": 40, "time": 6, "acceleration": -9.81}}]}
 {"id": "multiple_38", "valid": true, "result": [{"library.search_book": {"book_name": "牧羊少年奇幻之旅", "city": "New York City", "availability": true, "genre": ""}}]}
-{"id": "multiple_39", "valid": true, "result": [{"ride_hailing.get_rides": {"source": "New York, NY", "destination": "Philadelphia, PA", "max_cost": 50}}]}
+{"id": "multiple_39", "valid": true, "result": [{"ride_hailing.get_rides": {"source": "New York", "destination": "Philadelphia", "max_cost": 50}}]}
 {"id": "multiple_40", "valid": true, "result": [{"electromagnetism.biot_savart_law": {"current": 12, "distance": 8, "mu0": 1.256e-06}}]}
 {"id": "multiple_41", "valid": true, "result": [{"magnetic_field.calculate": {"I": 10, "r": 0.01}}]}
 {"id": "multiple_42", "valid": true, "result": [{"calculate_final_temperature": {"quantity1": 2, "temperature1": 300, "quantity2": 3, "temperature2": 400}}]}
@@ -51,48 +51,48 @@
 {"id": "multiple_50", "valid": true, "result": [{"house_price_forecast": {"location": "New York", "months": 1, "features": []}}]}
 {"id": "multiple_51", "valid": true, "result": [{"dice_roll_probability": {"desired_sum": 7, "n_rolls": 2, "sides_per_die": 6}}]}
 {"id": "multiple_52", "valid": true, "result": [{"currency_conversion": {"amount": 100, "from_currency": "EUR", "to_currency": "USD"}}]}
-{"id": "multiple_53", "valid": true, "result": [{"linear_regression": {"independent_var": ["interest_rate", "unemployment_rate"], "dependent_var": "housing_price", "forecast_period": 5}}, {"random_forest_regression": {"independent_var": ["interest_rate", "unemployment_rate"], "dependent_var": "housing_price", "n_estimators": 200, "forecast_period": 5}}]}
-{"id": "multiple_54", "valid": true, "result": [{"corporate_finance.dividend_data": {"company": "Apple Inc.", "years": 5, "frequency": "quarterly"}}]}
+{"id": "multiple_53", "valid": true, "result": [{"linear_regression": {"independent_var": ["interest_rate", "unemployment_rate"], "dependent_var": "house_price", "forecast_period": 5}}, {"random_forest_regression": {"independent_var": ["interest_rate", "unemployment_rate"], "dependent_var": "house_price", "n_estimators": 200, "forecast_period": 5}}]}
+{"id": "multiple_54", "valid": true, "result": [{"corporate_finance.dividend_data": {"company": "Apple Inc.", "years": 5, "frequency": "annually"}}]}
 {"id": "multiple_55", "valid": true, "result": [{"stock_forecast": {"company": "Alphabet Inc.", "days": 3, "model": "regression"}}]}
 {"id": "multiple_56", "valid": true, "result": [{"avg_closing_price": {"company": "Apple", "days": 60, "data_source": "yahoo finance"}}]}
 {"id": "multiple_57", "valid": true, "result": [{"financial.compound_interest": {"principle": 1000, "rate": 0.05, "time": 10, "n": 4}}]}
 {"id": "multiple_58", "valid": true, "result": [{"lawyer.search": {"location": "Los Angeles, CA", "expertise": "Divorce"}}]}
 {"id": "multiple_59", "valid": true, "result": [{"lawyer_finder": {"location": "New York, NY", "specialization": ["criminal law"], "experience": 1}}]}
-{"id": "multiple_60", "valid": true, "result": [{"humidity_temperature_forecast": {"location": "New York City", "days": 7}}]}
+{"id": "multiple_60", "valid": true, "result": [{"humidity_temperature_forecast": {"location": "New York", "days": 7}}]}
 {"id": "multiple_61", "valid": true, "result": [{"landscape_architect.find_specialty": {"location": "Portland, OR", "specialization": "small-scale garden design", "years_experience": 5}}]}
 {"id": "multiple_62", "valid": true, "result": [{"nature_park.find_nearby": {"location": "Boston, MA", "features": ["Camping", "Scenic View"]}}]}
 {"id": "multiple_63", "valid": true, "result": [{"air_quality_forecast": {"location": "New York", "days": 7}}]}
-{"id": "multiple_64", "valid": true, "result": [{"uv_index.get_future": {"location": "Tokyo", "date": "06-01-2023"}}]}
+{"id": "multiple_64", "valid": true, "result": [{"uv_index.get_future": {"location": "Tokyo", "date": "06-02-2023"}}]}
 {"id": "multiple_65", "valid": true, "result": [{"geodistance.find": {"origin": "New York City", "destination": "Los Angeles", "unit": "miles"}}]}
-{"id": "multiple_66", "valid": true, "result": [{"traffic_estimate": {"start_location": "Las Vegas", "end_location": "Los Angeles", "time_period": "weekend"}}]}
+{"id": "multiple_66", "valid": true, "result": [{"traffic_estimate": {"start_location": "Las Vegas, NV", "end_location": "Los Angeles, CA", "time_period": "weekend"}}]}
 {"id": "multiple_67", "valid": true, "result": [{"translate": {"text": "Hello, how are you?", "source_language": "English", "target_language": "French"}}]}
-{"id": "multiple_68", "valid": true, "result": [{"library.search_books": {"location": "New York Public Library", "genre": "historical fiction", "title": ""}}]}
+{"id": "multiple_68", "valid": true, "result": [{"library.search_books": {"location": "New York Public Library", "genre": "历史小说", "title": ""}}]}
 {"id": "multiple_69", "valid": true, "result": [{"five_factor_model.analyse": {"talkative": true, "nervous": true, "artistic_interests": false, "lazy": true, "forgiving": true}}]}
 {"id": "multiple_70", "valid": true, "result": [{"european_history.get_monarchs": {"country": "France", "century": 18}}]}
 {"id": "multiple_71", "valid": true, "result": [{"get_population": {"year": 1954, "category": "veterans"}}]}
 {"id": "multiple_72", "valid": true, "result": [{"us_history.population_by_state_year": {"state": "California", "year": 1970}}]}
 {"id": "multiple_73", "valid": true, "result": [{"religion.get_origin": {"religion": "Buddhism"}}]}
-{"id": "multiple_74", "valid": true, "result": [{"art_auction.fetch_artwork_price": {"artwork_name": "星夜", "artist": "梵高", "platform": "all"}}]}
-{"id": "multiple_75", "valid": true, "result": [{"paint_color.trends": {"room": "客厅", "period": "Monthly"}}]}
-{"id": "multiple_76", "valid": true, "result": [{"sculpture.create_custom": {"item": "马雕塑", "material": "Bronze", "size": 12}}, {"sculpture.create_custom": {"item": "马雕塑", "material": "Marble", "size": 12}}, {"sculpture.create_custom": {"item": "马雕塑", "material": "Terracotta", "size": 12}}, {"sculpture.create_custom": {"item": "马雕塑", "material": "Wood", "size": 12}}, {"sculpture.create_custom": {"item": "马雕塑", "material": "Stone", "size": 12}}]}
+{"id": "multiple_74", "valid": true, "result": [{"art_auction.fetch_artwork_price": {"artwork_name": "Starry Night", "artist": "Vincent van Gogh", "platform": "all"}}]}
+{"id": "multiple_75", "valid": true, "result": [{"paint_color.trends": {"room": "Living room", "period": "Monthly"}}]}
+{"id": "multiple_76", "valid": true, "result": [{"sculpture.create_custom": {"item": "马", "material": "Bronze", "size": 12}}]}
 {"id": "multiple_77", "valid": true, "result": [{"artwork_search.find": {"type": "sculpture", "location": "New York", "era": "modern"}}]}
 {"id": "multiple_78", "valid": true, "result": [{"museum_info": {"museum": "Natural History Museum", "city": "London", "features": ["timings", "exhibitions", "accessibility"]}}]}
 {"id": "multiple_79", "valid": true, "result": [{"exhibition_info": {"museum_name": "Museum of Modern Art, New York", "month": 1}}]}
-{"id": "multiple_80", "valid": true, "result": [{"music_shop.find_nearby": {"location": "Nashville, TN", "services": ["Violin Lessons"], "instruments": ["Guitars"]}}]}
+{"id": "multiple_80", "valid": true, "result": [{"music_shop.find_nearby": {"location": "Nashville, TN", "services": ["Guitar Lessons", "Violin Lessons"], "instruments": ["Guitars"]}}]}
 {"id": "multiple_81", "valid": true, "result": [{"concert.book_ticket": {"artist": "Eminem", "location": "New York City", "add_ons": ["Backstage Pass"]}}]}
 {"id": "multiple_82", "valid": true, "result": [{"music.generate": {"key": "C Major", "tempo": 120, "time_signature": "4/4"}}]}
 {"id": "multiple_83", "valid": true, "result": [{"player_stats.get_all_time_goals": {"player_name": "Lionel Messi", "team_name": "Barcelona", "competition": ""}}]}
 {"id": "multiple_84", "valid": true, "result": [{"getTopGoalScorers": {"competition": "UEFA Champions League", "team": "Barcelona", "number": 10}}]}
 {"id": "multiple_85", "valid": true, "result": [{"soccer_scores.get_scores": {"team": "Real Madrid", "league": "La Liga", "rounds": 5}}]}
-{"id": "multiple_86", "valid": true, "result": [{"BoardGameGeek.recommend": {"numPlayers": 2, "category": "strategy", "difficulty": "beginner"}}, {"BoardGameGeek.recommend": {"numPlayers": 2, "category": "strategy", "difficulty": "intermediate"}}]}
+{"id": "multiple_86", "valid": true, "result": [{"BoardGameGeek.recommend": {"numPlayers": 2, "category": "strategy", "difficulty": "beginner"}}]}
 {"id": "multiple_87", "valid": true, "result": [{"games.update.find": {"game": "Cyberpunk 2077", "platform": "Xbox", "region": "global"}}]}
 {"id": "multiple_88", "valid": true, "result": [{"video_games.get_player_count": {"game_title": "World of Warcraft", "year": 2020, "platform": "PC"}}]}
 {"id": "multiple_89", "valid": true, "result": [{"recipe_search": {"ingredients": ["chicken", "mushrooms"], "calories": 500, "meal": "lunch"}}]}
 {"id": "multiple_90", "valid": true, "result": [{"restaurant.find_group": {"location": "Seattle, WA", "cuisine": ["Seafood"], "group_size": 5}}]}
 {"id": "multiple_91", "valid": true, "result": [{"recipe.find": {"mainIngredient": "apple", "ingredientLimit": 4}}]}
 {"id": "multiple_92", "valid": true, "result": [{"walmart.vegan_products": {"location": "Denver, CO", "categories": ["vegan", "gluten-free"]}}]}
-{"id": "multiple_93", "valid": true, "result": [{"hotel.book": {"location": "New York Marriott", "roomType": "豪华客房", "nights": 2, "additional_services": ["breakfast"]}}]}
-{"id": "multiple_94", "valid": true, "result": [{"hotel_room_pricing.get": {"hotelName": "Hilton New York", "roomType": "Suite with a double bed", "nights": 3}}]}
+{"id": "multiple_93", "valid": true, "result": [{"hotel.book": {"location": "New York Marriott Marquis", "roomType": "豪华客房", "nights": 2, "additional_services": ["breakfast"]}}]}
+{"id": "multiple_94", "valid": true, "result": [{"hotel_room_pricing.get": {"hotelName": "Hilton New York", "roomType": "Suite with two beds", "nights": 3}}]}
 {"id": "multiple_95", "valid": true, "result": [{"currency_exchange.convert": {"amount": 200, "from_currency": "EUR", "to_currency": "USD", "live_conversion": true}}]}
 {"id": "multiple_96", "valid": true, "result": [{"solve_quadratic_equation": {"a": 2, "b": 6, "c": 5}}]}
 {"id": "multiple_97", "valid": true, "result": [{"geometry.area_circle": {"radius": 10, "units": "meters"}}]}
@@ -102,7 +102,7 @@
 {"id": "multiple_101", "valid": true, "result": [{"math.gcd": {"num1": 12, "num2": 18}}]}
 {"id": "multiple_102", "valid": true, "result": [{"calculate_displacement": {"initial_velocity": 10, "time": 5, "acceleration": 9.8}}]}
 {"id": "multiple_103", "valid": true, "result": [{"calculate_final_speed": {"initial_velocity": 0, "height": 100, "gravity": 9.8}}]}
-{"id": "multiple_104", "valid": true, "result": [{"get_shortest_driving_distance": {"origin": "New York City", "destination": "Washington, DC", "unit": "miles"}}]}
+{"id": "multiple_104", "valid": true, "result": [{"get_shortest_driving_distance": {"origin": "New York City, NY", "destination": "Washington, DC", "unit": "miles"}}]}
 {"id": "multiple_105", "valid": true, "result": [{"calculate_magnetic_field": {"current": 5, "radius": 4, "permeability": 0.01}}]}
 {"id": "multiple_106", "valid": true, "result": [{"calculate_electric_field_strength": {"charge": 0.01, "distance": 4, "medium": "vacuum"}}]}
 {"id": "multiple_107", "valid": true, "result": [{"calculate_density": {"mass": 45, "volume": 15, "unit": "kg/m^3"}}]}
@@ -113,16 +113,16 @@
 {"id": "multiple_112", "valid": true, "result": [{"forest_growth_forecast": {"location": "Yellowstone National Park", "years": 5, "include_human_impact": true}}]}
 {"id": "multiple_113", "valid": true, "result": [{"calculate_fitness": {"trait_values": [0.8, 0.7], "trait_contributions": [0.4, 0.6]}}]}
 {"id": "multiple_114", "valid": true, "result": [{"prediction.evolution": {"species": "Homo sapiens", "years": 50, "model": "Darwin"}}]}
-{"id": "multiple_115", "valid": true, "result": [{"find_restaurants": {"location": "Manhattan, New York", "food_type": "Thai", "number": 5, "dietary_requirements": ["vegetarian"]}}]}
+{"id": "multiple_115", "valid": true, "result": [{"find_restaurants": {"location": "Manhattan", "food_type": "Thai", "number": 5, "dietary_requirements": ["vegetarian"]}}]}
 {"id": "multiple_116", "valid": true, "result": [{"calculate_bmi": {"weight": 85, "height": 180, "unit": "metric"}}]}
 {"id": "multiple_117", "valid": true, "result": [{"calculate_BMI": {"weight_kg": 70, "height_m": 1.75}}]}
 {"id": "multiple_118", "valid": true, "result": [{"imdb.find_movies_by_actor": {"actor_name": "Leonardo DiCaprio", "year": 2010, "category": "all"}}]}
-{"id": "multiple_119", "valid": true, "result": [{"database.query": {"table": "users", "conditions": [{"field": "age", "operation": ">", "value": "25"}, {"field": "occupation", "operation": "=", "value": "工程师"}]}}]}
+{"id": "multiple_119", "valid": true, "result": [{"database.query": {"table": "用户表", "conditions": [{"field": "年龄", "operation": ">", "value": "25"}, {"field": "职业", "operation": "=", "value": "工程师"}]}}]}
 {"id": "multiple_120", "valid": true, "result": [{"light_travel_time": {"distance_in_light_years": 4, "speed_of_light": 299792458}}]}
 {"id": "multiple_121", "valid": true, "result": [{"geometry.area_triangle": {"base": 6, "height": 10, "unit": "square meters"}}]}
 {"id": "multiple_122", "valid": true, "result": [{"run_linear_regression": {"predictors": ["年龄", "收入", "教育程度"], "target": "购买金额", "standardize": true}}]}
-{"id": "multiple_123", "valid": true, "result": [{"calculate_probability": {"total_outcomes": 52, "favorable_outcomes": 4, "round_to": 4}}]}
-{"id": "multiple_124", "valid": true, "result": [{"probabilities.calculate_single": {"total_outcomes": 52, "event_outcomes": 4, "round": 4}}]}
+{"id": "multiple_123", "valid": true, "result": [{"calculate_probability": {"total_outcomes": 52, "favorable_outcomes": 4, "round_to": 2}}]}
+{"id": "multiple_124", "valid": true, "result": [{"probabilities.calculate_single": {"total_outcomes": 52, "event_outcomes": 4, "round": 2}}]}
 {"id": "multiple_125", "valid": true, "result": [{"run_two_sample_ttest": {"group1": [3, 4, 5, 6, 4], "group2": [7, 8, 9, 8, 7], "equal_variance": true}}]}
 {"id": "multiple_126", "valid": true, "result": [{"t_test": {"dataset_A": [12, 24, 36], "dataset_B": [15, 30, 45], "alpha": 0.05}}]}
 {"id": "multiple_127", "valid": true, "result": [{"finance.calculate_quarterly_dividend_per_share": {"total_payout": 50000000, "outstanding_shares": 100000000}}]}
@@ -130,71 +130,71 @@
 {"id": "multiple_129", "valid": true, "result": [{"compound_interest": {"principal": 10000, "annual_rate": 5, "compounding_freq": "monthly", "time_in_years": 5}}]}
 {"id": "multiple_130", "valid": true, "result": [{"calculate_cagr": {"initial_value": 2000, "final_value": 3000, "period_in_years": 4}}]}
 {"id": "multiple_131", "valid": true, "result": [{"market_performance.get_data": {"indexes": ["S&P 500", "Dow Jones"], "days": 5, "detailed": false}}]}
-{"id": "multiple_132", "valid": true, "result": [{"finance.calculate_future_value": {"initial_investment": 20000, "rate_of_return": 0.08, "years": 5, "contribution": 0}}]}
+{"id": "multiple_132", "valid": true, "result": [{"finance.calculate_future_value": {"initial_investment": 20000, "rate_of_return": 8, "years": 5, "contribution": 0}}]}
 {"id": "multiple_133", "valid": true, "result": [{"calculate_mutual_fund_balance": {"investment_amount": 50000, "annual_yield": 0.05, "years": 3}}]}
 {"id": "multiple_134", "valid": true, "result": [{"crime_record.get_record": {"case_number": "CA123456", "county": "San Diego County", "details": true}}]}
 {"id": "multiple_135", "valid": true, "result": [{"get_case_info": {"docket": "2022/AL2562", "court": "California", "info_type": "victim"}}]}
-{"id": "multiple_136", "valid": true, "result": [{"get_crime_rate": {"city": "San Francisco", "state": "CA", "type": "violent crime", "year": 2020}}]}
+{"id": "multiple_136", "valid": true, "result": [{"get_crime_rate": {"city": "San Francisco", "state": "California", "type": "violent crime", "year": 2020}}]}
 {"id": "multiple_137", "valid": true, "result": [{"lawsuit_search": {"company": "Google", "start_date": "2021-01-01", "location": "California", "status": "ongoing"}}]}
 {"id": "multiple_138", "valid": true, "result": [{"legal_case.fetch": {"case_id": "R v Adams", "details": true}}]}
-{"id": "multiple_139", "valid": true, "result": [{"lawsuit_details.find": {"company_name": "Apple Inc.", "year": 2010, "case_type": "all"}}]}
-{"id": "multiple_140", "valid": true, "result": [{"lawsuits_search": {"company_name": "Google LLC", "location": "California", "year": 2020, "case_type": "all"}}]}
+{"id": "multiple_139", "valid": true, "result": [{"lawsuit_details.find": {"company_name": "Apple Inc.", "year": 2010, "case_type": "Patent"}}]}
+{"id": "multiple_140", "valid": true, "result": [{"lawsuits_search": {"company_name": "Google", "location": "California", "year": 2020, "case_type": "all"}}]}
 {"id": "multiple_141", "valid": true, "result": [{"lawsuit.check_case": {"case_id": 1234, "closed_status": true}}]}
 {"id": "multiple_142", "valid": true, "result": [{"weather.humidity_forecast": {"location": "Miami, Florida", "days": 7, "min_humidity": 0}}]}
 {"id": "multiple_143", "valid": true, "result": [{"calculate_slope_gradient": {"point1": [40.7128, -74.006], "point2": [34.0522, -118.2437], "unit": "degree"}}]}
 {"id": "multiple_144", "valid": true, "result": [{"air_quality": {"location": "London", "date": "2022-08-16"}}]}
 {"id": "multiple_145", "valid": true, "result": [{"calculate_emissions": {"distance": 12000, "fuel_type": "gasoline", "fuel_efficiency": 20, "efficiency_reduction": 0}}]}
 {"id": "multiple_146", "valid": true, "result": [{"restaurant.find_nearby": {"location": "Seattle, WA", "cuisine": "Chinese", "max_distance": 10}}]}
-{"id": "multiple_147", "valid": true, "result": [{"map_service.get_directions": {"start": "New York", "end": "Los Angeles", "avoid": ["highways", "tolls"]}}]}
+{"id": "multiple_147", "valid": true, "result": [{"map_service.get_directions": {"start": "New York, NY", "end": "Los Angeles, CA", "avoid": ["highways", "tolls"]}}]}
 {"id": "multiple_148", "valid": true, "result": [{"get_stock_info": {"company_name": "Apple Inc.", "detail_level": "detailed", "market": "NASDAQ"}}]}
-{"id": "multiple_149", "valid": true, "result": [{"sentiment_analysis": {"text": "I love the food here! It's always fresh and delicious.", "language": "en"}}]}
+{"id": "multiple_149", "valid": true, "result": [{"sentiment_analysis": {"text": "I love the food here! It's always fresh and delicious.", "language": "English"}}]}
 {"id": "multiple_150", "valid": true, "result": [{"calculate_neuronal_activity": {"input_synaptic_rate": 200, "weight": 0.5, "decay_rate": 0.1}}]}
 {"id": "multiple_151", "valid": true, "result": [{"social_media_analytics.most_followed": {"topic": "psychology", "sub_topics": ["behavior", "group dynamics"], "region": "global"}}]}
 {"id": "multiple_152", "valid": true, "result": [{"history.get_key_events": {"country": "Germany", "start_year": 1871, "end_year": 1945, "event_type": ["War"]}}]}
-{"id": "multiple_153", "valid": true, "result": [{"get_event_date": {"event": "Treaty of Lisbon", "location": "Lisbon, Portugal"}}]}
+{"id": "multiple_153", "valid": true, "result": [{"get_event_date": {"event": "Treaty of Lisbon signing", "location": "Lisbon"}}]}
 {"id": "multiple_154", "valid": true, "result": [{"US_president.in_year": {"year": 1861, "full_name": true}}]}
 {"id": "multiple_155", "valid": true, "result": [{"get_discoverer": {"discovery": "neutron", "detail": true}}]}
-{"id": "multiple_156", "valid": true, "result": [{"historical_contrib.get_contrib": {"scientist": "Albert Einstein", "date": "1915-03-17", "category": "All"}}]}
-{"id": "multiple_157", "valid": true, "result": [{"get_earliest_reference": {"name": "Jesus Christ", "source": "historical records"}}]}
+{"id": "multiple_156", "valid": true, "result": [{"historical_contrib.get_contrib": {"scientist": "Albert Einstein", "date": "1915-03-17", "category": "All fields"}}]}
+{"id": "multiple_157", "valid": true, "result": [{"get_earliest_reference": {"name": "耶稣基督", "source": "historical records"}}]}
 {"id": "multiple_158", "valid": true, "result": [{"religious_history.get_papal_biography": {"papal_name": "Innocent III", "include_contributions": true}}]}
 {"id": "multiple_159", "valid": true, "result": [{"calculate_paint_needed": {"coverage_rate": 400, "length": 30, "height": 12}}]}
-{"id": "multiple_160", "valid": true, "result": [{"get_sculpture_info": {"artist_name": "詹姆斯·普伦萨", "detail": true}}]}
+{"id": "multiple_160", "valid": true, "result": [{"get_sculpture_info": {"artist_name": "James Prensa", "detail": true}}]}
 {"id": "multiple_161", "valid": true, "result": [{"find_exhibition": {"location": "New York, NY", "art_form": "modern sculpture", "month": "January 2026", "user_ratings": "high"}}]}
 {"id": "multiple_162", "valid": true, "result": [{"analyze_structure": {"building_id": "B1004", "floors": [2, 3, 4], "mode": "dynamic"}}]}
 {"id": "multiple_163", "valid": true, "result": [{"metropolitan_museum.get_top_artworks": {"number": 5, "sort_by": "popularity"}}]}
-{"id": "multiple_164", "valid": true, "result": [{"instrument_price.get": {"brand": "Fender", "model": "American Professional II Stratocaster", "finish": "紫檀木装饰款"}}]}
-{"id": "multiple_165", "valid": true, "result": [{"guitar_price.find": {"model": "Gibson Les Paul", "condition": "Excellent", "location": "Chicago area"}}]}
+{"id": "multiple_164", "valid": true, "result": [{"instrument_price.get": {"brand": "Fender", "model": "American Professional II Stratocaster", "finish": "Rosewood decorative"}}]}
+{"id": "multiple_165", "valid": true, "result": [{"guitar_price.find": {"model": "Gibson Les Paul", "condition": "Excellent", "location": "Chicago, IL"}}]}
 {"id": "multiple_166", "valid": true, "result": [{"concert.search": {"genre": "classical", "location": "Los Angeles", "date": "this weekend", "price_range": "cheap"}}]}
 {"id": "multiple_167", "valid": true, "result": [{"music_generator.generate_melody": {"key": "C", "start_note": "C4", "length": 16, "tempo": 120}}]}
 {"id": "multiple_168", "valid": true, "result": [{"get_song_lyrics": {"song_title": "Bohemian Rhapsody", "artist_name": "Queen", "lang": "English"}}]}
 {"id": "multiple_169", "valid": true, "result": [{"musical_scale": {"key": "C#", "scale_type": "major"}}]}
 {"id": "multiple_170", "valid": true, "result": [{"soccer_stat.get_player_stats": {"player_name": "Cristiano Ronaldo", "season": "2019-2020", "league": "all"}}]}
-{"id": "multiple_171", "valid": true, "result": [{"game_result.get_winner": {"teams": ["Los Angeles Lakers", "Los Angeles Clippers"], "date": "2021-01-28", "venue": ""}}]}
-{"id": "multiple_172", "valid": true, "result": [{"sports_db.find_athlete": {"name": "LeBron James", "team": "Los Angeles Lakers", "sport": "Basketball"}}]}
-{"id": "multiple_173", "valid": true, "result": [{"get_defense_ranking": {"season": 2021, "top": 1}}]}
+{"id": "multiple_171", "valid": true, "result": [{"game_result.get_winner": {"teams": ["Lakers", "Clippers"], "date": "2021-01-28", "venue": ""}}]}
+{"id": "multiple_172", "valid": true, "result": [{"sports_db.find_athlete": {"name": "LeBron James", "team": "", "sport": "Basketball"}}]}
+{"id": "multiple_173", "valid": true, "result": [{"get_defense_ranking": {"season": 2021, "top": 5}}]}
 {"id": "multiple_174", "valid": true, "result": [{"sports_ranking": {"team": "Manchester United", "league": "Premier League", "season": 2024}}]}
 {"id": "multiple_175", "valid": true, "result": [{"sports_ranking.get_top_player": {"sport": "Tennis", "gender": "women"}}]}
 {"id": "multiple_176", "valid": true, "result": [{"sports_team.get_schedule": {"team_name": "Manchester United", "num_of_games": 6, "league": "Premier League", "location": ""}}]}
 {"id": "multiple_177", "valid": true, "result": [{"board_game.chess.get_top_players": {"location": "New York City", "minimum_rating": 2300, "number_of_players": 10}}]}
-{"id": "multiple_178", "valid": true, "result": [{"find_card_in_deck": {"rank": "Queen", "suit": "Hearts", "deck": []}}]}
+{"id": "multiple_178", "valid": true, "result": [{"find_card_in_deck": {"rank": "Queen", "suit": "Hearts", "deck": [{"rank": "Ace", "suit": "Spades"}, {"rank": "Two", "suit": "Spades"}]}}]}
 {"id": "multiple_179", "valid": true, "result": [{"poker_probability.full_house": {"deck_size": 52, "hand_size": 5}}]}
-{"id": "multiple_180", "valid": false, "error": "no_function_calls_found", "error_meta": {"raw_output": "{\"output_text\": \"{\\\"game_stats_fetch_player_statistics\\\": {\\\"game\\\": \\\"Zelda\\\", \\\"username\\\": \\\"Sam\\\", \\\"platform\\\": \\\"Switch\\\"}}\", \"items\": [{\"type\": \"reasoning\", \"content\": \"\"}]}"}}
-{"id": "multiple_181", "valid": true, "result": [{"soccer.get_last_match": {"team_name": "Liverpool FC", "include_stats": true}}]}
+{"id": "multiple_180", "valid": true, "result": [{"game_stats.fetch_player_statistics": {"game": "Zelda", "username": "Sam", "platform": "Switch"}}]}
+{"id": "multiple_181", "valid": true, "result": [{"soccer.get_last_match": {"team_name": "Liverpool", "include_stats": true}}]}
 {"id": "multiple_182", "valid": true, "result": [{"multiplayer_game_finder": {"platform": "Windows 10", "rating": 4.6, "genre": "Action"}}]}
 {"id": "multiple_183", "valid": true, "result": [{"recipe_info.get_calories": {"website": "Foodnetwork.com", "recipe": "Beef Lasagna", "optional_meal_time": ""}}]}
-{"id": "multiple_184", "valid": true, "result": [{"recipe_search": {"dietary_restriction": "Vegetarian", "ingredients": ["pasta", "parmesan cheese", "cream", "garlic", "butter", "olive oil", "salt", "black pepper", "spinach (optional)", "peas (optional)"], "servings": 2}}]}
+{"id": "multiple_184", "valid": true, "result": [{"recipe_search": {"dietary_restriction": "Vegetarian", "ingredients": ["pasta", "cheese (cheddar or mozzarella)", "milk", "butter", "all-purpose flour", "garlic", "salt", "black pepper", "parmesan cheese (optional)", "spinach (optional)"], "servings": 2}}]}
 {"id": "multiple_185", "valid": true, "result": [{"restaurant_search.find_closest": {"location": "Boston, MA", "cuisine": "Sushi", "amenities": ["Patio"]}}]}
 {"id": "multiple_186", "valid": true, "result": [{"find_recipe": {"dietary_restrictions": "vegetarian", "recipe_type": "dessert", "time": 30}}]}
 {"id": "multiple_187", "valid": true, "result": [{"whole_foods.check_price": {"location": "Los Angeles, CA", "items": ["tomatoes", "lettuce"]}}]}
-{"id": "multiple_188", "valid": true, "result": [{"grocery_store.find_best": {"my_location": "Berkeley, CA", "rating": 4.5, "products": ["番茄", "宠物食品"]}}]}
+{"id": "multiple_188", "valid": true, "result": [{"grocery_store.find_best": {"my_location": "Berkeley, CA", "rating": 4.5, "products": ["tomatoes", "pet food"]}}]}
 {"id": "multiple_189", "valid": true, "result": [{"timezone.convert": {"time": "3pm", "from_timezone": "America/New_York", "to_timezone": "Europe/London"}}]}
 {"id": "multiple_190", "valid": true, "result": [{"book_hotel": {"hotel_name": "Hilton Chicago", "location": "Chicago", "room_type": "Single", "start_date": "2022-12-10", "nights": 2}}]}
-{"id": "multiple_191", "valid": true, "result": [{"book_hotel": {"hotel_name": "Paradise Hotel", "location": "Las Vegas, NV", "room_type": "奢华客房", "start_date": "05-12-2022", "stay_duration": 3, "view": "都市风景"}}]}
+{"id": "multiple_191", "valid": true, "result": [{"book_hotel": {"hotel_name": "Las Vegas Paradise Hotel", "location": "Las Vegas", "room_type": "Luxurious room", "start_date": "05-12-2022", "stay_duration": 3, "view": "City view"}}]}
 {"id": "multiple_192", "valid": true, "result": [{"currency_conversion.convert": {"amount": 150, "from_currency": "EUR", "to_currency": "CAD"}}]}
-{"id": "multiple_193", "valid": true, "result": [{"maps.get_distance_duration": {"start_location": "Eiffel Tower, Paris", "end_location": "Louvre Museum, Paris", "traffic": true}}]}
+{"id": "multiple_193", "valid": true, "result": [{"maps.get_distance_duration": {"start_location": "埃菲尔铁塔", "end_location": "卢浮宫", "traffic": true}}]}
 {"id": "multiple_194", "valid": true, "result": [{"get_museum_hours": {"museum_name": "The Metropolitan Museum of Art", "day": "Saturday"}}]}
 {"id": "multiple_195", "valid": true, "result": [{"calc_heat_capacity": {"temp": 298, "volume": 10, "gas": "air"}}]}
-{"id": "multiple_196", "valid": true, "result": [{"cellbio.get_proteins": {"cell_compartment": "plasma membrane", "include_description": false}}]}
+{"id": "multiple_196", "valid": true, "result": [{"cellbio.get_proteins": {"cell_compartment": "plasma membrane", "include_description": true}}]}
 {"id": "multiple_197", "valid": true, "result": [{"mutation_type.find": {"snp_id": "rs6034464", "species": "Homo sapiens"}}]}
 {"id": "multiple_198", "valid": true, "result": [{"calculate_genotype_frequency": {"allele_frequency": 0.3, "genotype": "AA"}}]}
-{"id": "multiple_199", "valid": true, "result": [{"forest_growth_forecast": {"location": "黄石公园", "years": 5, "include_human_impact": true}}]}
+{"id": "multiple_199", "valid": true, "result": [{"forest_growth_forecast": {"location": "Yellowstone National Park", "years": 5, "include_human_impact": true}}]}

@@ -1,0 +1,178 @@
+Loading configs from: tool_config_slurm2.py
+Processing config: ToolConfig(model=<LocalModel.QWEN3_NEXT_80B_A3B: 'Qwen/Qwen3-Next-80B-A3B-Instruct'>, translate_mode=NotTranslated(), add_noise_mode=<AddNoiseMode.NO_NOISE: 1>)
+Skipping question translation (pre-translate not enabled)
+File tool/result/inference_raw/Qwen-Qwen3-Next-80B-A3B-Instruct/_en_na_nopretrans_nonoise_noprompt.json not found. It will be created.
+Entering inference phase...
+
+Submitting 200 requests concurrently...
+Creating backend...
+Creating new backend [experiment]: vllm:Qwen/Qwen3-Next-80B-A3B-Instruct:4
+Loading tokenizer for: Qwen/Qwen3-Next-80B-A3B-Instruct
+INFO 12-08 03:44:06 [importing.py:53] Triton module has been replaced with a placeholder.
+INFO 12-08 03:44:07 [__init__.py:239] Automatically detected platform cuda.
+Initializing vLLM backend with tensor parallel size 4...
+INFO 12-08 03:44:25 [config.py:717] This model supports multiple tasks: {'classify', 'embed', 'reward', 'generate', 'score'}. Defaulting to 'generate'.
+INFO 12-08 03:44:25 [config.py:1770] Defaulting to use mp for distributed inference
+INFO 12-08 03:44:25 [config.py:2003] Chunked prefill is enabled with max_num_batched_tokens=2048.
+INFO 12-08 03:44:27 [core.py:58] Initializing a V1 LLM engine (v0.8.5) with config: model='Qwen/Qwen3-Next-80B-A3B-Instruct', speculative_config=None, tokenizer='Qwen/Qwen3-Next-80B-A3B-Instruct', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, override_neuron_config=None, tokenizer_revision=None, trust_remote_code=True, dtype=torch.bfloat16, max_seq_len=2000, download_dir=None, load_format=LoadFormat.AUTO, tensor_parallel_size=4, pipeline_parallel_size=1, disable_custom_all_reduce=False, quantization=None, enforce_eager=False, kv_cache_dtype=auto,  device_config=cuda, decoding_config=DecodingConfig(guided_decoding_backend='auto', reasoning_backend=None), observability_config=ObservabilityConfig(show_hidden_metrics=False, otlp_traces_endpoint=None, collect_model_forward_time=False, collect_model_execute_time=False), seed=None, served_model_name=Qwen/Qwen3-Next-80B-A3B-Instruct, num_scheduler_steps=1, multi_step_stream_outputs=True, enable_prefix_caching=True, chunked_prefill_enabled=True, use_async_output_proc=True, disable_mm_preprocessor_cache=False, mm_processor_kwargs=None, pooler_config=None, compilation_config={"level":3,"custom_ops":["none"],"splitting_ops":["vllm.unified_attention","vllm.unified_attention_with_output"],"use_inductor":true,"compile_sizes":[],"use_cudagraph":true,"cudagraph_num_of_warmups":1,"cudagraph_capture_sizes":[512,504,496,488,480,472,464,456,448,440,432,424,416,408,400,392,384,376,368,360,352,344,336,328,320,312,304,296,288,280,272,264,256,248,240,232,224,216,208,200,192,184,176,168,160,152,144,136,128,120,112,104,96,88,80,72,64,56,48,40,32,24,16,8,4,2,1],"max_capture_size":512}
+WARNING 12-08 03:44:27 [multiproc_worker_utils.py:306] Reducing Torch parallelism from 4 threads to 1 to avoid unnecessary CPU contention. Set OMP_NUM_THREADS in the external environment to tune this value as needed.
+INFO 12-08 03:44:27 [shm_broadcast.py:266] vLLM message queue communication handle: Handle(local_reader_ranks=[0, 1, 2, 3], buffer_handle=(4, 10485760, 10, 'psm_7bb30613'), local_subscribe_addr='ipc:///tmp/c734a3ee-de9f-4ca2-aba8-6f75511d4ec3', remote_subscribe_addr=None, remote_addr_ipv6=False)
+WARNING 12-08 03:44:30 [utils.py:2522] Methods determine_num_available_blocks,device_config,get_cache_block_size_bytes,initialize_cache not implemented in <vllm.v1.worker.gpu_worker.Worker object at 0x7f2f70936570>
+WARNING 12-08 03:44:30 [utils.py:2522] Methods determine_num_available_blocks,device_config,get_cache_block_size_bytes,initialize_cache not implemented in <vllm.v1.worker.gpu_worker.Worker object at 0x7f2f70936b40>
+WARNING 12-08 03:44:30 [utils.py:2522] Methods determine_num_available_blocks,device_config,get_cache_block_size_bytes,initialize_cache not implemented in <vllm.v1.worker.gpu_worker.Worker object at 0x7f2fa7e0dcd0>
+WARNING 12-08 03:44:30 [utils.py:2522] Methods determine_num_available_blocks,device_config,get_cache_block_size_bytes,initialize_cache not implemented in <vllm.v1.worker.gpu_worker.Worker object at 0x7f2f70937740>
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m INFO 12-08 03:44:30 [shm_broadcast.py:266] vLLM message queue communication handle: Handle(local_reader_ranks=[0], buffer_handle=(1, 10485760, 10, 'psm_2bd30a40'), local_subscribe_addr='ipc:///tmp/d8974e6b-155a-4100-82a3-55ece7f5ff04', remote_subscribe_addr=None, remote_addr_ipv6=False)
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m INFO 12-08 03:44:30 [shm_broadcast.py:266] vLLM message queue communication handle: Handle(local_reader_ranks=[0], buffer_handle=(1, 10485760, 10, 'psm_6d95c4b1'), local_subscribe_addr='ipc:///tmp/52158ba8-6aa4-47c2-9c85-e0d3f9ec1657', remote_subscribe_addr=None, remote_addr_ipv6=False)
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m INFO 12-08 03:44:30 [shm_broadcast.py:266] vLLM message queue communication handle: Handle(local_reader_ranks=[0], buffer_handle=(1, 10485760, 10, 'psm_81a796ad'), local_subscribe_addr='ipc:///tmp/c1dd1db8-2fc3-429e-9a05-8b067c5771b9', remote_subscribe_addr=None, remote_addr_ipv6=False)
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m INFO 12-08 03:44:30 [shm_broadcast.py:266] vLLM message queue communication handle: Handle(local_reader_ranks=[0], buffer_handle=(1, 10485760, 10, 'psm_60361c2f'), local_subscribe_addr='ipc:///tmp/98256451-29c3-4d51-a048-3c97423d56bb', remote_subscribe_addr=None, remote_addr_ipv6=False)
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m INFO 12-08 03:44:32 [utils.py:1055] Found nccl from library libnccl.so.2
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m INFO 12-08 03:44:32 [utils.py:1055] Found nccl from library libnccl.so.2
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m INFO 12-08 03:44:32 [utils.py:1055] Found nccl from library libnccl.so.2
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m INFO 12-08 03:44:32 [utils.py:1055] Found nccl from library libnccl.so.2
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m INFO 12-08 03:44:32 [pynccl.py:69] vLLM is using nccl==2.21.5
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m INFO 12-08 03:44:32 [pynccl.py:69] vLLM is using nccl==2.21.5
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m INFO 12-08 03:44:32 [pynccl.py:69] vLLM is using nccl==2.21.5
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m INFO 12-08 03:44:32 [pynccl.py:69] vLLM is using nccl==2.21.5
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m INFO 12-08 03:44:37 [custom_all_reduce_utils.py:244] reading GPU P2P access cache from /u/zluo8/.cache/vllm/gpu_p2p_access_cache_for_0,1,2,3.json
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m INFO 12-08 03:44:37 [custom_all_reduce_utils.py:244] reading GPU P2P access cache from /u/zluo8/.cache/vllm/gpu_p2p_access_cache_for_0,1,2,3.json
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m INFO 12-08 03:44:37 [custom_all_reduce_utils.py:244] reading GPU P2P access cache from /u/zluo8/.cache/vllm/gpu_p2p_access_cache_for_0,1,2,3.json
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m INFO 12-08 03:44:37 [custom_all_reduce_utils.py:244] reading GPU P2P access cache from /u/zluo8/.cache/vllm/gpu_p2p_access_cache_for_0,1,2,3.json
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m INFO 12-08 03:44:37 [shm_broadcast.py:266] vLLM message queue communication handle: Handle(local_reader_ranks=[1, 2, 3], buffer_handle=(3, 4194304, 6, 'psm_bb348fad'), local_subscribe_addr='ipc:///tmp/90e34dae-0c16-4135-82e6-236091e6aeb0', remote_subscribe_addr=None, remote_addr_ipv6=False)
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m INFO 12-08 03:44:37 [parallel_state.py:1004] rank 3 in world size 4 is assigned as DP rank 0, PP rank 0, TP rank 3
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m INFO 12-08 03:44:37 [parallel_state.py:1004] rank 2 in world size 4 is assigned as DP rank 0, PP rank 0, TP rank 2
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m INFO 12-08 03:44:37 [parallel_state.py:1004] rank 1 in world size 4 is assigned as DP rank 0, PP rank 0, TP rank 1
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m INFO 12-08 03:44:37 [cuda.py:221] Using Flash Attention backend on V1 engine.
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m INFO 12-08 03:44:37 [cuda.py:221] Using Flash Attention backend on V1 engine.
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m INFO 12-08 03:44:37 [cuda.py:221] Using Flash Attention backend on V1 engine.
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m INFO 12-08 03:44:37 [parallel_state.py:1004] rank 0 in world size 4 is assigned as DP rank 0, PP rank 0, TP rank 0
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m WARNING 12-08 03:44:37 [topk_topp_sampler.py:69] FlashInfer is not available. Falling back to the PyTorch-native implementation of top-p & top-k sampling. For the best performance, please install FlashInfer.
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m WARNING 12-08 03:44:37 [topk_topp_sampler.py:69] FlashInfer is not available. Falling back to the PyTorch-native implementation of top-p & top-k sampling. For the best performance, please install FlashInfer.
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m WARNING 12-08 03:44:37 [topk_topp_sampler.py:69] FlashInfer is not available. Falling back to the PyTorch-native implementation of top-p & top-k sampling. For the best performance, please install FlashInfer.
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m INFO 12-08 03:44:37 [cuda.py:221] Using Flash Attention backend on V1 engine.
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m WARNING 12-08 03:44:37 [topk_topp_sampler.py:69] FlashInfer is not available. Falling back to the PyTorch-native implementation of top-p & top-k sampling. For the best performance, please install FlashInfer.
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m INFO 12-08 03:44:37 [gpu_model_runner.py:1329] Starting to load model Qwen/Qwen3-Next-80B-A3B-Instruct...
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m INFO 12-08 03:44:37 [gpu_model_runner.py:1329] Starting to load model Qwen/Qwen3-Next-80B-A3B-Instruct...
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m INFO 12-08 03:44:37 [gpu_model_runner.py:1329] Starting to load model Qwen/Qwen3-Next-80B-A3B-Instruct...
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] WorkerProc failed to start.
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] Traceback (most recent call last):
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 409, in worker_main
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     worker = WorkerProc(*args, **kwargs)
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 305, in __init__
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.worker.init_device()
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/worker/worker_base.py", line 604, in init_device
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.worker.init_device()  # type: ignore
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     ^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 147, in init_device
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     report_usage_stats(self.vllm_config)
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/utils.py", line 219, in report_usage_stats
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     get_architecture_class_name(vllm_config.model_config),
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 121, in get_architecture_class_name
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     return get_model_architecture(model_config)[1]
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 107, in get_model_architecture
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     architectures = resolve_transformers_arch(model_config, architectures)
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 75, in resolve_transformers_arch
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     raise ValueError(
+[1;36m(VllmWorker rank=0 pid=399853)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] ValueError: Qwen3NextForCausalLM has no vLLM implementation and the Transformers implementation is not compatible with vLLM. Try setting VLLM_USE_V1=0.
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] WorkerProc failed to start.
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] Traceback (most recent call last):
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 409, in worker_main
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     worker = WorkerProc(*args, **kwargs)
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 306, in __init__
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.worker.load_model()
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 162, in load_model
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.model_runner.load_model()
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 1332, in load_model
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.model = get_model(vllm_config=self.vllm_config)
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/__init__.py", line 14, in get_model
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     return loader.load_model(vllm_config=vllm_config)
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 452, in load_model
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     model = _initialize_model(vllm_config=vllm_config)
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 123, in _initialize_model
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     model_class, _ = get_model_architecture(model_config)
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 107, in get_model_architecture
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     architectures = resolve_transformers_arch(model_config, architectures)
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 75, in resolve_transformers_arch
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     raise ValueError(
+[1;36m(VllmWorker rank=2 pid=399855)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] ValueError: Qwen3NextForCausalLM has no vLLM implementation and the Transformers implementation is not compatible with vLLM. Try setting VLLM_USE_V1=0.
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] WorkerProc failed to start.
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] Traceback (most recent call last):
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 409, in worker_main
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     worker = WorkerProc(*args, **kwargs)
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 306, in __init__
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.worker.load_model()
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 162, in load_model
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.model_runner.load_model()
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 1332, in load_model
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.model = get_model(vllm_config=self.vllm_config)
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/__init__.py", line 14, in get_model
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     return loader.load_model(vllm_config=vllm_config)
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 452, in load_model
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     model = _initialize_model(vllm_config=vllm_config)
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 123, in _initialize_model
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     model_class, _ = get_model_architecture(model_config)
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 107, in get_model_architecture
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     architectures = resolve_transformers_arch(model_config, architectures)
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 75, in resolve_transformers_arch
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     raise ValueError(
+[1;36m(VllmWorker rank=1 pid=399854)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] ValueError: Qwen3NextForCausalLM has no vLLM implementation and the Transformers implementation is not compatible with vLLM. Try setting VLLM_USE_V1=0.
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] WorkerProc failed to start.
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] Traceback (most recent call last):
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 409, in worker_main
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     worker = WorkerProc(*args, **kwargs)
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 306, in __init__
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.worker.load_model()
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_worker.py", line 162, in load_model
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.model_runner.load_model()
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/worker/gpu_model_runner.py", line 1332, in load_model
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     self.model = get_model(vllm_config=self.vllm_config)
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/__init__.py", line 14, in get_model
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     return loader.load_model(vllm_config=vllm_config)
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 452, in load_model
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     model = _initialize_model(vllm_config=vllm_config)
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/loader.py", line 123, in _initialize_model
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     model_class, _ = get_model_architecture(model_config)
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 107, in get_model_architecture
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     architectures = resolve_transformers_arch(model_config, architectures)
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/model_executor/model_loader/utils.py", line 75, in resolve_transformers_arch
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435]     raise ValueError(
+[1;36m(VllmWorker rank=3 pid=399856)[0;0m ERROR 12-08 03:44:37 [multiproc_executor.py:435] ValueError: Qwen3NextForCausalLM has no vLLM implementation and the Transformers implementation is not compatible with vLLM. Try setting VLLM_USE_V1=0.
+ERROR 12-08 03:44:37 [core.py:396] EngineCore failed to start.
+ERROR 12-08 03:44:37 [core.py:396] Traceback (most recent call last):
+ERROR 12-08 03:44:37 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 387, in run_engine_core
+ERROR 12-08 03:44:37 [core.py:396]     engine_core = EngineCoreProc(*args, **kwargs)
+ERROR 12-08 03:44:37 [core.py:396]                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-08 03:44:37 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 329, in __init__
+ERROR 12-08 03:44:37 [core.py:396]     super().__init__(vllm_config, executor_class, log_stats,
+ERROR 12-08 03:44:37 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/engine/core.py", line 64, in __init__
+ERROR 12-08 03:44:37 [core.py:396]     self.model_executor = executor_class(vllm_config)
+ERROR 12-08 03:44:37 [core.py:396]                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-08 03:44:37 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/executor/executor_base.py", line 52, in __init__
+ERROR 12-08 03:44:37 [core.py:396]     self._init_executor()
+ERROR 12-08 03:44:37 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 91, in _init_executor
+ERROR 12-08 03:44:37 [core.py:396]     self.workers = WorkerProc.wait_for_ready(unready_workers)
+ERROR 12-08 03:44:37 [core.py:396]                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ERROR 12-08 03:44:37 [core.py:396]   File "/work/nvme/bfdz/zluo8/translate/.venv/lib/python3.12/site-packages/vllm/v1/executor/multiproc_executor.py", line 370, in wait_for_ready
+ERROR 12-08 03:44:37 [core.py:396]     raise e from None
+ERROR 12-08 03:44:37 [core.py:396] Exception: WorkerProc initialization failed due to an exception in a background process. See stack trace for root cause.
