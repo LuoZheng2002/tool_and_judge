@@ -127,13 +127,14 @@ class GPT5Interface(JudgeModelInterface, ToolModelInterface):
         api_params = {
             "input": input_messages,
             "model": self.model_variant,
-            "store": False,
+            # "store": False,
         }
 
         # Add reasoning parameters for GPT-5
-        if "gpt-5" in self.model_variant:
-            api_params["reasoning"] = {"summary": "auto"}
-            api_params["include"] = ["reasoning.encrypted_content"]
+        # if "gpt-5" in self.model_variant:
+        #     api_params["reasoning"] = {"summary": "auto"}
+        #     api_params["include"] = ["reasoning.encrypted_content"]
+        print("function called")
 
         # Add tools if provided
         if tools:
